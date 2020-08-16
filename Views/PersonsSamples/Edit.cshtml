@@ -1,0 +1,112 @@
+﻿@model USF_Health_MVC_EF.Models.IndividualSample
+
+@{
+    ViewData["Title"] = "Edit";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    List<SpIndividualsWithStats> spIndividualsWithStats = ViewData["spIndividualsWithStats"] as List<SpIndividualsWithStats>;
+   
+}
+
+<div class="div_breadcrumb">
+    Persons&nbsp;&nbsp;&nbsp;>&nbsp;&nbsp;&nbsp;Samples&nbsp;&nbsp;&nbsp;>&nbsp;&nbsp;&nbsp;Edit
+</div>
+
+
+
+<div class="div_form">
+    <form asp-action="Edit">
+        <input type="hidden" asp-for="is_id" />
+        <input type="hidden" asp-for="is_date_created" />
+        <input type="hidden" asp-for="is_time_created" />
+        <input type="hidden" asp-for="is_time_collected" />
+        <input type="hidden" asp-for="is_time_registered" />
+
+        <div class="div_text">
+            Barcode
+        </div>
+        <div class="div_input">
+            <input asp-for="is_barcode" disabled />
+        </div>
+
+        <div class="div_text">
+            Date created
+        </div>
+        <div class="div_input">
+            <input asp-for="is_date_created" disabled />
+        </div>
+
+        <div class="div_text">
+            Date collected
+        </div>
+        <div class="div_input">
+            <input asp-for="is_date_collected" required placeholder="Date collected" />
+        </div>
+        <div class="div_span">
+            <span asp-validation-for="is_date_collected"></span>
+        </div>
+
+        <div class="div_text">
+            Date registered
+        </div>
+        <div class="div_input">
+            <input asp-for="is_date_registered" placeholder="Date registered" />
+        </div>
+        <div class="div_span">
+            <span asp-validation-for="is_date_registered"></span>
+        </div>
+
+        <div class="div_text">
+            Well number
+        </div>
+        <div class="div_input">
+            <input asp-for="is_well_number" placeholder="Well number" />
+        </div>
+        <div class="div_span">
+            <span asp-validation-for="is_well_number"></span>
+        </div>
+
+        <div class="div_text">
+            Study ID
+        </div>
+        <div class="div_dropdownlist">
+            <select asp-for="ind_id">
+                <option value="" disabled selected>--Select study id--</option>
+                @foreach (var item in spIndividualsWithStats)
+                {
+                    <option value="@item.ind_id">@item.std_name</option>
+                }
+            </select>
+        </div>
+        <div class="div_span">
+            <span asp-validation-for="ind_id"></span>
+        </div>
+
+        <div class="div_text">
+            Sample details
+        </div>
+        <div class="div_textArea">
+            <textarea asp-for="is_details" class="textArea" rows="5" cols="36" autofocus placeholder="Enter sample details"></textarea>
+        </div>
+
+
+        <div class="div_button">
+            <input type="submit" value="Save" onsubmit="this.disabled=true;this.value='Submitting...'; this.form.submit();" />
+        </div>
+    </form>
+</div>
+<div class="div_mainlink">
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+
+<script type="text/javascript">
+
+    $('form').submit(function () {
+        $(this).find('input[type=submit]').prop('disabled', true);
+        return true;
+    });
+
+</script>

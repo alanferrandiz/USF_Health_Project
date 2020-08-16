@@ -1,0 +1,124 @@
+﻿@model IEnumerable<USF_Health_MVC_EF.Models.SpIndividualsWithStats>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+}
+
+<div class="div_breadcrumb">
+    Persons&nbsp;&nbsp;&nbsp;>&nbsp;&nbsp;&nbsp;Individuals
+</div>
+
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        $('#example').DataTable({
+            columnDefs: [{
+                targets: [0],
+                orderData: [0, 1]
+            }, {
+                targets: [1],
+                orderData: [1, 0]
+            }, {
+                targets: [4],
+                orderData: [4, 0]
+            }]
+        });
+    });
+
+</script>
+
+<div class="div_mainlink">
+    <a asp-action="Create">Create New</a>
+</div>
+
+<div class="div_datatables">
+    <table id="example" class="display" style="width:100%">
+        <thead>
+            <tr>
+
+                <td>
+                    Individual ID
+                </td>
+                <td>
+                    First Name
+                </td>
+                <td>
+                    Last Name
+                </td>
+                <td>
+                    Gender
+                </td>
+                <td>
+                    Reference ID
+                </td>
+                <td>
+                    Study ID
+                </td>
+                <td>
+                    USF ID
+                </td>
+                <td>
+                    Email
+                </td>
+                <td>
+                    Phone
+                </td>
+                <td>
+                    Details
+                </td>
+                <td>
+                    Date Created
+                </td>
+                <td></td>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ind_id)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ind_first_name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ind_last_name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ind_gender)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ref_name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.std_name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ind_document)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ind_email)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ind_phone)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ind_details)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ind_date_created_text)
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.ind_id">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.ind_id">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.ind_id">Delete</a>
+                </td>
+            </tr>
+            }
+        </tbody>
+    </table>
+</div>

@@ -1,0 +1,41 @@
+﻿@model USF_Health_MVC_EF.Models.Pool
+
+@{
+    ViewData["Title"] = "Create";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+}
+
+<div class="div_breadcrumb">
+    Persons&nbsp;&nbsp;&nbsp;>&nbsp;&nbsp;&nbsp;Pools&nbsp;&nbsp;&nbsp;>&nbsp;&nbsp;&nbsp;Create New
+</div>
+    <div class="div_form">
+        <form asp-action="Create">
+
+            <div class="div_textArea">
+                <textarea asp-for="poo_details" class="textArea" rows="5" cols="36" placeholder="Enter pool details"></textarea>
+            </div>
+
+            <div class="div_button">
+                <input type="submit" id="btnSubmit" value="Create" onsubmit="this.disabled = true;this.value='Submitting...';this.form.submit();" />
+            </div>
+        </form>
+    </div>
+    
+    <div class="div_mainlink">
+        <a asp-action="Index">Back to List</a>
+    </div>
+
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+
+<script type="text/javascript">
+
+    $('form').submit(function () {
+        $(this).find('input[type=submit]').prop('disabled', true);
+        return true;
+    });
+
+</script>

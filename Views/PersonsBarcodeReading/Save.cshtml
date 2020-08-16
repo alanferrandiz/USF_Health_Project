@@ -1,0 +1,194 @@
+﻿@model USF_Health_MVC_EF.Models.SpIndividualsSamplesWithStats
+
+@{
+    ViewData["Title"] = "Save";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    SpStudies spStudies = new SpStudies();
+}
+
+<div class="div_breadcrumb">
+    Persons&nbsp;&nbsp;&nbsp;>&nbsp;&nbsp;&nbsp;Barcode Reading
+</div>
+
+<div class="div_form">
+    <form asp-action="Save" method="post">
+        <input type="hidden" asp-for="is_id" />
+        <input type="hidden" asp-for="is_time_created" />
+        <input type="hidden" asp-for="is_time_collected" />
+        <input type="hidden" asp-for="is_time_registered" />
+
+        <div class="div_labeltext">
+            <div class="div_label" style="float:left;">
+                Sample ID
+            </div>
+            <div class="div_text">
+                @Html.DisplayFor(model => model.is_id)
+            </div>
+        </div>
+
+
+        <div class="div_labeltext">
+            <div class="div_label" style="float:left;">
+                Sample Barcode
+            </div>
+            <div class="div_text">
+                @Html.DisplayFor(model => model.is_barcode)
+            </div>
+        </div>
+
+        <div class="div_labeltext">
+            <div class="div_label" style="float:left;">
+                Date created
+            </div>
+            <div class="div_text">
+                @Html.DisplayFor(model => model.is_date_created_text)
+            </div>
+        </div>
+
+        <div class="div_labeltext">
+            <div class="div_label" style="float:left;">
+                Date collected
+            </div>
+            <div class="div_text">
+                @Html.DisplayFor(model => model.is_date_collected_text)
+            </div>
+        </div>
+
+        @*<div class="div_labeltext">
+            <div class="div_label" style="float:left;">
+                Individual ID
+            </div>
+            <div class="div_text">
+                @Html.DisplayFor(model => model.ind_id)
+            </div>
+        </div>
+
+        <div class="div_labeltext">
+            <div class="div_label" style="float:left;">
+                First Name
+            </div>
+            <div class="div_text">
+                @Html.DisplayFor(model => model.ind_first_name)
+            </div>
+        </div>
+
+        <div class="div_labeltext">
+            <div class="div_label" style="float:left;">
+                Last Name
+            </div>
+            <div class="div_text">
+                @Html.DisplayFor(model => model.ind_last_name)
+            </div>
+        </div>*@
+        <div class="div_labeltext">
+            <div class="div_label" style="float:left;">
+                Pool ID
+            </div>
+            <div class="div_text">
+                @Html.DisplayFor(model => model.poo_id)
+            </div>
+        </div>
+
+
+        <div class="div_labeltext">
+            <div class="div_label" style="float:left;">
+                Reference ID
+            </div>
+            <div class="div_text">
+                @Html.DisplayFor(model => model.ref_name)
+            </div>
+        </div>
+
+
+        <div class="div_labeltext">
+            <div class="div_label" style="float:left;">
+                Study ID
+            </div>
+            <div class="div_text">
+                @Html.DisplayFor(model => model.std_name)
+            </div>
+        </div>
+
+        <div class="div_labeltext">
+            <div class="div_label" style="float:left;">
+                Gender
+            </div>
+            <div class="div_text">
+                @Html.DisplayFor(model => model.ind_gender)
+            </div>
+        </div>
+
+        @*<div class="div_labeltext">
+            <div class="div_label" style="float:left;">
+                Document
+            </div>
+            <div class="div_text">
+                @Html.DisplayFor(model => model.ind_document)
+            </div>
+        </div>*@
+
+
+
+        <div class="div_labeltext">
+            <div class="div_label" style="float:left;">
+                Sample Details
+            </div>
+            <div class="div_text">
+                @Html.DisplayFor(model => model.is_details)
+            </div>
+        </div>
+
+        <div class="div_labeltext">
+            <div class="div_label" style="float:left;">
+                Date registered
+            </div>
+            <div class="div_text" id="txt_is_date_registered_text">
+                @Html.DisplayFor(model => model.is_date_registered_text)
+            </div>
+        </div>
+
+        <div class="div_labeltext">
+            <div class="div_label" style="float:left;color:red;background-color:yellow;">
+                Status
+            </div>
+            <div class="div_text" id="txt_is_date_registered_text" style="color:red;background-color:yellow;font-weight:bold;">
+                <label id="lblStatus"></label>
+            </div>
+        </div>
+
+        <div class="div_button">
+            <input type="submit" value="Register Barcode" autofocus id="btnSubmit" asp-route-id="@Model.is_id" asp-route-barcode="@Model.is_barcode" onsubmit="this.disabled=true;this.value='Submitting...';this.form.submit();" />
+        </div>
+    </form>
+</div>
+<div class="div_mainlink">
+    <a asp-action="Index" id="lnkBack">Back to List</a>
+</div>
+
+<script type="text/javascript">
+
+    if (document.getElementById('txt_is_date_registered_text').innerHTML.trim() != '') {
+        document.getElementById('btnSubmit').hidden = true;
+        document.getElementById('lblStatus').textContent = "Registered"
+        $("#lnkBack").focus();
+    } else {
+        document.getElementById('btnSubmit').hidden = false;
+        document.getElementById('lblStatus').textContent = "NOT Registered"
+        $("#btnSubmit").focus();
+    }
+
+</script>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+
+
+<script type="text/javascript">
+
+    $('form').submit(function () {
+        $(this).find('input[type=submit]').prop('disabled', true);
+        return true;
+    });
+
+</script>

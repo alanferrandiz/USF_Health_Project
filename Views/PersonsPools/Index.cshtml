@@ -1,0 +1,201 @@
+﻿@model IEnumerable<USF_Health_MVC_EF.Models.SpPoolsWithStats>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="div_breadcrumb">
+    Persons&nbsp;&nbsp;&nbsp;>&nbsp;&nbsp;&nbsp;Pools
+</div>
+
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        $('#example').DataTable({
+            columnDefs: [{
+                targets: [0],
+                orderData: [0, 1]
+            }, {
+                targets: [1],
+                orderData: [1, 0]
+            }, {
+                targets: [4],
+                orderData: [4, 0]
+            }]
+        });
+    });
+
+</script>
+
+<div class="div_mainlink">
+    <a asp-action="Create">Create New</a>
+</div>
+
+<div class="div_datatables">
+    <table id="example" class="display" style="width:100%">
+        <thead>
+            <tr>
+                <td>
+                    Pool ID
+                </td>
+
+                <td>
+                    Date Created
+                </td>
+                <td>
+                    Results (P/N)
+                </td>
+                <td>
+                    CT Value
+                </td>
+                <td>
+                    Pool Details
+                </td>
+                <td>
+                    Barcodes
+                </td>
+                <td></td>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.poo_id, new { htmlAttributes = new { @id = "poo_id_" + item.poo_id } })
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.poo_date_created_text)
+                    </td>
+                    <td style="background-color:yellow;font-weight:bold;" id="is_pr_result_td_@item.poo_id" onkeydown="handle(event,'is_pr_result_td_@item.poo_id','is_pr_result_editor_@item.poo_id','is_pr_result_display_@item.poo_id','is_pr_result_txtEditor_@item.poo_id','is_pr_result_txtDisplay_@item.poo_id',@item.poo_id)" ondblclick="edit('is_pr_result_td_@item.poo_id','is_pr_result_editor_@item.poo_id','is_pr_result_display_@item.poo_id','is_pr_result_txtEditor_@item.poo_id','is_pr_result_txtDisplay_@item.poo_id',@item.poo_id)">
+                        <div id="is_pr_result_editor_@item.poo_id" style="display:none;">
+                            @Html.EditorFor(modelItem => item.pr_result, new { htmlAttributes = new { @class = "form-editor", @id = "is_pr_result_txtEditor_" + item.poo_id} })
+                        </div>
+                        <div id="is_pr_result_display_@item.poo_id">
+                            @Html.DisplayFor(modelItem => item.pr_result, new { htmlAttributes = new { @id = "is_pr_result_txtDisplay_" + item.poo_id } })
+                        </div>
+                    </td>
+                    <td style="background-color:yellow;font-weight:bold;" id="is_pr_ct_value_td_@item.poo_id" onkeydown="handle(event,'is_pr_ct_value_td_@item.poo_id','is_pr_ct_value_editor_@item.poo_id','is_pr_ct_value_display_@item.poo_id','is_pr_ct_value_txtEditor_@item.poo_id','is_pr_ct_value_txtDisplay_@item.poo_id',@item.poo_id)" ondblclick="edit('is_pr_ct_value_td_@item.poo_id','is_pr_ct_value_editor_@item.poo_id','is_pr_ct_value_display_@item.poo_id','is_pr_ct_value_txtEditor_@item.poo_id','is_pr_ct_value_txtDisplay_@item.poo_id',@item.poo_id)">
+                        <div id="is_pr_ct_value_editor_@item.poo_id" style="display:none;">
+                            @Html.EditorFor(modelItem => item.pr_ct_value, new { htmlAttributes = new { @class = "form-editor-extended", @id = "is_pr_ct_value_txtEditor_" + item.poo_id } })
+                        </div>
+                        <div id="is_pr_ct_value_display_@item.poo_id">
+                            @Html.DisplayFor(modelItem => item.pr_ct_value, new { htmlAttributes = new { @id = "is_pr_ct_value_txtDisplay_" + item.poo_id } })
+                        </div>
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.poo_details)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.poo_count)
+                    </td>
+                    <td>
+                        <a asp-action="Assign" asp-route-id="@item.poo_id">Assign</a> |
+                        <a asp-action="Details" asp-route-id="@item.poo_id">Details</a> |
+                        <a asp-action="Delete" asp-route-id="@item.poo_id">Delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+
+
+<script type="text/javascript">
+
+    function edit(tdID, editorID, displayID, txtEditorID, txtDisplayID, poo_id) {
+
+
+        if (document.getElementById(editorID).style.display == 'none') {
+            document.getElementById(editorID).style.display = 'block';
+            document.getElementById(displayID).style.display = 'none';
+
+            document.getElementById(txtEditorID).value = document.getElementById(displayID).innerHTML.trim();
+
+            document.getElementById(txtEditorID).focus();
+            document.getElementById(txtEditorID).select();
+        }
+        else if (document.getElementById(displayID).style.display == 'none') {
+
+            if (tdID.includes('is_pr_result_td') == true) {
+
+                if (document.getElementById(txtEditorID).value.toUpperCase().trim() == 'P' || document.getElementById(txtEditorID).value.toUpperCase().trim() == 'N' || document.getElementById(txtEditorID).value.toUpperCase().trim() == '') {
+                    UpdatePoolResult(poo_id, document.getElementById(txtEditorID).value.toUpperCase().trim(), txtEditorID, displayID);
+                }
+                else {
+                    alert('Only P or N allowed');
+                }
+
+            } else if (tdID.includes('is_pr_ct_value_td') == true) {
+                UpdatePoolCTValue(poo_id, document.getElementById(txtEditorID).value, txtEditorID, displayID);
+            }
+
+            document.getElementById(displayID).style.display = 'block';
+            document.getElementById(editorID).style.display = 'none';
+
+        }
+    }
+
+    function handle(e, tdID, editorID, displayID, txtEditorID, txtDisplayID, poo_id) {
+
+        if (e.keyCode === 13) {
+            e.preventDefault();
+            edit(tdID, editorID, displayID, txtEditorID, txtDisplayID, poo_id);
+
+        } else if (e.keyCode === 27) {
+            e.preventDefault();
+            document.getElementById(displayID).style.display = 'block';
+            document.getElementById(editorID).style.display = 'none';
+        }
+    }
+
+</script>
+
+
+<script type="text/javascript">
+
+
+    function UpdatePoolResult(id, value, txtEditorID, displayID) {
+    $.ajax({
+    url: '@Url.Action("UpdatePoolResult")',
+    type: 'GET',
+    dataType: 'text',
+    cache: false,
+        data: { 'id': id, 'value': value},
+        success: function (results) {
+            document.getElementById(txtEditorID).value = value;
+            document.getElementById(displayID).innerHTML = value;
+    },
+    error: function () {
+        alert('Error occured');
+    }
+    });
+    }
+
+
+</script>
+
+<script type="text/javascript">
+
+
+    function UpdatePoolCTValue(id, value, txtEditorID, displayID) {
+    $.ajax({
+    url: '@Url.Action("UpdatePoolCTValue")',
+    type: 'GET',
+    dataType: 'text',
+    cache: false,
+        data: { 'id': id, 'value': value},
+        success: function (results) {
+            document.getElementById(txtEditorID).value = value;
+            document.getElementById(displayID).innerHTML = value;
+    },
+    error: function () {
+        alert('Error occured');
+    }
+    });
+    }
+
+
+</script>

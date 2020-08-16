@@ -1,0 +1,151 @@
+﻿@model USF_Health_MVC_EF.Models.Individual
+
+@{
+    ViewData["Title"] = "Delete";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    SpStudies spStudies = new SpStudies();
+    SpReferences spReferences = new SpReferences();
+    Individual individual = new Individual();
+
+}
+    <div class="div_breadcrumb">
+        Persons&nbsp;&nbsp;&nbsp;>&nbsp;&nbsp;&nbsp;Individuals&nbsp;&nbsp;&nbsp;>&nbsp;&nbsp;&nbsp;Delete
+    </div>
+    <div class="div_form">
+        <div class="div_text">
+            Are you sure you want to delete this?
+        </div>
+
+        <div class="div_labeltext">
+            <div class="div_label" style="float:left;">
+                Individual Id
+            </div>
+            <div class="div_text">
+                @Html.DisplayFor(model => model.ind_id)
+            </div>
+        </div>
+
+        <div class="div_labeltext">
+            <div class="div_label" style="float:left;">
+                Date created
+            </div>
+            <div class="div_text">
+                @Html.DisplayFor(model => model.ind_date_created)
+            </div>
+        </div>
+
+        <div class="div_labeltext">
+            <div class="div_label" style="float:left;">
+                First name
+            </div>
+            <div class="div_text">
+                @Html.DisplayFor(model => model.ind_first_name)
+            </div>
+        </div>
+
+        <div class="div_labeltext">
+            <div class="div_label" style="float:left;">
+                Last name
+            </div>
+            <div class="div_text">
+                @Html.DisplayFor(model => model.ind_last_name)
+            </div>
+        </div>
+
+        <div class="div_labeltext">
+            <div class="div_label" style="float:left;">
+                Gender
+            </div>
+            <div class="div_text">
+                @Html.DisplayFor(model => model.ind_gender)
+            </div>
+        </div>
+
+        <div class="div_labeltext">
+            <div class="div_label" style="float:left;">
+                Reference ID
+            </div>
+            <div class="div_text">
+                @spReferences.GetReferenceNamebyId(Model.ref_id)
+            </div>
+        </div>
+
+        <div class="div_labeltext">
+            <div class="div_label" style="float:left;">
+                Study ID
+            </div>
+            <div class="div_text">
+                @spStudies.GetStudyNamebyId(Model.std_id)
+            </div>
+        </div>
+
+
+        <div class="div_labeltext">
+            <div class="div_label" style="float:left;">
+                USF ID
+            </div>
+            <div class="div_text">
+                @Html.DisplayFor(model => model.ind_document)
+            </div>
+        </div>
+
+        <div class="div_labeltext">
+            <div class="div_label" style="float:left;">
+                Email
+            </div>
+            <div class="div_text">
+                @Html.DisplayFor(model => model.ind_email)
+            </div>
+        </div>
+
+        <div class="div_labeltext">
+            <div class="div_label" style="float:left;">
+                Phone
+            </div>
+            <div class="div_text">
+                @Html.DisplayFor(model => model.ind_phone)
+            </div>
+        </div>
+
+        <div class="div_labeltext">
+            <div class="div_label" style="float:left;">
+                Details
+            </div>
+            <div class="div_text">
+                @Html.DisplayFor(model => model.ind_details)
+            </div>
+        </div>
+
+
+        <div class="div_labeltext">
+            <div class="div_label" style="float:left;color:red;background-color:yellow;">
+                Samples collected
+            </div>
+            <div class="div_text" style="color:red;background-color:yellow;font-weight:bold;">
+                @individual.GetNumberOfSamplesbyId(Model.ind_id)
+            </div>
+        </div>
+
+
+
+        <form asp-action="Delete">
+            <input type="hidden" asp-for="ind_id" />
+            <div class="div_button">
+                <input type="submit" value="Delete" id="btnSubmit" style="background-color: #bd2130;" onsubmit="this.disabled=true;this.value='Submitting...'; this.form.submit();" />
+            </div>
+        </form>
+    </div>
+        <div class="div_mainlink">
+            <a asp-action="Index">Back to List</a>
+        </div>
+
+        <script type="text/javascript">
+
+            $('form').submit(function () {
+                $(this).find('input[type=submit]').prop('disabled', true);
+                return true;
+            });
+
+            $("#btnSubmit").focus();
+
+        </script>

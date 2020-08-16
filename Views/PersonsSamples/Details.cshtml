@@ -1,0 +1,170 @@
+﻿@model USF_Health_MVC_EF.Models.SpIndividualsSamplesWithStats
+
+@{
+    ViewData["Title"] = "Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+}
+
+
+
+<div class="div_breadcrumb">
+    Persons&nbsp;&nbsp;&nbsp;>&nbsp;&nbsp;&nbsp;Samples&nbsp;&nbsp;&nbsp;>&nbsp;&nbsp;&nbsp;Details
+</div>
+
+
+<div class="div_form">
+    <div class="div_labeltext">
+        <div class="div_label" style="float:left;">
+            Sample Id
+        </div>
+        <div class="div_text">
+
+            @Html.DisplayFor(model => Model.is_id)
+        </div>
+    </div>
+
+    <div class="div_labeltext">
+        <div class="div_label" style="float:left;">
+            Sample Barcode
+        </div>
+        <div class="div_text">
+            @Html.DisplayFor(model => Model.is_barcode)
+
+        </div>
+    </div>
+
+    <div class="div_labeltext">
+        <div class="div_label" style="float:left;">
+            Date created
+        </div>
+        <div class="div_text">
+
+            @Html.DisplayFor(model => Model.is_date_created_text)
+        </div>
+    </div>
+
+    <div class="div_labeltext">
+        <div class="div_label" style="float:left;">
+            Date collected
+        </div>
+        <div class="div_text">
+            @Html.DisplayFor(model => Model.is_date_collected_text)
+        </div>
+    </div>
+
+    <div class="div_labeltext">
+        <div class="div_label" style="float:left;">
+            Date registered
+        </div>
+        <div class="div_text">
+
+            @Html.DisplayFor(model => Model.is_date_registered_text)
+        </div>
+    </div>
+
+    <div class="div_labeltext">
+        <div class="div_label" style="float:left;">
+            Well number
+        </div>
+        <div class="div_text">
+
+            @Html.DisplayFor(model => Model.is_well_number)
+        </div>
+    </div>
+
+    <div class="div_labeltext">
+        <div class="div_label" style="float:left;">
+            Pool ID
+        </div>
+        <div class="div_text">
+
+            @Html.DisplayFor(model => Model.poo_id)
+        </div>
+    </div>
+    @*<div class="div_labeltext">
+            <div class="div_label" style="float:left;">
+                Individual ID
+            </div>
+            <div class="div_text">
+                @spIndividualsWithStats.ind_id
+            </div>
+        </div>
+
+
+        <div class="div_labeltext">
+            <div class="div_label" style="float:left;">
+                First name
+            </div>
+            <div class="div_text">
+                @spIndividualsWithStats.ind_first_name
+            </div>
+        </div>
+
+        <div class="div_labeltext">
+            <div class="div_label" style="float:left;">
+                Last name
+            </div>
+            <div class="div_text">
+                @spIndividualsWithStats.ind_last_name
+            </div>
+        </div>*@
+
+
+    @*<div class="div_labeltext">
+            <div class="div_label" style="float:left;">
+                USF ID
+            </div>
+            <div class="div_text">
+                @spIndividualsWithStats.ind_document
+            </div>
+        </div>*@
+
+    <div class="div_labeltext">
+        <div class="div_label" style="float:left;">
+            Reference ID
+        </div>
+        <div class="div_text">
+
+            @Html.DisplayFor(model => Model.ref_name)
+
+        </div>
+    </div>
+
+    <div class="div_labeltext">
+        <div class="div_label" style="float:left;">
+            Study ID
+        </div>
+        <div class="div_text">
+
+            @Html.DisplayFor(model => Model.std_name)
+
+        </div>
+    </div>
+
+    <div class="div_labeltext">
+        <div class="div_label" style="float:left;">
+            Gender
+        </div>
+        <div class="div_text">
+
+            @Html.DisplayFor(model => Model.ind_gender)
+
+        </div>
+    </div>
+
+    <div class="div_labeltext">
+        <div class="div_label" style="float:left;">
+            Sample details
+        </div>
+        <div class="div_text">
+            @Html.DisplayFor(model => Model.is_details)
+
+        </div>
+    </div>
+
+</div>
+    <div class="div_mainlink">
+        <a asp-action="Edit" asp-route-id="@Model.is_id">Edit</a> |
+        <a asp-action="Index">Back to List</a>
+    </div>

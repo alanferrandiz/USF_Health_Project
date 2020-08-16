@@ -1,0 +1,142 @@
+﻿@model IEnumerable<USF_Health_MVC_EF.Models.SpIndividualsSamplesWithStats>
+
+@{
+    ViewData["Title"] = "Print";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="div_breadcrumb">
+    Persons&nbsp;&nbsp;&nbsp;>&nbsp;&nbsp;&nbsp;Barcode Printing&nbsp;&nbsp;&nbsp;>&nbsp;&nbsp;&nbsp;Print
+</div>
+
+
+<div class="div_form">
+    @foreach (var item in Model)
+    {
+
+        <div class="div_labeltext">
+            <div class="div_label" style="float:left;">
+                Order
+            </div>
+            <div class="div_text">
+                @Html.DisplayFor(modelItem => item.position)
+            </div>
+        </div>
+
+        <div class="div_labeltext">
+            <div class="div_label" style="float:left;">
+                Barcode
+            </div>
+            <div class="div_text">
+                @Html.DisplayFor(modelItem => item.is_barcode)
+            </div>
+        </div>
+
+        <div class="div_labeltext">
+            <div class="div_label" style="float:left;">
+                Pool ID
+            </div>
+            <div class="div_text">
+                @Html.DisplayFor(modelItem => item.poo_id)
+            </div>
+        </div>
+
+        <div class="div_labeltext">
+            <div class="div_label" style="float:left;">
+                Reference ID
+            </div>
+            <div class="div_text">
+                @Html.DisplayFor(modelItem => item.ref_name)
+            </div>
+        </div>
+
+        <div class="div_labeltext">
+            <div class="div_label" style="float:left;">
+                Study ID
+            </div>
+            <div class="div_text">
+                @Html.DisplayFor(modelItem => item.std_name)
+            </div>
+        </div>
+
+        <div class="div_labeltext">
+            <div class="div_label" style="float:left;">
+                Gender
+            </div>
+            <div class="div_text">
+                @Html.DisplayFor(modelItem => item.ind_gender)
+            </div>
+        </div>
+        @*<div class="div_labeltext">
+                <div class="div_label" style="float:left;">
+                    Individual Id
+                </div>
+                <div class="div_text">
+                    @Html.DisplayFor(modelItem => item.ind_id)
+                </div>
+            </div>
+
+            <div class="div_labeltext">
+                <div class="div_label" style="float:left;">
+                    Individual Name
+                </div>
+                <div class="div_text">
+                    @Html.DisplayFor(modelItem => item.first_name_last_name)
+                </div>
+            </div>*@
+
+        <div class="div_labeltext">
+            <div class="div_label" style="float:left;">
+                Date created
+            </div>
+            <div class="div_text">
+                @Html.DisplayFor(modelItem => item.is_date_created_text)
+            </div>
+        </div>
+
+        <div class="div_labeltext">
+            <div class="div_label" style="float:left;">
+                Date collected
+            </div>
+            <div class="div_text">
+                @Html.DisplayFor(modelItem => item.is_date_collected_text)
+            </div>
+        </div>
+
+        <div class="div_labeltext">
+            <div class="div_label" style="float:left;">
+                Sample Details
+            </div>
+            <div class="div_text">
+                @Html.DisplayFor(modelItem => item.is_details)
+            </div>
+        </div>
+        <input type="hidden" id="is_barcode_@Html.DisplayFor(modelItem => item.is_barcode)" value="@Html.DisplayFor(modelItem => item.is_barcode)" />
+        @*<input type="hidden" id="first_name_last_name_@Html.DisplayFor(modelItem => item.is_barcode)" value="@Html.DisplayFor(modelItem => item.first_name_last_name)" />*@
+        <input type="hidden" id="std_name_@Html.DisplayFor(modelItem => item.is_barcode)" value="@Html.DisplayFor(modelItem => item.std_name)" />
+
+        <input type="hidden" id="is_date_collected_text_@Html.DisplayFor(modelItem => item.is_barcode)" value="@Html.DisplayFor(modelItem => item.is_date_collected_text)" />
+
+        <div class="div_barcode">
+            <svg id="svgBarcode_@Html.DisplayFor(modelItem => item.is_barcode)"></svg>
+        </div>
+
+        <div class="div_button">
+            <input type="submit" value="Print Barcode" onclick="printJS('svgBarcode_@Html.DisplayFor(modelItem => item.is_barcode)', 'html');" />
+        </div>
+
+        <div class="div_breadcrumb">
+        </div>
+
+        <script>
+            JsBarcode('#svgBarcode_@Html.DisplayFor(modelItem => item.is_barcode)', document.getElementById('is_barcode_@Html.DisplayFor(modelItem => item.is_barcode)').value, { format: 'code39', text: document.getElementById('is_barcode_@Html.DisplayFor(modelItem => item.is_barcode)').value + '|DCOL ' + document.getElementById('is_date_collected_text_@Html.DisplayFor(modelItem => item.is_barcode)').value + '|STD ' + document.getElementById('std_name_@Html.DisplayFor(modelItem => item.is_barcode)').value.substring(0, 16),fontSize:8,height:36,width:0.96})
+        </script>
+    }
+</div>
+        <div class="div_mainlink">
+            <a asp-action="Index">Back to List</a>
+        </div>
+
+        @section Scripts {
+            @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+        }

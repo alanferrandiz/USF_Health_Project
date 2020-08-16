@@ -1,0 +1,163 @@
+﻿@model USF_Health_MVC_EF.Models.Individual
+
+@{
+    ViewData["Title"] = "Edit";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    List<SpStudies> spStudies = ViewData["studies"] as List<SpStudies>;
+    List<SpReferences> spReferences = ViewData["references"] as List<SpReferences>;
+
+}
+
+<div class="div_breadcrumb">
+    Persons&nbsp;&nbsp;&nbsp;>&nbsp;&nbsp;&nbsp;Individuals&nbsp;&nbsp;&nbsp;>&nbsp;&nbsp;&nbsp;Edit
+</div>
+
+
+<div class="div_form">
+    <form asp-action="Edit">
+
+        <input type="hidden" asp-for="ind_id" />
+        <input type="hidden" asp-for="ind_date_created" />
+        <input type="hidden" asp-for="ind_time_created" />
+
+        <div class="div_text">
+            Individual ID
+        </div>
+        <div class="div_input">
+            <input asp-for="ind_id" disabled />
+        </div>
+        <div class="div_span">
+            <span asp-validation-for="ind_id"></span>
+        </div>
+
+
+        <div class="div_text">
+            Date of creation
+        </div>
+        <div class="div_input">
+            <input asp-for="ind_date_created" disabled />
+        </div>
+        <div class="div_span">
+            <span asp-validation-for="ind_date_created"></span>
+        </div>
+
+
+        <div class="div_text">
+            First Name
+        </div>
+        <div class="div_input">
+            <input asp-for="ind_first_name" required autofocus placeholder="First Name (Required)" />
+        </div>
+        <div class="div_span">
+            <span asp-validation-for="ind_first_name"></span>
+        </div>
+
+        <div class="div_text">
+            Last Name
+        </div>
+        <div class="div_input">
+            <input asp-for="ind_last_name" required placeholder="Last Name (Required)" />
+        </div>
+        <div class="div_span">
+            <span asp-validation-for="ind_last_name"></span>
+        </div>
+
+        <div class="div_text">
+            Gender
+        </div>
+        <div class="div_dropdownlist">
+            <select asp-for="ind_gender" required>
+                <option value="" disabled selected>--Select gender--</option>
+                <option value="M">M</option>
+                <option value="F">F</option>
+            </select>
+        </div>
+        <div class="div_span">
+            <span asp-validation-for="ind_gender"></span>
+        </div>
+
+
+        <div class="div_text">
+            Reference ID
+        </div>
+        <div class="div_dropdownlist">
+            <select asp-for="ref_id">
+                <option value="" disabled selected>--Select reference id--</option>
+                @foreach (var item in spReferences)
+                {
+                    <option value="@item.ref_id">@item.ref_name</option>
+
+                }
+            </select>
+        </div>
+        <div class="div_span">
+            <span asp-validation-for="ref_id"></span>
+        </div>
+
+        <div class="div_text">
+            Study ID
+        </div>
+        <div class="div_dropdownlist">
+            <select asp-for="std_id">
+                <option value="" disabled selected>--Select study id--</option>
+                @foreach (var item in spStudies)
+                {
+                    <option value="@item.std_id">@item.std_name</option>
+
+                }
+            </select>
+        </div>
+        <div class="div_span">
+            <span asp-validation-for="std_id"></span>
+        </div>
+
+        <div class="div_text">
+            USF ID
+        </div>
+        <div class="div_input">
+            <input asp-for="ind_document" placeholder="USF ID" />
+        </div>
+
+        <div class="div_text">
+            E-mail address
+        </div>
+        <div class="div_input">
+            <input asp-for="ind_email" placeholder="Email" />
+        </div>
+
+        <div class="div_text">
+            Phone number
+        </div>
+        <div class="div_input">
+            <input asp-for="ind_phone" placeholder="Phone" />
+        </div>
+
+        <div class="div_text">
+            Individual details
+        </div>
+        <div class="div_textArea">
+            <textarea asp-for="ind_details" class="textArea" rows="5" cols="36" placeholder="Enter details"></textarea>
+        </div>
+
+
+        <div class="div_button">
+            <input type="submit" value="Save" onsubmit="this.disabled=true;this.value='Submitting...'; this.form.submit();" />
+        </div>
+    </form>
+</div>
+    <div class="div_mainlink">
+        <a asp-action="Index">Back to List</a>
+    </div>
+
+    @section Scripts {
+        @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    }
+
+<script type="text/javascript">
+
+    $('form').submit(function () {
+        $(this).find('input[type=submit]').prop('disabled', true);
+        return true;
+    });
+
+</script>

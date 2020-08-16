@@ -1,0 +1,153 @@
+﻿@model IEnumerable<USF_Health_MVC_EF.Models.SpIndividualsSamplesWithStats>
+
+@{
+    ViewData["Title"] = "Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+    <div class="div_breadcrumb">
+        Persons&nbsp;&nbsp;&nbsp;>&nbsp;&nbsp;&nbsp;Pools&nbsp;&nbsp;&nbsp;>&nbsp;&nbsp;&nbsp;Details
+    </div>
+
+
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        $('#example').DataTable({
+            columnDefs: [{
+                targets: [0],
+                orderData: [0, 1]
+            }, {
+                targets: [1],
+                orderData: [1, 0]
+            }, {
+                targets: [4],
+                orderData: [4, 0]
+            }]
+        });
+    });
+
+</script>
+
+<div class="div_form">
+
+    <form id="frmForm">
+        <input type="hidden" id="poo_id" value="@ViewBag.poo_id" />
+
+
+        <div class="div_bigtitle">
+            Details for Pool ID @ViewBag.poo_id
+        </div>
+
+    </form>
+</div>
+
+
+@using (Html.BeginForm("Index", "PersonSamples", FormMethod.Post))
+{
+    <div class="div_datatables">
+
+        <table id="example" class="display" style="width:100%">
+            <thead>
+                <tr>
+                    <td>
+                        Sample ID
+                    </td>
+                    <td>
+                        Barcode
+                    </td>
+                    <td>
+                        Pool ID
+                    </td>
+                    <td>
+                        Pool Details
+                    </td>
+                    <td>
+                        Date of creation
+                    </td>
+                    <td>
+                        Date of collection
+                    </td>
+                    <td>
+                        Date registered
+                    </td>
+                    <td>
+                        Sample Details
+                    </td>
+                    <td>
+                        Reference ID
+                    </td>
+                    <td>
+                        Study ID
+                    </td>
+                    <td>
+                        Gender
+                    </td>
+
+                    <td></td>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.is_id, new { htmlAttributes = new { @id = "is_id_" + item.is_id } })
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.is_barcode)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.poo_id)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.poo_details)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.is_date_created_text)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.is_date_collected_text)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.is_date_registered_text)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.is_details)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.ref_name)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.std_name)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.ind_gender)
+                    </td>
+                    <td>
+                    </td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+
+<div class="div_mainlink">
+    <a asp-action="Index">Back to List</a>
+</div>
+
+
+
+<script type="text/javascript">
+
+    $('form').submit(function () {
+        $(this).find('input[type=submit]').prop('disabled', true);
+        return true;
+    });
+
+    $("#btnSubmit").focus();
+
+</script>
+

@@ -1,0 +1,63 @@
+﻿@model USF_Health_MVC_EF.Models.IndividualSample
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="div_breadcrumb">
+    Persons&nbsp;&nbsp;&nbsp;>&nbsp;&nbsp;&nbsp;Barcode Reading
+</div>
+
+<script type="text/javascript">
+    function assignBarcode() {
+        $("btnRead").attr("asp-route-id", document.getElementById("barcode").value);
+    }
+</script>
+
+<div class="div_form">
+    <form asp-action="Save" method="get">
+
+        <div class="div_input">
+            <input required autofocus id="barcode" name="barcode" placeholder="Read or type sample barcode" />
+        </div>
+        <div class="div_button">
+            <input type="submit" id="btnRead" value="Read Barcode" onsubmit="assignBarcode();" />
+        </div>
+        <div class="div_label" style="width:500px;">
+            <label id="lblStatus"></label>
+        </div>
+    </form>
+</div>
+
+
+<script type="text/javascript">
+
+    const params = new URLSearchParams(window.location.search);
+    const type = params.get('type');
+    const status = params.get('status');
+
+    if (type == null) {
+        document.getElementById('lblStatus').hidden = true;
+    } else if (type == 0) {
+        document.getElementById('lblStatus').hidden = false;
+        document.getElementById('lblStatus').style.color = "red";
+        document.getElementById('lblStatus').textContent = status
+    } else if (type == 1) {
+        document.getElementById('lblStatus').hidden = false;
+        document.getElementById('lblStatus').style.color = "red";
+        document.getElementById('lblStatus').textContent = status
+    }
+
+</script>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+
+<script type="text/javascript">
+
+    $('form').submit(function () {
+        $(this).find('input[type=submit]').prop('disabled', true);
+        return true;
+    });
+
+</script>

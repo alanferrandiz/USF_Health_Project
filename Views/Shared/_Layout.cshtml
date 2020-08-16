@@ -1,0 +1,81 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - USF Health Web App</title>
+
+    <script type="text/javascript" src="~/js/JsBarcode.all.min.js"></script>
+    <script type="text/javascript" src="~/js/print.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+
+    <script src="~/js/jquery.dataTables.js"></script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" runat=server>
+    <link rel="stylesheet" href="~/css/styles.css" runat=server>
+    <link rel="stylesheet" href="~/css/jquery.dataTables.css" runat=server>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+</head>
+        <body>
+            <div class="navbar">
+                <div class="usf_logo_div"><a href="~/Home/Index"><img class="usf_logo" src="~/images/usf_logo.jpg"></a></div>
+                <div class="subnav">
+                    <button class="subnavbtn">Persons&nbsp;&nbsp;<i class="fa fa-caret-down"></i></button>
+                    <div class="subnav-content">
+                        <div class="first_option"><a></a></div>
+                        <div class="option"><a href="~/PersonsIndividuals">Individuals</a></div>
+                        <div class="option"><a href="~/PersonsBarcodePrinting">Barcode printing</a></div>
+                        <div class="option"><a href="~/PersonsBarcodeReading">Barcode reading</a></div>
+                        <div class="option"><a href="~/PersonsSamples">Samples</a></div>
+                        <div class="option"><a href="~/PersonsPools">Pools</a></div>
+                    </div>
+                </div>
+                <div class="subnav">
+                    <button class="subnavbtn">Places&nbsp;&nbsp;<i class="fa fa-caret-down"></i></button>
+                    <div class="subnav-content">
+                        <div class="first_option"><a></a></div>
+                        <div class="option"><a href="#">Barcode printing</a></div>
+                        <div class="option"><a href="#">Barcode reading</a></div>
+                        <div class="option"><a href="#">Results</a></div>
+                        <div class="option"><a href="#">Locations</a></div>
+                        <div class="option"><a href="#">Units</a></div>
+                        <div class="option"><a href="#">Samples</a></div>
+                    </div>
+                </div>
+                <div class="subnav">
+                    <button class="subnavbtn">Users&nbsp;&nbsp;<i class="fa fa-caret-down"></i></button>
+                </div>
+                <div class="subnav">
+                    <button class="subnavbtn">Reports&nbsp;&nbsp;<i class="fa fa-caret-down"></i></button>
+                    <div class="subnav-content">
+                        <div class="first_option"><a></a></div>
+                        <div class="option"><a href="~/ReportsSamples">Samples</a></div>
+                    </div>
+                </div>
+                <div class="subnav">
+
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <p style="text-align:right;">
+                            @User.Identity.Name
+                        </p>
+                        <div style="text-align:right;">
+                            <a asp-area="AzureAD" asp-controller="Account" asp-action="SignOut" style="color:#0000ff;background-color:#ffffff;font-size:14px;font-weight:bold;text-decoration:underline;">(Sign out)</a>
+                        </div>
+                     }
+                     else
+                     {
+                        <p style="text-align:right;">
+                            Not logged in
+                        </p>
+                      }
+                    </div>
+            </div>
+            <div class="verticalbar">
+            </div>
+            @RenderBody()
+            @RenderSection("Scripts", required: false)
+        </body>
+        </html>

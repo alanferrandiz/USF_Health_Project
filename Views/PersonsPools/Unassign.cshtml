@@ -1,0 +1,179 @@
+﻿@model USF_Health_MVC_EF.Models.SpIndividualsSamplesWithStats
+
+@{
+    ViewData["Title"] = "Unassign";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+}
+<div class="div_breadcrumb">
+    Persons&nbsp;&nbsp;&nbsp;>&nbsp;&nbsp;&nbsp;Pools&nbsp;&nbsp;&nbsp;>&nbsp;&nbsp;&nbsp;Unassign
+</div>
+<div class="div_form">
+    <div class="div_text">
+        Are you sure you want to unassign this barcode from the pool?
+    </div>
+
+    <div class="div_labeltext">
+        <div class="div_label" style="float:left;">
+            Sample Id
+        </div>
+        <div class="div_text">
+            @Html.DisplayFor(model => model.is_id)
+        </div>
+    </div>
+
+    <div class="div_labeltext">
+        <div class="div_label" style="float:left;">
+            Sample Barcode
+        </div>
+        <div class="div_text">
+            @Html.DisplayFor(model => model.is_barcode, new { htmlAttributes = new { @id = "txtBarcode" } })
+        </div>
+    </div>
+
+    <div class="div_labeltext">
+        <div class="div_label" style="float:left;">
+            Pool ID
+        </div>
+        <div class="div_text">
+            @Html.DisplayFor(model => model.poo_id)
+        </div>
+    </div>
+
+    <div class="div_labeltext">
+        <div class="div_label" style="float:left;">
+            Date created
+        </div>
+        <div class="div_text">
+            @Html.DisplayFor(model => model.is_date_created_text)
+        </div>
+    </div>
+
+    <div class="div_labeltext">
+        <div class="div_label" style="float:left;">
+            Date collected
+        </div>
+        <div class="div_text">
+            @Html.DisplayFor(model => model.is_date_collected_text)
+        </div>
+    </div>
+
+    <div class="div_labeltext">
+        <div class="div_label" style="float:left;">
+            Date registered
+        </div>
+        <div class="div_text">
+            @Html.DisplayFor(model => model.is_date_registered_text)
+        </div>
+    </div>
+
+    <div class="div_labeltext">
+        <div class="div_label" style="float:left;">
+            Date registered pool
+        </div>
+        <div class="div_text">
+            @Html.DisplayFor(model => model.is_date_registered_pool_text)
+        </div>
+    </div>
+
+    <div class="div_labeltext">
+        <div class="div_label" style="float:left;">
+            Reference ID
+        </div>
+        <div class="div_text">
+            @Html.DisplayFor(model => model.ref_name)
+        </div>
+    </div>
+
+
+    <div class="div_labeltext">
+        <div class="div_label" style="float:left;">
+            Study ID
+        </div>
+        <div class="div_text">
+            @Html.DisplayFor(model => model.std_name)
+        </div>
+    </div>
+
+
+    <div class="div_labeltext">
+        <div class="div_label" style="float:left;">
+            Gender
+        </div>
+        <div class="div_text">
+            @Html.DisplayFor(model => model.ind_gender)
+        </div>
+    </div>
+
+    <div class="div_labeltext">
+        <div class="div_label" style="float:left;">
+            Sample Details
+        </div>
+        <div class="div_text">
+            @Html.DisplayFor(model => model.is_details)
+        </div>
+    </div>
+
+    <form id="frmForm">
+        <input type="hidden" id="poo_id" value="@ViewBag.poo_id" />
+        <input type="hidden" id="is_barcode" value="@ViewBag.is_barcode" />
+
+        <div class="div_button">
+            <input type="submit" value="Unassign" id="btnSubmit" style="background-color: #bd2130;" onclick="handle(event,document.getElementById('is_barcode').value, document.getElementById('poo_id').value);" />
+        </div>
+    </form>
+
+</div>
+<div class="div_mainlink">
+    <a asp-action="Assign" asp-route-id="@ViewBag.poo_id">Back to List</a>
+</div>
+
+<script type="text/javascript">
+
+    $('form').submit(function () {
+        $(this).find('input[type=submit]').prop('disabled', true);
+        return true;
+    });
+
+    $("#btnSubmit").focus();
+
+</script>
+
+
+
+<script type="text/javascript">
+
+    function handle(e, id, value) {
+
+        if (e.keyCode === 13 || e.target.id == 'btnSubmit') {
+            if (document.getElementById('frmForm').checkValidity()) {
+                e.preventDefault();
+                UpdatePoolID(id, value, 2);
+            }
+        }
+    }
+
+
+    function UpdatePoolID(id, value, operation) {
+
+        if (document.getElementById('frmForm').checkValidity()) {
+              $.ajax({
+                url: '@Url.Action("UpdatePoolID")',
+                type: 'GET',
+                dataType: 'text',
+                cache: false,
+                    data: { 'id': id, 'value': value, 'operation': 2},
+                      success: function (results) {
+                          window.location.href = '@Url.Action("Assign", "PersonsPools", new { id = ViewBag.poo_id })?type=0&status=' + results;
+                },
+                error: function () {
+                    alert('Error occured');
+                }
+            });
+
+        }
+
+    }
+
+
+</script>

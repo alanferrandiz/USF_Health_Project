@@ -3,7 +3,7 @@
 @{
     ViewData["Title"] = "Edit";
     Layout = "~/Views/Shared/_Layout.cshtml";
-    List<SpIndividualsWithStats> spIndividualsWithStats = ViewData["spIndividualsWithStats"] as List<SpIndividualsWithStats>;
+    List<SpIndividuals> SpIndividuals = ViewData["SpIndividuals"] as List<SpIndividuals>;
    
 }
 
@@ -71,7 +71,7 @@
         <div class="div_dropdownlist">
             <select asp-for="ind_id">
                 <option value="" disabled selected>--Select study id--</option>
-                @foreach (var item in spIndividualsWithStats)
+                @foreach (var item in SpIndividuals)
                 {
                     <option value="@item.ind_id">@item.std_name</option>
                 }

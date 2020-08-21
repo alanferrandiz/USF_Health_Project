@@ -1,16 +1,15 @@
 /* this following code drops the existing tables in case they already exist
 */
+set nocount on
+go
+if object_id('tb_pools_results') is not null
+	drop table tb_pools_results
+go
 if object_id('tb_individuals_samples') is not null
 	drop table tb_individuals_samples
 go
 if object_id('tb_individuals') is not null
 	drop table tb_individuals
-go
-if object_id('tb_individuals_category') is not null
-	drop table tb_individuals_category
-go
-if object_id('tb_pools_results') is not null
-	drop table tb_pools_results
 go
 if object_id('tb_pools') is not null
 	drop table tb_pools
@@ -21,50 +20,58 @@ go
 if object_id('tb_studies') is not null
 	drop table tb_studies
 go
-if object_id('tb_units_samples_surfaces') is not null
-	drop table tb_units_samples_surfaces
+if object_id('tb_places_samples_results') is not null
+	drop table tb_places_samples_results
 go
-if object_id('tb_units_samples_results') is not null
-	drop table tb_units_samples_results
+if object_id('tb_places_samples') is not null
+	drop table tb_places_samples
 go
-if object_id('tb_units_samples') is not null
-	drop table tb_units_samples
+if object_id('tb_places') is not null
+	drop table tb_places
 go
-if object_id('tb_tests') is not null
-	drop table tb_tests
+if object_id('tb_audit') is not null
+	drop table tb_audit
 go
-if object_id('tb_units') is not null
-	drop table tb_units
-go
-if object_id('tb_locations') is not null
-	drop table tb_locations
-go
-if object_id('tb_samples_types') is not null
-	drop table tb_samples_types
-go
-if object_id('tb_samples_status') is not null
-	drop table tb_samples_status
-go
-if object_id('tb_results_status') is not null
-	drop table tb_results_status
-go
-if object_id('tb_surfaces') is not null
-	drop table tb_surfaces
+if object_id('tb_sessions') is not null
+	drop table tb_sessions
 go
 if object_id('tb_users') is not null
 	drop table tb_users
 go
 
 
-/*tb_individuals table stores data for the individuals to whom samples will be taken. Data stored includes first name, last name,
-email, contact phone, birth date, gender, document and any details for the individual. Every individual will be classified using 
-an individual category id (player, coach, assistant, etc).
-*/
+--USER DEFINED FUNCTIONS
+
+if object_id('udf_getdatelocal') is not null
+	drop function dbo.udf_getdatelocal
+go
+create function dbo.udf_getdatelocal(@datetime datetime = null)
+returns datetime
+as
+begin
+	declare @datetimeout datetime
+
+	if @datetime is null
+	begin
+		select @datetimeout = SYSDATETIMEOFFSET() AT TIME ZONE 'UTC' AT TIME ZONE 'US Eastern Standard Time'
+	end
+	else
+	begin
+		select @datetimeout = @datetime AT TIME ZONE 'UTC' AT TIME ZONE 'US Eastern Standard Time'
+	end
+	return @datetimeout
+end
+--select dbo.udf_getdatelocal(default)
+--select dbo.udf_getdatelocal('2020-08-19T08:00:00')
+go
+
+
 create table tb_individuals
 (
 		ind_id					int not null		identity,		/*identifier number for tb_individuals*/
-		ind_date_created		date				default getdate(),
-		ind_time_created		time				default getdate(),
+		ind_date_created		date				default dbo.udf_getdatelocal(default),
+		ind_time_created		time				default dbo.udf_getdatelocal(default),
+		usr_id_created			int,
 		ind_first_name			varchar(800),		/*first name for the individual*/
 		ind_last_name			varchar(800),		/*last name for the individual*/
 		ind_email				varchar(800),		/*email address for the individual*/
@@ -72,92 +79,69 @@ create table tb_individuals
 		ind_birthdate			date,				/*birth date for the individual*/
 		ind_gender				char(1),			/*gender for the individual (either M of F)*/
 		ind_document			varchar(800),		/*document for the individual*/
-		indcat_id				int,				/*foreign key for tb_individuals_category (individuals category id to classify the individual)*/
 		ref_id					int,
 		std_id					int,
 		ind_details				varchar(max)		/*important details for the individual*/
 )
 go
 
-/* tb_individuals_samples table stores data for the samples taken to the individuals. Dates and times for the collection
-and registration of the samples are stored as well as the type of the sample taken, user id who registered the sample, 
-individual id to whom the sample was taken and pool id to which the sample belongs
-*/
 create table tb_individuals_samples
 (
-		is_id							int not null	identity,	/*identifier number for tb_individuals_samples*/
+		is_id							int not null	identity,	
 		is_barcode as 'A' + right(convert(varchar(800),(10000000 + is_id)),7),
-		is_date_created					date			default getdate(),			
-		is_time_created					time			default getdate(),	
-		is_date_collected				date			default getdate(),			/*date of the collection for the sample*/
-		is_time_collected				time			default getdate(),			/*time of the collection for the sample*/
-		is_date_registered				date,			/*date of the registration for the sample*/
-		is_time_registered				time,			/*time of the registration for the sample*/
-		st_id							int,			/*foreign key for tb_samples_types (sample type id to classify the sample collected)*/
-		ss_id							int,			/*foreign key for tb_samples_status (sample status id to determine the status of the sample collected)*/	
-		usr_id_registered				int,			/*foreign key for tb_users (user id who registered the sample)*/
-		ind_id							int,			/*foreign key for tb_individuals (individual id to whom the sample was taken)*/
-		poo_id							int,			/*foreign key for tb_pools (pool id to which the sample will belong)*/
-		is_date_registered_pool			date			default getdate(),			
-		is_time_registered_pool			time			default getdate(),
+		is_date_created					date			default dbo.udf_getdatelocal(default),			
+		is_time_created					time			default dbo.udf_getdatelocal(default),	
+		usr_id_created					int,
+		is_date_collected				date			default dbo.udf_getdatelocal(default),			
+		is_time_collected				time			default dbo.udf_getdatelocal(default),			
+		usr_id_collected				int,
+		is_date_registered				date,			
+		is_time_registered				time,			
+		usr_id_registered				int,			
+		ind_id							int,			
+		poo_id							int,			
+		is_date_registered_pool			date,			
+		is_time_registered_pool			time,
+		usr_id_registered_pool			int,			
 		is_well_number					varchar(800),
-		is_details						varchar(max)	/*important details for the sample of the individual*/
+		is_details						varchar(max)	
 )
 go
 
-/* tb_pools table stores data for the pools of the samples that are combined to be tested. The user who registers the pool
-is stored as well as the date and the time when the pool is registered. Finally, the test id for the applied test to the pool
-is also stored.  
-*/
 create table tb_pools
 (
 		poo_id					int not null	identity,	/*identifier number for tb_pools*/
-		poo_date_created					date			default getdate(),			
-		poo_time_created					time			default getdate(),	
-		usr_id_registered		int,			/*foreign key for tb_users (user id who registered the pool)*/
-		tst_id					int,			/*foreign key for tb_tests (test id of the test applied to the sample)*/
+		poo_date_created		date			default dbo.udf_getdatelocal(default),			
+		poo_time_created		time			default dbo.udf_getdatelocal(default),	
+		usr_id_created			int,			/*foreign key for tb_users (user id who registered the pool)*/
 		poo_details				varchar(max)	/*important details for the pool*/
 )
 go
 
-/* tb_pools_results table stores data for the results, reference and value for the pools results. Also date and time when the
-pool results were registered and the user who registered the pool results.
-*/
 create table tb_pools_results
 (
-		pr_id					int not null	identity,	/*identifier number for tb_pools_results*/
-		pr_date_created			date			default getdate(),			
-		pr_time_created			time			default getdate(),	
+		pr_id					int not null	identity,	
+		pr_date_created			date			default dbo.udf_getdatelocal(default),			
+		pr_time_created			time			default dbo.udf_getdatelocal(default),	
+		usr_id_created			int,
 		poo_id					int,			/*foreign key for tb_pools (pool id to which these results belong) */
+		pr_result				varchar(800),	/*results value for the pool results*/
 		pr_date_result			date,			/*date of the registration for the pool results*/
 		pr_time_result			time,			/*time of the registration for the pool results*/
-		usr_id_registered		int,			/*foreign key for tb_users (user id who registered the pool results)*/
-		rs_id					int,			/*foreign key for tb_results_status (results status id to determine the status of the generated results)*/	
-		pr_result				varchar(800),	/*results value for the pool results*/
+		usr_id_result			int,			/*foreign key for tb_users (user id who registered the pool results)*/		
 		pr_ct_value				varchar(800),	/*results value for the pool results*/
-		pr_reference			varchar(800),	/*reference text for the pool results*/
-		pr_units				varchar(800),	/*units text for the pool results*/
+		pr_date_ct_value		date,			/*date of the registration for the pool results*/
+		pr_time_ct_value		time,			/*time of the registration for the pool results*/
+		usr_id_ct_value			int,			/*foreign key for tb_users (user id who registered the pool results)*/
 		pr_details				varchar(max)	/*important details for the pool results*/
 )
 go
 
-/* tb_samples_types table stores data for the different categories to classify the samples that will be taken, 
-for example: blood, swap, spit, etc.
-*/
-create table tb_samples_types
-(
-		st_id					int not null	identity,	/*identifier number for tb_samples_types*/
-		st_name					varchar(800),	/*name of the sample type (blood, swap, spit, etc.)*/
-		st_details				varchar(max)	/*important details for the sample type*/
-)
-go
-
-
 create table tb_references
 (
 		ref_id					int not null	identity,	
-		ref_date_created		date			default getdate(),			
-		ref_time_created		time			default getdate(),	
+		ref_date_created		date			default dbo.udf_getdatelocal(default),			
+		ref_time_created		time			default dbo.udf_getdatelocal(default),	
 		ref_n					varchar(800),	
 		ref_name				varchar(800),	
 		ref_details				varchar(max)	
@@ -168,189 +152,124 @@ go
 create table tb_studies
 (
 		std_id					int not null	identity,	
-		std_date_created		date			default getdate(),			
-		std_time_created		time			default getdate(),	
+		std_date_created		date			default dbo.udf_getdatelocal(default),			
+		std_time_created		time			default dbo.udf_getdatelocal(default),	
 		std_n					varchar(800),	
 		std_name				varchar(800),	
 		std_details				varchar(max)	
 )
 go
 
-/* tb_samples_status table stores data for the different status of the samples that will be taken, 
-for example: barcode printed, barcode saved, etc.
-*/
-create table tb_samples_status
+
+create table tb_places
 (
-		ss_id					int not null	identity,	/*identifier number for tb_samples_status*/
-		ss_name					varchar(800),	/*name of the sample status (barcode printed, barcode saved, etc.)*/
-		ss_details				varchar(max)	/*important details for the sample status*/
+		pla_id					int not null		identity,		
+		pla_date_created		date				default dbo.udf_getdatelocal(default),			
+		pla_time_created		time				default dbo.udf_getdatelocal(default),
+		usr_id_created			int,
+		pla_name				varchar(800),	
+		pla_location_reference	varchar(800),	
+		pla_campus				varchar(800),		
+		pla_details				varchar(max),		
 )
 go
 
-/* tb_results_status table stores data for the different status of the results that will be generated, 
-for example: results ready, results exported, etc.
-*/
-create table tb_results_status
+
+create table tb_places_samples
 (
-		rs_id					int not null	identity,	/*identifier number for tb_results_status*/
-		rs_name					varchar(800),	/*name of the results status (results ready, results exported, etc.)*/
-		rs_details				varchar(max)	/*important details for the results status*/
+		ps_id					int not null	identity,	
+		ps_barcode as 'B' + right(convert(varchar(800),(10000000 + ps_id)),7),
+		ps_date_created			date			default dbo.udf_getdatelocal(default),			
+		ps_time_created			time			default dbo.udf_getdatelocal(default),	
+		usr_id_created			int,
+		ps_date_collected		date			default dbo.udf_getdatelocal(default),	
+		ps_time_collected		time			default dbo.udf_getdatelocal(default),	
+		usr_id_collected		int,			
+		ps_date_registered		date,			
+		ps_time_registered		time,			
+		usr_id_registered		int,			
+		pla_id					int,			
+		ps_well_number			varchar(800),
+		ps_surface_detail		varchar(max),	
+		ps_details				varchar(max)	
 )
 go
 
-/* tb_individuals_category table stores data for the different categories to classify an individual whom a sample will be taken, 
-for example: player, coach, assistant, etc
-*/
-create table tb_individuals_category
+create table tb_places_samples_results
 (
-		indcat_id				int not null	identity,	/*identifier number for tb_individuals_category*/
-		indcat_name				int,			/*name for the category that classifies an individual (player, coach, assistant, etc)*/
-		indcat_details			varchar(max)	/*important details for the category that classifies an individual*/
+		psres_id				int not null	identity,	/*identifier number for tb_places_samples_results*/
+		ps_id					int,			/*foreign key for tb_places_samples (units samples id to which these results belong) */
+		psres_date_created		date			default dbo.udf_getdatelocal(default),			
+		psres_time_created		time			default dbo.udf_getdatelocal(default),	
+		usr_id_created			int,			/*foreign key for tb_users (user id who registered the units samples results)*/
+		psres_result			varchar(800),	/*results value for the units samples results*/
+		psres_date_result		date			default dbo.udf_getdatelocal(default),			
+		psres_time_result		time			default dbo.udf_getdatelocal(default),		
+		usr_id_result			int,			/*foreign key for tb_users (user id who registered the units samples results)*/
+		psres_ct_value			varchar(800),	/*results value for the units samples results*/
+		psres_date_ct_value		date			default dbo.udf_getdatelocal(default),			
+		psres_time_ct_value		time			default dbo.udf_getdatelocal(default),		
+		usr_id_ct_value			int,		
+		psres_details			varchar(max)	/*important details for the units samples results*/
 )
 go
 
-/* tb_units table stores data for the units (inside locations) where the samples are taken. One unit is always inside a location.
-Examples can be residence hall floor, dining facility, frequently used rest room, etc
-*/
-create table tb_units
-(
-		unt_id					int not null		identity,		/*identifier number for tb_units*/
-		unt_date_created		date			default getdate(),			
-		unt_time_created		time			default getdate(),	
-		unt_name				varchar(800),		/*name for the unit (residence hall floor, dining facility, frequently used rest room, etc)*/
-		unt_details				varchar(max),		/*important details for the unit*/
-		loc_id					int					/*foreign key for tb_locations (location id where the unit is located)*/
-)
-go
-
-/* tb_locations table stores data for the locations where the samples are taken. One location can contain or be related to 
-many units and one unit can only belong to one location. Examples of locations are: C.W. Bill Young Hall, FIT Wellness, Campus Recreation Center, etc
-*/
-create table tb_locations
-(
-		loc_id				int not null		identity,		/*identifier number for tb_locations*/
-		loc_name			varchar(800),		/*name for the location (C.W. Bill Young Hall, FIT Wellness, Campus Recreation Center, etc)*/
-		loc_details			varchar(max)		/*important details for the location*/
-)
-go
-
-/* tb_surfaces table stores data for the generic name of the surfaces in which samples are taken. It is important to notice
-that surface names are generic and not specific, for example, we store "table", "door handle", "faucet handles", 
-"elevator buttons", "ping pong paddles", "pool cues", etc.
-*/
-create table tb_surfaces
-(
-		sfc_id				int not null		identity,		/*identifier number for tb_surfaces*/
-		sfc_name			varchar(800),		/*name (generic not specific) for the surface (table, restroom, door handle, etc.)*/
-		sfc_details			varchar(max)		/*important details for the surface*/
-)
-go
-
-/* tb_units_samples table stores data for the combination of a sample taken in an specific units. 
-With this table we have the detail of not only the date and time of both the collection and registration of the sample
-but also who collected and registered the sample in the system and what type of sample was taken. Finally, the test id for 
-the applied test to the sample is also stored.
-*/
-create table tb_units_samples
-(
-		us_id					int not null	identity,	/*identifier number for tb_locations_samples*/
-		us_date_created			date			default getdate(),			
-		us_time_created			time			default getdate(),	
-		us_date_collected		date			default getdate(),	/*date of the collection for the sample*/
-		us_time_collected		time			default getdate(),	/*time of the collection for the sample*/
-		us_date_registered		date,			/*date of the registration for the sample*/
-		us_time_registered		time,			/*time of the registration for the sample*/
-		unt_id					int,			/*foreign key for tb_units (unit id where the sample is collected)*/
-		st_id					int,			/*foreign key for tb_samples_types (sample type id which classify the collection)*/
-		ss_id					int,			/*foreign key for tb_samples_status (sample status id to determine the status of the sample collected)*/	
-		usr_id_collected		int,			/*foreign key for tb_users (user id who collected the sample)*/
-		usr_id_registered		int,			/*foreign key for tb_users (user id who registered the sample)*/
-		tst_id					int,			/*foreign key for tb_tests (test id of the test applied to the sample)*/
-		us_details				varchar(max)	/*important details for the surface*/
-)
-go
-
-/* tb_units_samples_results table stores data for the results, reference and value for the units samples results. 
-Also date and time when the units samples results were registered and the user who registered the units samples results.
-*/
-create table tb_units_samples_results
-(
-		usres_id				int not null	identity,	/*identifier number for tb_units_samples_results*/
-		us_id					int,			/*foreign key for tb_units_samples (units samples id to which these results belong) */
-		usres_date_created		date			default getdate(),			
-		usres_time_created		time			default getdate(),	
-		usr_id_registered		int,			/*foreign key for tb_users (user id who registered the units samples results)*/
-		rs_id					int,			/*foreign key for tb_results_status (results status id to determine the status of the generated results)*/	
-		usres_result			varchar(800),	/*results value for the units samples results*/
-		usres_reference			varchar(800),	/*reference text for the units samples results*/
-		usres_units				varchar(800),	/*units text for the units samples results*/
-		usres_details			varchar(max)	/*important details for the units samples results*/
-)
-go
-
-/* tb_tests table stores data for the tests applied to the samples. In a next version of the schema, it might be possible to
-also store reference values for the test.
-*/
-create table tb_tests
-(
-		tst_id					int not null	identity,	/*identifier number for tb_tests*/
-		tst_date_created		date			default getdate(),			
-		tst_time_created		time			default getdate(),	
-		tst_name				varchar(800),	/*name of the test*/			
-		tst_detail				varchar(max)	/*important details for the test*/
-)
-go
-
-/* tb_units_samples_surfaces table stores data for the combination of a sample taken in an specific units for 
-an specific surface. With this table we have the detail of the specific surfaces in which samples were taken. It is
-important to notice that the results of the sample include all the surfaces, it means that results are not surface-specific.
-*/
-create table tb_units_samples_surfaces
-(
-		ussfc_id				int not null	identity,	/*identifier number for tb_units_samples_surfaces*/
-		us_id					int,			/*foreign key for tb_units_samples (unit sample id for the combination of the sample taken in an specific unit)*/
-		sfc_id					int,			/*foreign key for tb_surfaces (surface id for which the sample was taken)*/
-		ussfc_detail			varchar(max)	/*important details for the combination of the sample taken in an specific unit for an specific surface*/
-)
-go
-
-/* tb_users table stores data for users, who are individuals who has access to the system in order to register data 
-and who need to successfully authenticate with their username and password everytime they need to access the system. 
-*/
 create table tb_users
 (
 		usr_id						int not null		identity,		/*identifier number for tb_users*/
-		usr_date_created			date				default getdate(),			
-		usr_time_created			time				default getdate(),	
+		usr_date_created			date				default dbo.udf_getdatelocal(default),			
+		usr_time_created			time				default dbo.udf_getdatelocal(default),	
 		usr_first_name				varchar(800),		/*first name for the user*/
 		usr_last_name				varchar(800),		/*last name for the user*/
 		usr_username				varchar(800),		/*username for the user, it is the same as their email address*/
 		usr_password				varbinary(800),		/*password for the user, it is encrypted one-way, without possibility for decryption*/
-		usr_document				varchar(800),		/*document for the user*/
 		usr_detail					varchar(max)		/*important details for the user*/
 )
 go
 
+create table tb_sessions
+(
+		ssn_id						int not null		identity,		/*identifier number for tb_users*/
+		ssn_date_created			date				default dbo.udf_getdatelocal(default),			
+		ssn_time_created			time				default dbo.udf_getdatelocal(default),	
+		usr_id						int
+)
+go
+
+create table tb_audit
+(
+	aud_id					int		identity,
+	aud_station				varchar(800),
+	aud_operation_id		int,
+	aud_operation			varchar(800),
+	aud_date				date,
+	aud_time				time,
+	aud_user				varchar(800),
+	aud_table				varchar(800),
+	aud_identifier_id		varchar(800),
+	aud_identifier_field	varchar(800),
+	aud_field				varchar(800),
+	aud_before				varchar(max),
+	aud_after				varchar(max),
+	usr_id_audit			int
+)
+go
+
+
 /* this following code creates the primary key contraints in every table
 */
 alter table tb_individuals add constraint pk_tb_individuals primary key (ind_id)
-alter table tb_individuals_category add constraint pk_tb_tb_individuals_category primary key (indcat_id)
 alter table tb_individuals_samples add constraint pk_tb_individuals_samples primary key (is_id)
 alter table tb_pools add constraint pk_tb_pools primary key (poo_id)
-alter table tb_users add constraint pk_tb_users primary key (usr_id)
+alter table tb_pools_results add constraint pk_tb_pools_results primary key (pr_id)
 alter table tb_references add constraint pk_tb_references primary key (ref_id)
 alter table tb_studies add constraint pk_tb_studies primary key (std_id)
-alter table tb_samples_types add constraint pk_tb_samples_types primary key (st_id)
-alter table tb_units add constraint pk_tb_units primary key (unt_id)
-alter table tb_locations add constraint pk_tb_locations primary key (loc_id)
-alter table tb_units_samples add constraint pk_tb_units_samples primary key (us_id)
-alter table tb_units_samples_results add constraint pk_tb_units_samples_results primary key (usres_id)
-alter table tb_units_samples_surfaces add constraint pk_tb_units_samples_surfaces primary key (ussfc_id)
-alter table tb_surfaces add constraint pk_tb_surfaces primary key (sfc_id)
-alter table tb_tests add constraint pk_tb_tests primary key (tst_id)
-alter table tb_pools_results add constraint pk_tb_pools_results primary key (pr_id)
-alter table tb_samples_status add constraint pk_tb_samples_status primary key (ss_id)
-alter table tb_results_status add constraint pk_tb_results_status primary key (rs_id)
+alter table tb_places add constraint pk_tb_places primary key (pla_id)
+alter table tb_places_samples add constraint pk_tb_places_samples primary key (ps_id)
+alter table tb_places_samples_results add constraint pk_tb_places_samples_results primary key (psres_id)
+alter table tb_users add constraint pk_tb_users primary key (usr_id)
+alter table tb_sessions add constraint pk_tb_sessions primary key (ssn_id)
+alter table tb_audit add constraint pk_tb_audit primary key (aud_id)
 
 
 
@@ -358,9 +277,24 @@ alter table tb_results_status add constraint pk_tb_results_status primary key (r
 /* this following code creates the foreign key contraints to create the relationships among tables
 */
 go
-alter table tb_individuals 
-add constraint fk_tb_individuals_tb_individuals_category foreign key (indcat_id)
-references tb_individuals_category (indcat_id)
+
+--INDIVIDUALS
+
+alter table tb_individuals
+add constraint fk_tb_individuals_tb_references foreign key (ref_id)
+references tb_references (ref_id)
+
+alter table tb_individuals
+add constraint fk_tb_individuals_tb_studies foreign key (std_id)
+references tb_studies (std_id)
+
+alter table tb_individuals
+add constraint fk_tb_individuals_tb_users foreign key (usr_id_created)
+references tb_users (usr_id)
+
+
+
+--INDIVIDUALS SAMPLES
 
 alter table tb_individuals_samples 
 add constraint fk_tb_individuals_samples_tb_individuals foreign key (ind_id)
@@ -375,60 +309,32 @@ on delete set null
 on update set null
 
 alter table tb_individuals_samples 
-add constraint fk_tb_individuals_samples_tb_samples_types foreign key (st_id)
-references tb_samples_types (st_id)
+add constraint fk_tb_individuals_samples_tb_users_created foreign key (usr_id_created)
+references tb_users (usr_id)
 
 alter table tb_individuals_samples 
-add constraint fk_tb_individuals_samples_tb_users foreign key (usr_id_registered)
+add constraint fk_tb_individuals_samples_tb_users_collected foreign key (usr_id_collected)
 references tb_users (usr_id)
 
-alter table tb_individuals
-add constraint fk_tb_individuals_tb_references foreign key (ref_id)
-references tb_references (ref_id)
+alter table tb_individuals_samples 
+add constraint fk_tb_individuals_samples_tb_users_registered foreign key (usr_id_registered)
+references tb_users (usr_id)
 
-alter table tb_individuals
-add constraint fk_tb_individuals_tb_studies foreign key (std_id)
-references tb_studies (std_id)
+alter table tb_individuals_samples 
+add constraint fk_tb_individuals_samples_tb_users_registered_pool foreign key (usr_id_registered_pool)
+references tb_users (usr_id)
+
+
+
+--POOLS
 
 alter table tb_pools
-add constraint fk_tb_pools_tb_users foreign key (usr_id_registered)
+add constraint fk_tb_pools_tb_users foreign key (usr_id_created)
 references tb_users (usr_id)
 
-alter table tb_units
-add constraint fk_tb_units_tb_locations foreign key (loc_id)
-references tb_locations (loc_id)
 
-alter table tb_units_samples
-add constraint fk_tb_units_samples_tb_units foreign key (unt_id)
-references tb_units (unt_id)
 
-alter table tb_units_samples
-add constraint fk_tb_units_samples_tb_samples_types foreign key (st_id)
-references tb_samples_types (st_id)
-
-alter table tb_units_samples
-add constraint fk_tb_units_samples_tb_tests foreign key (tst_id)
-references tb_tests (tst_id)
-
-alter table tb_units_samples 
-add constraint fk_tb_units_samples_tb_users_registered foreign key (usr_id_registered)
-references tb_users (usr_id)
-
-alter table tb_units_samples 
-add constraint fk_tb_units_samples_tb_users_collected foreign key (usr_id_collected)
-references tb_users (usr_id)
-
-alter table tb_units_samples_surfaces
-add constraint fk_tb_units_samples_surfaces_tb_units_samples foreign key (us_id)
-references tb_units_samples (us_id)
-
-alter table tb_units_samples_surfaces
-add constraint fk_tb_units_samples_surfaces_tb_surfaces foreign key (sfc_id)
-references tb_surfaces (sfc_id)
-
-alter table tb_pools
-add constraint fk_tb_pools_tb_tests foreign key (tst_id)
-references tb_tests(tst_id)
+--POOLS RESULTS
 
 alter table tb_pools_results
 add constraint fk_tb_pools_results_tb_pools foreign key (poo_id)
@@ -436,23 +342,81 @@ references tb_pools(poo_id)
 on delete cascade
 on update cascade
 
-alter table tb_units_samples_results
-add constraint fk_tb_units_samples_results_tb_units_samples foreign key (us_id)
-references tb_units_samples(us_id)
+alter table tb_pools_results 
+add constraint fk_tb_pools_results_tb_users_created foreign key (usr_id_created)
+references tb_users (usr_id)
 
-alter table tb_individuals_samples
-add constraint fk_tb_individuals_samples_tb_samples_status foreign key (ss_id)
-references tb_samples_status(ss_id)
+alter table tb_pools_results 
+add constraint fk_tb_pools_results_tb_users_result foreign key (usr_id_result)
+references tb_users (usr_id)
 
-alter table tb_units_samples
-add constraint fk_tb_units_samples_tb_samples_status foreign key (ss_id)
-references tb_samples_status(ss_id)
+alter table tb_pools_results 
+add constraint fk_tb_pools_results_tb_users_ct_value foreign key (usr_id_ct_value)
+references tb_users (usr_id)
 
-alter table tb_pools_results
-add constraint fk_tb_pools_results_tb_results_status foreign key (rs_id)
-references tb_results_status(rs_id)
 
-alter table tb_units_samples_results
-add constraint fk_tb_units_samples_results_tb_results_status foreign key (rs_id)
-references tb_results_status(rs_id)
+--PLACES
+
+alter table tb_places 
+add constraint fk_tb_places_tb_users_created foreign key (usr_id_created)
+references tb_users (usr_id)
+
+
+--PLACES SAMPLES
+
+alter table tb_places_samples 
+add constraint fk_tb_places_samples_tb_places foreign key (pla_id)
+references tb_places (pla_id)
+on delete cascade
+on update cascade
+
+alter table tb_places_samples 
+add constraint fk_tb_places_samples_tb_users_created foreign key (usr_id_created)
+references tb_users (usr_id)
+
+alter table tb_places_samples 
+add constraint fk_tb_places_samples_tb_users_collected foreign key (usr_id_collected)
+references tb_users (usr_id)
+
+alter table tb_places_samples 
+add constraint fk_tb_places_samples_tb_users_registered foreign key (usr_id_registered)
+references tb_users (usr_id)
+
+
+
+
+--PLACES SAMPLES RESULTS
+
+alter table tb_places_samples_results
+add constraint fk_tb_places_samples_results_tb_places_samples foreign key (ps_id)
+references tb_places_samples(ps_id)
+on delete cascade
+on update cascade
+
+alter table tb_places_samples_results 
+add constraint fk_tb_places_samples_results_tb_users_created foreign key (usr_id_created)
+references tb_users (usr_id)
+
+alter table tb_places_samples_results 
+add constraint fk_tb_places_samples_results_tb_users_result foreign key (usr_id_result)
+references tb_users (usr_id)
+
+alter table tb_places_samples_results 
+add constraint fk_tb_places_samples_results_tb_users_ct_value foreign key (usr_id_ct_value)
+references tb_users (usr_id)
 go
+
+
+--AUDIT
+
+alter table tb_audit 
+add constraint fk_tb_audit_tb_users foreign key (usr_id_audit)
+references tb_users (usr_id)
+
+
+
+--SESSIONS
+
+alter table tb_sessions 
+add constraint fk_tb_sessions_tb_users foreign key (usr_id)
+references tb_users (usr_id)

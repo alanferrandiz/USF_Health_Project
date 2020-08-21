@@ -12,6 +12,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="sql_usfhealth_procedures.sql" />
+    <None Remove="sql_usfhealth_tables.sql" />
+    <None Remove="sql_usfhealth_tb_references_insert.sql" />
+    <None Remove="sql_usfhealth_tb_studies_insert.sql" />
+    <None Remove="sql_usfhealth_tb_users_insert.sql" />
     <None Remove="Views\Shared\Error.cshtml.old" />
   </ItemGroup>
 

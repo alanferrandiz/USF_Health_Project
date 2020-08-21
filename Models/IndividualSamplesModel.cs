@@ -17,12 +17,18 @@ namespace USF_Health_MVC_EF.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]  public string? is_barcode { get; set; }
         [DisplayName("date created")] [Column(TypeName = "date")] public DateTime? is_date_created { get; set; }
         [DisplayName("time created")] [Column(TypeName = "time")] public TimeSpan? is_time_created { get; set; }
+        [Column(TypeName = "int")] public int? usr_id_created { get; set; }
         [DisplayName("date collected")] [Column(TypeName = "date")] public DateTime? is_date_collected { get; set; }
         [DisplayName("time collected")] [Column(TypeName = "time")] public TimeSpan? is_time_collected { get; set; }
+        [Column(TypeName = "int")] public int? usr_id_collected { get; set; }
         [DisplayName("date registered")] [Column(TypeName = "date")] public DateTime? is_date_registered { get; set; }
         [DisplayName("time registered")] [Column(TypeName = "time")] public TimeSpan? is_time_registered { get; set; }
+        [Column(TypeName = "int")] public int? usr_id_registered { get; set; }
         [DisplayName("individual id")] [Column(TypeName = "int")] public int? ind_id { get; set; }
         [DisplayName("pool id")] [Column(TypeName = "int")] public int? poo_id { get; set; }
+        [DisplayName("date registered pool")] [Column(TypeName = "date")] public DateTime? is_date_registered_pool { get; set; }
+        [DisplayName("time registered pool")] [Column(TypeName = "time")] public TimeSpan? is_time_registered_pool { get; set; }
+        [Column(TypeName = "int")] public int? usr_id_registered_pool { get; set; }
         [DisplayName("well number")] public string? is_well_number { get; set; }
         [DisplayName("sample details")] public string? is_details { get; set; }
 

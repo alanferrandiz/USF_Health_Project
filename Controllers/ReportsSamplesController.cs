@@ -31,7 +31,7 @@ namespace USF_Health_MVC_EF.Controllers
             
             if (type == 1)
             {
-                SqlDataAdapter dataAdapter = new SqlDataAdapter("usp_individuals_samples_select_with_stats", Globals.connection);
+                SqlDataAdapter dataAdapter = new SqlDataAdapter("usp_individuals_samples_select", Globals.connection);
                 dataAdapter.SelectCommand.CommandType = System.Data.CommandType.StoredProcedure;
                 
                 System.Data.DataTable dataTable = new System.Data.DataTable();
@@ -49,11 +49,11 @@ namespace USF_Health_MVC_EF.Controllers
                 dataAdapter.SelectCommand.Parameters.Add(sqlParameter03);
 
                 dataAdapter.Fill(dataTable);
-                List<SpIndividualsSamplesWithStats> list = new List<SpIndividualsSamplesWithStats>();
+                List<SpIndividualsSamples> list = new List<SpIndividualsSamples>();
 
                 for (int i = 0; i < dataTable.Rows.Count; i++)
                 {
-                    SpIndividualsSamplesWithStats item = new SpIndividualsSamplesWithStats();
+                    SpIndividualsSamples item = new SpIndividualsSamples();
                     DataRow dr = dataTable.Rows[i];
 
                     item.is_id = Int32.Parse(dr["is_id"].ToString());
@@ -83,15 +83,15 @@ namespace USF_Health_MVC_EF.Controllers
             }
             else
             {
-                SqlDataAdapter dataAdapter = new SqlDataAdapter("usp_individuals_samples_select_with_stats", Globals.connection);
+                SqlDataAdapter dataAdapter = new SqlDataAdapter("usp_individuals_samples_select", Globals.connection);
                 dataAdapter.SelectCommand.CommandType = System.Data.CommandType.StoredProcedure;
                 System.Data.DataTable dataTable = new System.Data.DataTable();
                 dataAdapter.Fill(dataTable);
-                List<SpIndividualsSamplesWithStats> list = new List<SpIndividualsSamplesWithStats>();
+                List<SpIndividualsSamples> list = new List<SpIndividualsSamples>();
 
                 for (int i = 0; i < dataTable.Rows.Count; i++)
                 {
-                    SpIndividualsSamplesWithStats item = new SpIndividualsSamplesWithStats();
+                    SpIndividualsSamples item = new SpIndividualsSamples();
                     DataRow dr = dataTable.Rows[i];
 
                     item.is_id = Int32.Parse(dr["is_id"].ToString());

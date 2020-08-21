@@ -9,7 +9,7 @@ using System.Data;
 
 namespace USF_Health_MVC_EF.Models
 {
-    public class SpIndividualsWithStats
+    public class SpIndividuals
     {
         public int ind_id { get; set; }
         [Column(TypeName = "date")] public DateTime? ind_date_created { get; set; }
@@ -37,20 +37,20 @@ namespace USF_Health_MVC_EF.Models
 
 
 
-        public List<SpIndividualsWithStats> GetAllIndividuals()
+        public List<SpIndividuals> GetAllIndividuals()
         {
 
-            SqlDataAdapter dataAdapter = new SqlDataAdapter("usp_individuals_select_with_stats", Globals.connection);
+            SqlDataAdapter dataAdapter = new SqlDataAdapter("usp_individuals_select", Globals.connection);
             dataAdapter.SelectCommand.CommandType = System.Data.CommandType.StoredProcedure;
             System.Data.DataTable dataTable = new System.Data.DataTable();
 
             dataAdapter.Fill(dataTable);
 
-            List<SpIndividualsWithStats> list = new List<SpIndividualsWithStats>();
+            List<SpIndividuals> list = new List<SpIndividuals>();
 
             for (int i = 0; i < dataTable.Rows.Count; i++)
             {
-                SpIndividualsWithStats item = new SpIndividualsWithStats();
+                SpIndividuals item = new SpIndividuals();
                 DataRow dr = dataTable.Rows[i];
 
                 item.ind_id = Int32.Parse(dr["ind_id"].ToString());
@@ -66,7 +66,7 @@ namespace USF_Health_MVC_EF.Models
             return list;
         }
 
-        public SpIndividualsWithStats GetIndividualbyId(int? id)
+        public SpIndividuals GetIndividualbyId(int? id)
         {
 
             SqlDataAdapter dataAdapter = new SqlDataAdapter("[usp_individuals_select_with_stats]", Globals.connection);
@@ -77,24 +77,24 @@ namespace USF_Health_MVC_EF.Models
 
             dataAdapter.Fill(dataTable);
 
-            SpIndividualsWithStats spIndividualsWithStats = new SpIndividualsWithStats();
+            SpIndividuals spIndividuals = new SpIndividuals();
 
             for (int i = 0; i < dataTable.Rows.Count; i++)
             {
                 DataRow dr = dataTable.Rows[i];
 
-                spIndividualsWithStats.ind_id = Int32.Parse(dr["ind_id"].ToString());
-                spIndividualsWithStats.ind_first_name = dr["ind_first_name"].ToString();
-                spIndividualsWithStats.ind_last_name = dr["ind_last_name"].ToString();
-                spIndividualsWithStats.ind_gender = dr["ind_gender"].ToString();
-                spIndividualsWithStats.ind_document = dr["ind_document"].ToString();
-                spIndividualsWithStats.ref_id = Int32.Parse(dr["ref_id"].ToString());
-                spIndividualsWithStats.ref_name = dr["ref_name"].ToString();
-                spIndividualsWithStats.std_id = Int32.Parse(dr["std_id"].ToString());
-                spIndividualsWithStats.std_name = dr["std_name"].ToString();
+                spIndividuals.ind_id = Int32.Parse(dr["ind_id"].ToString());
+                spIndividuals.ind_first_name = dr["ind_first_name"].ToString();
+                spIndividuals.ind_last_name = dr["ind_last_name"].ToString();
+                spIndividuals.ind_gender = dr["ind_gender"].ToString();
+                spIndividuals.ind_document = dr["ind_document"].ToString();
+                spIndividuals.ref_id = Int32.Parse(dr["ref_id"].ToString());
+                spIndividuals.ref_name = dr["ref_name"].ToString();
+                spIndividuals.std_id = Int32.Parse(dr["std_id"].ToString());
+                spIndividuals.std_name = dr["std_name"].ToString();
             }
 
-            return spIndividualsWithStats;
+            return spIndividuals;
         }
 
 

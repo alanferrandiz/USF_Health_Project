@@ -10,7 +10,7 @@ namespace USF_Health_MVC_EF.Models
 
         Individual individual { get; set; }
         public List<Individual> individuals { get; set; }
-        public List<SpPoolsWithStats> spIndividualsWithStats { get; set; }
+        public List<SpPoolsWithStats> SpIndividuals { get; set; }
         public List<SpStudies> studies { get; set; }
 
     }

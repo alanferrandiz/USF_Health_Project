@@ -9,7 +9,7 @@ using System.Data;
 
 namespace USF_Health_MVC_EF.Models
 {
-    public class SpIndividualsSamplesWithStats
+    public class SpIndividualsSamples
     {
         //public int is_id { get; set; }
         //public string? is_barcode { get; set; }

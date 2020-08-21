@@ -58,7 +58,7 @@ namespace USF_Health_MVC_EF.Controllers
         [Authorize("usfhealth_laboratory")]
         public ActionResult Assign(int? id)
         {
-            SqlDataAdapter dataAdapter = new SqlDataAdapter("usp_individuals_samples_select_with_stats", Globals.connection);
+            SqlDataAdapter dataAdapter = new SqlDataAdapter("usp_individuals_samples_select", Globals.connection);
             dataAdapter.SelectCommand.CommandType = System.Data.CommandType.StoredProcedure;
             System.Data.DataTable dataTable = new System.Data.DataTable();
 
@@ -70,11 +70,11 @@ namespace USF_Health_MVC_EF.Controllers
 
             dataAdapter.Fill(dataTable);
 
-            List<SpIndividualsSamplesWithStats> list = new List<SpIndividualsSamplesWithStats>();
+            List<SpIndividualsSamples> list = new List<SpIndividualsSamples>();
 
             for (int i = 0; i < dataTable.Rows.Count; i++)
             {
-                SpIndividualsSamplesWithStats item = new SpIndividualsSamplesWithStats();
+                SpIndividualsSamples item = new SpIndividualsSamples();
                 DataRow dr = dataTable.Rows[i];
 
                 item.is_id = Int32.Parse(dr["is_id"].ToString());
@@ -120,7 +120,7 @@ namespace USF_Health_MVC_EF.Controllers
         [Authorize("usfhealth_laboratory")]
         public ActionResult Details(int? id)
         {
-            SqlDataAdapter dataAdapter = new SqlDataAdapter("usp_individuals_samples_select_with_stats", Globals.connection);
+            SqlDataAdapter dataAdapter = new SqlDataAdapter("usp_individuals_samples_select", Globals.connection);
             dataAdapter.SelectCommand.CommandType = System.Data.CommandType.StoredProcedure;
             System.Data.DataTable dataTable = new System.Data.DataTable();
 
@@ -132,11 +132,11 @@ namespace USF_Health_MVC_EF.Controllers
 
             dataAdapter.Fill(dataTable);
 
-            List<SpIndividualsSamplesWithStats> list = new List<SpIndividualsSamplesWithStats>();
+            List<SpIndividualsSamples> list = new List<SpIndividualsSamples>();
 
             for (int i = 0; i < dataTable.Rows.Count; i++)
             {
-                SpIndividualsSamplesWithStats item = new SpIndividualsSamplesWithStats();
+                SpIndividualsSamples item = new SpIndividualsSamples();
                 DataRow dr = dataTable.Rows[i];
 
                 item.is_id = Int32.Parse(dr["is_id"].ToString());
@@ -184,7 +184,7 @@ namespace USF_Health_MVC_EF.Controllers
         [Authorize("usfhealth_laboratory")]
         public ActionResult Unassign(int? id, int? poo_id)
         {
-            SqlDataAdapter dataAdapter = new SqlDataAdapter("usp_individuals_samples_select_with_stats", Globals.connection);
+            SqlDataAdapter dataAdapter = new SqlDataAdapter("usp_individuals_samples_select", Globals.connection);
             dataAdapter.SelectCommand.CommandType = System.Data.CommandType.StoredProcedure;
             System.Data.DataTable dataTable = new System.Data.DataTable();
 
@@ -197,49 +197,49 @@ namespace USF_Health_MVC_EF.Controllers
 
             dataAdapter.Fill(dataTable);
 
-            //List<SpIndividualsSamplesWithStats> list = new List<SpIndividualsSamplesWithStats>();
-            SpIndividualsSamplesWithStats SpIndividualsSamplesWithStats = new SpIndividualsSamplesWithStats();
+            //List<SpIndividualsSamples> list = new List<SpIndividualsSamples>();
+            SpIndividualsSamples SpIndividualsSamples = new SpIndividualsSamples();
 
             for (int i = 0; i < dataTable.Rows.Count; i++)
             {
                 DataRow dr = dataTable.Rows[i];
 
-                SpIndividualsSamplesWithStats.is_id = Int32.Parse(dr["is_id"].ToString());
-                SpIndividualsSamplesWithStats.is_barcode = dr["is_barcode"].ToString();
-                SpIndividualsSamplesWithStats.ind_id = Int32.Parse(dr["ind_id"].ToString());
-                SpIndividualsSamplesWithStats.ind_first_name = dr["ind_first_name"].ToString();
-                SpIndividualsSamplesWithStats.ind_last_name = dr["ind_last_name"].ToString();
-                SpIndividualsSamplesWithStats.ind_gender = dr["ind_gender"].ToString();
-                SpIndividualsSamplesWithStats.ref_id = Int32.Parse(dr["ref_id"].ToString());
-                SpIndividualsSamplesWithStats.ref_name = dr["ref_name"].ToString();
-                SpIndividualsSamplesWithStats.std_id = Int32.Parse(dr["std_id"].ToString());
-                SpIndividualsSamplesWithStats.std_name = dr["std_name"].ToString();
-                SpIndividualsSamplesWithStats.first_name_last_name = dr["first_name_last_name"].ToString();
-                SpIndividualsSamplesWithStats.is_date_created = dr["is_date_created"] is DBNull ? (DateTime?)null : (DateTime?)dr["is_date_created"];
-                SpIndividualsSamplesWithStats.is_time_created = dr["is_time_created"] is DBNull ? (TimeSpan?)null : (TimeSpan?)dr["is_time_created"];
-                SpIndividualsSamplesWithStats.is_date_created_text = dr["is_date_created_text"].ToString();
-                SpIndividualsSamplesWithStats.is_date_collected = dr["is_date_collected"] is DBNull ? (DateTime?)null : (DateTime?)dr["is_date_collected"];
-                SpIndividualsSamplesWithStats.is_time_collected = dr["is_time_collected"] is DBNull ? (TimeSpan?)null : (TimeSpan?)dr["is_time_collected"];
-                SpIndividualsSamplesWithStats.is_date_collected_text = dr["is_date_collected_text"].ToString();
-                SpIndividualsSamplesWithStats.is_details = dr["is_details"].ToString();
-                SpIndividualsSamplesWithStats.poo_id = Int32.Parse(dr["poo_id"].ToString());
-                SpIndividualsSamplesWithStats.poo_details = dr["poo_details"].ToString();
-                SpIndividualsSamplesWithStats.is_date_registered = dr["is_date_registered"] is DBNull ? (DateTime?)null : (DateTime?)dr["is_date_registered"];
-                SpIndividualsSamplesWithStats.is_time_registered = dr["is_time_registered"] is DBNull ? (TimeSpan?)null : (TimeSpan?)dr["is_time_registered"];
-                SpIndividualsSamplesWithStats.is_date_registered_text = dr["is_date_registered_text"].ToString();
-                SpIndividualsSamplesWithStats.is_date_registered_pool = dr["is_date_registered_pool"] is DBNull ? (DateTime?)null : (DateTime?)dr["is_date_registered_pool"];
-                SpIndividualsSamplesWithStats.is_time_registered_pool = dr["is_time_registered_pool"] is DBNull ? (TimeSpan?)null : (TimeSpan?)dr["is_time_registered_pool"];
-                SpIndividualsSamplesWithStats.is_date_registered_pool_text = dr["is_date_registered_pool_text"].ToString();
-                SpIndividualsSamplesWithStats.is_details = dr["is_details"].ToString();
-                SpIndividualsSamplesWithStats.position = Int32.Parse(dr["position"].ToString());
+                SpIndividualsSamples.is_id = Int32.Parse(dr["is_id"].ToString());
+                SpIndividualsSamples.is_barcode = dr["is_barcode"].ToString();
+                SpIndividualsSamples.ind_id = Int32.Parse(dr["ind_id"].ToString());
+                SpIndividualsSamples.ind_first_name = dr["ind_first_name"].ToString();
+                SpIndividualsSamples.ind_last_name = dr["ind_last_name"].ToString();
+                SpIndividualsSamples.ind_gender = dr["ind_gender"].ToString();
+                SpIndividualsSamples.ref_id = Int32.Parse(dr["ref_id"].ToString());
+                SpIndividualsSamples.ref_name = dr["ref_name"].ToString();
+                SpIndividualsSamples.std_id = Int32.Parse(dr["std_id"].ToString());
+                SpIndividualsSamples.std_name = dr["std_name"].ToString();
+                SpIndividualsSamples.first_name_last_name = dr["first_name_last_name"].ToString();
+                SpIndividualsSamples.is_date_created = dr["is_date_created"] is DBNull ? (DateTime?)null : (DateTime?)dr["is_date_created"];
+                SpIndividualsSamples.is_time_created = dr["is_time_created"] is DBNull ? (TimeSpan?)null : (TimeSpan?)dr["is_time_created"];
+                SpIndividualsSamples.is_date_created_text = dr["is_date_created_text"].ToString();
+                SpIndividualsSamples.is_date_collected = dr["is_date_collected"] is DBNull ? (DateTime?)null : (DateTime?)dr["is_date_collected"];
+                SpIndividualsSamples.is_time_collected = dr["is_time_collected"] is DBNull ? (TimeSpan?)null : (TimeSpan?)dr["is_time_collected"];
+                SpIndividualsSamples.is_date_collected_text = dr["is_date_collected_text"].ToString();
+                SpIndividualsSamples.is_details = dr["is_details"].ToString();
+                SpIndividualsSamples.poo_id = Int32.Parse(dr["poo_id"].ToString());
+                SpIndividualsSamples.poo_details = dr["poo_details"].ToString();
+                SpIndividualsSamples.is_date_registered = dr["is_date_registered"] is DBNull ? (DateTime?)null : (DateTime?)dr["is_date_registered"];
+                SpIndividualsSamples.is_time_registered = dr["is_time_registered"] is DBNull ? (TimeSpan?)null : (TimeSpan?)dr["is_time_registered"];
+                SpIndividualsSamples.is_date_registered_text = dr["is_date_registered_text"].ToString();
+                SpIndividualsSamples.is_date_registered_pool = dr["is_date_registered_pool"] is DBNull ? (DateTime?)null : (DateTime?)dr["is_date_registered_pool"];
+                SpIndividualsSamples.is_time_registered_pool = dr["is_time_registered_pool"] is DBNull ? (TimeSpan?)null : (TimeSpan?)dr["is_time_registered_pool"];
+                SpIndividualsSamples.is_date_registered_pool_text = dr["is_date_registered_pool_text"].ToString();
+                SpIndividualsSamples.is_details = dr["is_details"].ToString();
+                SpIndividualsSamples.position = Int32.Parse(dr["position"].ToString());
 
   
             }
 
             ViewBag.poo_id = poo_id;
-            ViewBag.is_barcode = SpIndividualsSamplesWithStats.is_barcode.ToString();
+            ViewBag.is_barcode = SpIndividualsSamples.is_barcode.ToString();
 
-            return View(SpIndividualsSamplesWithStats);
+            return View(SpIndividualsSamples);
         }
 
 

@@ -34,18 +34,18 @@ namespace USF_Health_MVC_EF.Controllers
         public ActionResult Index()
         {
            
-            SqlDataAdapter dataAdapter = new SqlDataAdapter("usp_individuals_select_with_stats", Globals.connection); //I think the problem is here, how am I fixing it though? --Fixed but why can't it be put into a class?
+            SqlDataAdapter dataAdapter = new SqlDataAdapter("usp_individuals_select", Globals.connection); //I think the problem is here, how am I fixing it though? --Fixed but why can't it be put into a class?
             dataAdapter.SelectCommand.CommandType = System.Data.CommandType.StoredProcedure;
             System.Data.DataTable dataTable = new System.Data.DataTable();
 
             dataAdapter.Fill(dataTable);
 
-            List<SpIndividualsWithStats> list = new List<SpIndividualsWithStats>();
+            List<SpIndividuals> list = new List<SpIndividuals>();
 
 
             for (int i = 0; i < dataTable.Rows.Count; i++)
             {
-                SpIndividualsWithStats item = new SpIndividualsWithStats();
+                SpIndividuals item = new SpIndividuals();
                 DataRow dr = dataTable.Rows[i];
 
                 item.ind_id = Int32.Parse(dr["ind_id"].ToString());
@@ -93,8 +93,55 @@ namespace USF_Health_MVC_EF.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Add(individualSample);
-                await _context.SaveChangesAsync();
+                //_context.Add(individualSample);
+                //await _context.SaveChangesAsync();
+
+
+                SqlCommand sqlCommand = new SqlCommand();
+                SqlConnection sqlConnection = new SqlConnection(Globals.connection.ToString());
+                sqlCommand.CommandType = System.Data.CommandType.StoredProcedure;
+                sqlCommand.Connection = sqlConnection;
+                sqlCommand.CommandText = "usp_individuals_samples_insert";
+
+                SqlParameter sqlParameter01 = new SqlParameter("usr_id_created", Globals.currentUserId);
+                sqlParameter01.IsNullable = true;
+                sqlCommand.Parameters.Add(sqlParameter01);
+                
+                SqlParameter sqlParameter02 = new SqlParameter("is_date_collected", individualSample.is_date_collected);
+                sqlParameter02.IsNullable = true;
+                sqlCommand.Parameters.Add(sqlParameter02);
+
+                SqlParameter sqlParameter03 = new SqlParameter("is_time_collected", individualSample.is_time_collected);
+                sqlParameter03.IsNullable = true;
+                sqlCommand.Parameters.Add(sqlParameter03);
+            
+                SqlParameter sqlParameter04 = new SqlParameter("usr_id_collected", Globals.currentUserId);
+                sqlParameter04.IsNullable = true;
+                sqlCommand.Parameters.Add(sqlParameter04);
+
+                SqlParameter sqlParameter05 = new SqlParameter("ind_id", individualSample.ind_id);
+                sqlParameter05.IsNullable = true;
+                sqlCommand.Parameters.Add(sqlParameter05);
+
+                SqlParameter sqlParameter06 = new SqlParameter("is_details", individualSample.is_details);
+                sqlParameter05.IsNullable = true;
+                sqlCommand.Parameters.Add(sqlParameter06);
+
+                SqlParameter sqlParameter07 = new SqlParameter("usr_id_audit", Globals.currentUserId);
+                sqlParameter07.IsNullable = true;
+                sqlCommand.Parameters.Add(sqlParameter07);
+
+                SqlDataReader sqlDataReader;
+                sqlConnection.Open();
+                sqlDataReader = sqlCommand.ExecuteReader();
+
+                if (sqlDataReader.Read())
+                {
+                    individualSample.is_id = Convert.ToInt32(sqlDataReader["is_id"]);
+                }
+
+                sqlConnection.Close();
+
                 return RedirectToAction("Print", "PersonsBarcodePrinting", new { id = individualSample.ind_id, is_id = individualSample.is_id});
                 //return View(individualSample);
             }
@@ -110,7 +157,7 @@ namespace USF_Health_MVC_EF.Controllers
         public IActionResult Print(int? id, int? is_id)
         {
        
-            SqlDataAdapter dataAdapter = new SqlDataAdapter("usp_individuals_samples_select_with_stats", Globals.connection);
+            SqlDataAdapter dataAdapter = new SqlDataAdapter("usp_individuals_samples_select", Globals.connection);
 
             SqlParameter sqlParameter01;
             SqlParameter sqlParameter02;
@@ -136,12 +183,12 @@ namespace USF_Health_MVC_EF.Controllers
 
             dataAdapter.Fill(dataTable);
 
-            List<SpIndividualsSamplesWithStats> list = new List<SpIndividualsSamplesWithStats>();
+            List<SpIndividualsSamples> list = new List<SpIndividualsSamples>();
 
 
             for (int i = 0; i < dataTable.Rows.Count; i++)
             {
-                SpIndividualsSamplesWithStats item = new SpIndividualsSamplesWithStats();
+                SpIndividualsSamples item = new SpIndividualsSamples();
                 DataRow dr = dataTable.Rows[i];
 
                 item.is_id = Int32.Parse(dr["is_id"].ToString());

@@ -3,7 +3,7 @@
 @{
     ViewData["Title"] = "Delete";
     Layout = "~/Views/Shared/_Layout.cshtml";
-    SpIndividualsWithStats spIndividualsWithStats = ViewData["spIndividualsWithStats"] as SpIndividualsWithStats;
+    SpIndividuals SpIndividuals = ViewData["SpIndividuals"] as SpIndividuals;
 
 }
 <div class="div_breadcrumb">
@@ -81,7 +81,7 @@
                  Individual ID
              </div>
              <div class="div_text">
-                 @spIndividualsWithStats.ind_id
+                 @SpIndividuals.ind_id
              </div>
          </div>
 
@@ -90,7 +90,7 @@
                  First Name
              </div>
              <div class="div_text">
-                 @spIndividualsWithStats.ind_first_name
+                 @SpIndividuals.ind_first_name
              </div>
          </div>
 
@@ -99,7 +99,7 @@
                  Last Name
              </div>
              <div class="div_text">
-                 @spIndividualsWithStats.ind_last_name
+                 @SpIndividuals.ind_last_name
              </div>
          </div>*@
 
@@ -108,7 +108,7 @@
             Reference ID
         </div>
         <div class="div_text">
-            @spIndividualsWithStats.ref_name
+            @SpIndividuals.ref_name
         </div>
     </div>
 
@@ -118,7 +118,7 @@
             Study ID
         </div>
         <div class="div_text">
-            @spIndividualsWithStats.std_name
+            @SpIndividuals.std_name
         </div>
     </div>
 
@@ -127,7 +127,7 @@
             Gender
         </div>
         <div class="div_text">
-            @spIndividualsWithStats.ind_gender
+            @SpIndividuals.ind_gender
         </div>
     </div>
 
@@ -145,7 +145,7 @@
                 USF ID
             </div>
             <div class="div_text">
-                @spIndividualsWithStats.ind_document
+                @SpIndividuals.ind_document
             </div>
         </div>*@
 

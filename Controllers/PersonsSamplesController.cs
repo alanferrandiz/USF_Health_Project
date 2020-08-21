@@ -37,7 +37,7 @@ namespace USF_Health_MVC_EF.Controllers
             //    return NotFound();
             //}
 
-            SqlDataAdapter dataAdapter = new SqlDataAdapter("usp_individuals_samples_select_with_stats", Globals.connection);
+            SqlDataAdapter dataAdapter = new SqlDataAdapter("usp_individuals_samples_select", Globals.connection);
             dataAdapter.SelectCommand.CommandType = System.Data.CommandType.StoredProcedure;
 
             SqlParameter sqlParameter01 = new SqlParameter("type",2);
@@ -53,58 +53,58 @@ namespace USF_Health_MVC_EF.Controllers
 
             dataAdapter.Fill(dataTable);
 
-            //List<SpIndividualsSamplesWithStats> list = new List<SpIndividualsSamplesWithStats>();
-            SpIndividualsSamplesWithStats spIndividualsSamplesWithStats = new SpIndividualsSamplesWithStats();
+            //List<SpIndividualsSamples> list = new List<SpIndividualsSamples>();
+            SpIndividualsSamples SpIndividualsSamples = new SpIndividualsSamples();
 
             for (int i = 0; i < dataTable.Rows.Count; i++)
             {
-                //SpIndividualsSamplesWithStats item = new SpIndividualsSamplesWithStats();
+                //SpIndividualsSamples item = new SpIndividualsSamples();
                 DataRow dr = dataTable.Rows[i];
 
-                spIndividualsSamplesWithStats.is_id = Int32.Parse(dr["is_id"].ToString());
-                spIndividualsSamplesWithStats.is_barcode = dr["is_barcode"].ToString();
-                spIndividualsSamplesWithStats.is_date_created_text = dr["is_date_created_text"].ToString();
-                spIndividualsSamplesWithStats.is_date_collected_text = dr["is_date_collected_text"].ToString();
-                spIndividualsSamplesWithStats.is_date_registered_text = dr["is_date_registered_text"].ToString();
-                spIndividualsSamplesWithStats.ind_id = Int32.Parse(dr["ind_id"].ToString());
-                spIndividualsSamplesWithStats.ind_first_name = dr["ind_first_name"].ToString();
-                spIndividualsSamplesWithStats.ind_last_name = dr["ind_last_name"].ToString();
-                spIndividualsSamplesWithStats.ind_gender = dr["ind_gender"].ToString();
-                spIndividualsSamplesWithStats.ind_document = dr["ind_document"].ToString();
-                spIndividualsSamplesWithStats.is_well_number = dr["is_well_number"].ToString();
-                spIndividualsSamplesWithStats.poo_id = dr["poo_id"] is DBNull ? (int?)null : (int?)Int32.Parse(dr["poo_id"].ToString());
-                spIndividualsSamplesWithStats.is_details = dr["is_details"].ToString();
-                spIndividualsSamplesWithStats.ref_id = Int32.Parse(dr["ref_id"].ToString());
-                spIndividualsSamplesWithStats.ref_name = dr["ref_name"].ToString();
-                spIndividualsSamplesWithStats.std_id = Int32.Parse(dr["std_id"].ToString());
-                spIndividualsSamplesWithStats.std_name = dr["std_name"].ToString();
+                SpIndividualsSamples.is_id = Int32.Parse(dr["is_id"].ToString());
+                SpIndividualsSamples.is_barcode = dr["is_barcode"].ToString();
+                SpIndividualsSamples.is_date_created_text = dr["is_date_created_text"].ToString();
+                SpIndividualsSamples.is_date_collected_text = dr["is_date_collected_text"].ToString();
+                SpIndividualsSamples.is_date_registered_text = dr["is_date_registered_text"].ToString();
+                SpIndividualsSamples.ind_id = Int32.Parse(dr["ind_id"].ToString());
+                SpIndividualsSamples.ind_first_name = dr["ind_first_name"].ToString();
+                SpIndividualsSamples.ind_last_name = dr["ind_last_name"].ToString();
+                SpIndividualsSamples.ind_gender = dr["ind_gender"].ToString();
+                SpIndividualsSamples.ind_document = dr["ind_document"].ToString();
+                SpIndividualsSamples.is_well_number = dr["is_well_number"].ToString();
+                SpIndividualsSamples.poo_id = dr["poo_id"] is DBNull ? (int?)null : (int?)Int32.Parse(dr["poo_id"].ToString());
+                SpIndividualsSamples.is_details = dr["is_details"].ToString();
+                SpIndividualsSamples.ref_id = Int32.Parse(dr["ref_id"].ToString());
+                SpIndividualsSamples.ref_name = dr["ref_name"].ToString();
+                SpIndividualsSamples.std_id = Int32.Parse(dr["std_id"].ToString());
+                SpIndividualsSamples.std_name = dr["std_name"].ToString();
 
                 //list.Add(item);
             }
 
 
-            //SpIndividualsWithStats spIndividualsWithStats = new SpIndividualsWithStats();
-            //ViewData["spIndividualsWithStats"] = spIndividualsWithStats.GetIndividualbyId(spIndividualsSamplesWithStats.ind_id);
+            //SpIndividuals SpIndividuals = new SpIndividuals();
+            //ViewData["SpIndividuals"] = SpIndividuals.GetIndividualbyId(SpIndividualsSamples.ind_id);
 
-            return View(spIndividualsSamplesWithStats);
+            return View(SpIndividualsSamples);
         }
 
         [Authorize("usfhealth_laboratory")]
         public IActionResult Index()
         {
-            SqlDataAdapter dataAdapter = new SqlDataAdapter("usp_individuals_samples_select_with_stats", Globals.connection);
+            SqlDataAdapter dataAdapter = new SqlDataAdapter("usp_individuals_samples_select", Globals.connection);
             dataAdapter.SelectCommand.CommandType = System.Data.CommandType.StoredProcedure;
 
             System.Data.DataTable dataTable = new System.Data.DataTable();
 
             dataAdapter.Fill(dataTable);
 
-            List<SpIndividualsSamplesWithStats> list = new List<SpIndividualsSamplesWithStats>();
+            List<SpIndividualsSamples> list = new List<SpIndividualsSamples>();
 
 
             for (int i = 0; i < dataTable.Rows.Count; i++)
             {
-                SpIndividualsSamplesWithStats item = new SpIndividualsSamplesWithStats();
+                SpIndividualsSamples item = new SpIndividualsSamples();
                 DataRow dr = dataTable.Rows[i];
 
                 item.is_id = Int32.Parse(dr["is_id"].ToString());
@@ -149,8 +149,8 @@ namespace USF_Health_MVC_EF.Controllers
             }
 
 
-            SpIndividualsWithStats spIndividualsWithStats = new SpIndividualsWithStats();
-            ViewData["spIndividualsWithStats"] = spIndividualsWithStats.GetIndividualbyId(individualSamples.ind_id);
+            SpIndividuals spIndividuals = new SpIndividuals();
+            ViewData["spIndividuals"] = spIndividuals.GetIndividualbyId(individualSamples.ind_id);
 
             return View(individualSamples);
         }
@@ -185,8 +185,8 @@ namespace USF_Health_MVC_EF.Controllers
                 return NotFound();
             }
 
-            SpIndividualsWithStats spIndividualsWithStats = new SpIndividualsWithStats();
-            ViewData["spIndividualsWithStats"] = spIndividualsWithStats.GetAllIndividuals();
+            SpIndividuals spIndividuals = new SpIndividuals();
+            ViewData["spIndividuals"] = spIndividuals.GetAllIndividuals();
 
             return View(individualSamples);
         }
@@ -196,7 +196,7 @@ namespace USF_Health_MVC_EF.Controllers
         [Authorize("usfhealth_laboratory")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("is_id,is_barcode,is_date_created,is_time_created,is_date_collected,is_time_collected,is_date_registered,is_time_registered,ind_id,is_well_number,is_details")] IndividualSample individualSample)
+        public async Task<IActionResult> Edit(int id, [Bind("is_id, is_date_collected, is_time_collected, usr_id_collected,is_date_registered,is_time_registered,ind_id,is_well_number,is_details")] IndividualSample individualSample)
         {
             if (id != individualSample.is_id)
             {
@@ -207,8 +207,60 @@ namespace USF_Health_MVC_EF.Controllers
             {
                 try
                 {
-                    _context.Update(individualSample);
-                    await _context.SaveChangesAsync();
+                    //_context.Update(individualSample);
+                    //await _context.SaveChangesAsync();
+
+                    SqlCommand sqlCommand = new SqlCommand();
+                    SqlConnection sqlConnection = new SqlConnection(Globals.connection.ToString());
+                    sqlCommand.CommandType = System.Data.CommandType.StoredProcedure;
+                    sqlCommand.Connection = sqlConnection;
+                    sqlCommand.CommandText = "usp_individuals_samples_update";
+
+                    SqlParameter sqlParameter01 = new SqlParameter("type", 1);
+                    sqlParameter01.IsNullable = false;
+                    sqlCommand.Parameters.Add(sqlParameter01);
+
+                    SqlParameter sqlParameter02 = new SqlParameter("is_id", individualSample.is_id);
+                    sqlParameter02.IsNullable = false;
+                    sqlCommand.Parameters.Add(sqlParameter02);
+
+                    SqlParameter sqlParameter03 = new SqlParameter("is_date_collected", individualSample.is_date_collected);
+                    sqlParameter03.IsNullable = false;
+                    sqlCommand.Parameters.Add(sqlParameter03);
+
+                    SqlParameter sqlParameter04 = new SqlParameter("is_time_collected", individualSample.is_time_collected);
+                    sqlParameter04.IsNullable = true;
+                    sqlCommand.Parameters.Add(sqlParameter04);
+
+                    SqlParameter sqlParameter05 = new SqlParameter("is_date_registered", individualSample.is_date_registered);
+                    sqlParameter05.IsNullable = false;
+                    sqlCommand.Parameters.Add(sqlParameter05);
+
+                    SqlParameter sqlParameter06 = new SqlParameter("is_time_registered", individualSample.is_time_registered);
+                    sqlParameter06.IsNullable = true;
+                    sqlCommand.Parameters.Add(sqlParameter06);
+
+                    SqlParameter sqlParameter07 = new SqlParameter("ind_id", individualSample.ind_id);
+                    sqlParameter07.IsNullable = true;
+                    sqlCommand.Parameters.Add(sqlParameter07);
+
+                    SqlParameter sqlParameter08 = new SqlParameter("is_well_number", individualSample.is_well_number);
+                    sqlParameter08.IsNullable = true;
+                    sqlCommand.Parameters.Add(sqlParameter08);
+
+                    SqlParameter sqlParameter09 = new SqlParameter("is_details", individualSample.is_details);
+                    sqlParameter09.IsNullable = true;
+                    sqlCommand.Parameters.Add(sqlParameter09);
+
+                    SqlParameter sqlParameter10 = new SqlParameter("usr_id_audit", Globals.currentUserId);
+                    sqlParameter10.IsNullable = true;
+                    sqlCommand.Parameters.Add(sqlParameter10);
+
+                    sqlConnection.Open();
+                    sqlCommand.ExecuteNonQuery();
+                    sqlConnection.Close();
+
+
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -244,15 +296,23 @@ namespace USF_Health_MVC_EF.Controllers
             SqlConnection sqlConnection = new SqlConnection(Globals.connection.ToString());
             sqlCommand.CommandType = System.Data.CommandType.StoredProcedure;
             sqlCommand.Connection = sqlConnection;
-            sqlCommand.CommandText = "usp_individuals_samples_update_well_number";
+            sqlCommand.CommandText = "usp_individuals_samples_update";
 
-            SqlParameter sqlParameter01 = new SqlParameter("is_id", id);
+            SqlParameter sqlParameter01 = new SqlParameter("type", 4);
             sqlParameter01.IsNullable = false;
             sqlCommand.Parameters.Add(sqlParameter01);
 
-            SqlParameter sqlParameter02 = new SqlParameter("is_well_number", value);//Globals.Iif(value is null, "", value));
-            sqlParameter02.IsNullable = true;
+            SqlParameter sqlParameter02 = new SqlParameter("is_id", id);
+            sqlParameter02.IsNullable = false;
             sqlCommand.Parameters.Add(sqlParameter02);
+
+            SqlParameter sqlParameter03 = new SqlParameter("is_well_number", value);//Globals.Iif(value is null, "", value));
+            sqlParameter03.IsNullable = true;
+            sqlCommand.Parameters.Add(sqlParameter03);
+
+            SqlParameter sqlParameter04 = new SqlParameter("usr_id_audit", Globals.currentUserId);//Globals.Iif(value is null, "", value));
+            sqlParameter04.IsNullable = true;
+            sqlCommand.Parameters.Add(sqlParameter04);
 
             sqlConnection.Open();
             sqlCommand.ExecuteNonQuery();

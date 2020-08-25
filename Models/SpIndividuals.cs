@@ -69,7 +69,7 @@ namespace USF_Health_MVC_EF.Models
         public SpIndividuals GetIndividualbyId(int? id)
         {
 
-            SqlDataAdapter dataAdapter = new SqlDataAdapter("[usp_individuals_select_with_stats]", Globals.connection);
+            SqlDataAdapter dataAdapter = new SqlDataAdapter("[usp_individuals_select]", Globals.connection);
             dataAdapter.SelectCommand.CommandType = System.Data.CommandType.StoredProcedure;
             SqlParameter sqlParameter01 = new SqlParameter("ind_id", id);
             dataAdapter.SelectCommand.Parameters.Add(sqlParameter01);

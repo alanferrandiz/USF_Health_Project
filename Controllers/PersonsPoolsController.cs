@@ -27,18 +27,18 @@ namespace USF_Health_MVC_EF.Controllers
         public ActionResult Index()
         {
 
-            SqlDataAdapter dataAdapter = new SqlDataAdapter("usp_pools_select_with_stats", Globals.connection);
+            SqlDataAdapter dataAdapter = new SqlDataAdapter("usp_pools_select", Globals.connection);
             dataAdapter.SelectCommand.CommandType = System.Data.CommandType.StoredProcedure;
             System.Data.DataTable dataTable = new System.Data.DataTable();
 
             dataAdapter.Fill(dataTable);
 
-            List<SpPoolsWithStats> list = new List<SpPoolsWithStats>();
+            List<SpPools> list = new List<SpPools>();
 
             for (int i = 0; i < dataTable.Rows.Count; i++)
             {
 
-                SpPoolsWithStats item = new SpPoolsWithStats();
+                SpPools item = new SpPools();
                 DataRow dr = dataTable.Rows[i];
 
                 item.poo_id = Int32.Parse(dr["poo_id"].ToString());
@@ -62,7 +62,7 @@ namespace USF_Health_MVC_EF.Controllers
             dataAdapter.SelectCommand.CommandType = System.Data.CommandType.StoredProcedure;
             System.Data.DataTable dataTable = new System.Data.DataTable();
 
-            SqlParameter sqlParameter01 = new SqlParameter("type", 4);
+            SqlParameter sqlParameter01 = new SqlParameter("type", 5);  //4
             SqlParameter sqlParameter02 = new SqlParameter("poo_id", id);
 
             dataAdapter.SelectCommand.Parameters.Add(sqlParameter01);
@@ -124,7 +124,7 @@ namespace USF_Health_MVC_EF.Controllers
             dataAdapter.SelectCommand.CommandType = System.Data.CommandType.StoredProcedure;
             System.Data.DataTable dataTable = new System.Data.DataTable();
 
-            SqlParameter sqlParameter01 = new SqlParameter("type", 4);
+            SqlParameter sqlParameter01 = new SqlParameter("type", 5);  //4
             SqlParameter sqlParameter02 = new SqlParameter("poo_id", id);
 
             dataAdapter.SelectCommand.Parameters.Add(sqlParameter01);
@@ -188,7 +188,7 @@ namespace USF_Health_MVC_EF.Controllers
             dataAdapter.SelectCommand.CommandType = System.Data.CommandType.StoredProcedure;
             System.Data.DataTable dataTable = new System.Data.DataTable();
 
-            SqlParameter sqlParameter01 = new SqlParameter("type", 2);
+            SqlParameter sqlParameter01 = new SqlParameter("type", 3);      //2
             SqlParameter sqlParameter02 = new SqlParameter("is_id", id);
 
 
@@ -246,11 +246,11 @@ namespace USF_Health_MVC_EF.Controllers
         [Authorize("usfhealth_laboratory")]
         public ActionResult Delete(int? id)
         {
-            SqlDataAdapter dataAdapter = new SqlDataAdapter("usp_pools_select_with_stats", Globals.connection);
+            SqlDataAdapter dataAdapter = new SqlDataAdapter("usp_pools_select", Globals.connection);
             dataAdapter.SelectCommand.CommandType = System.Data.CommandType.StoredProcedure;
             System.Data.DataTable dataTable = new System.Data.DataTable();
 
-            SqlParameter sqlParameter01 = new SqlParameter("type", 1);
+            SqlParameter sqlParameter01 = new SqlParameter("type", 2);
             SqlParameter sqlParameter02 = new SqlParameter("poo_id", id);
 
 
@@ -259,21 +259,21 @@ namespace USF_Health_MVC_EF.Controllers
 
             dataAdapter.Fill(dataTable);
 
-            SpPoolsWithStats spPoolsWithStats = new SpPoolsWithStats();
+            SpPools spPools = new SpPools();
 
             for (int i = 0; i < dataTable.Rows.Count; i++)
             {
 
                 DataRow dr = dataTable.Rows[i];
 
-                spPoolsWithStats.poo_id = Int32.Parse(dr["poo_id"].ToString());
-                spPoolsWithStats.poo_date_created_text = dr["poo_date_created_text"].ToString();
-                spPoolsWithStats.poo_details = dr["poo_details"].ToString();
-                spPoolsWithStats.poo_count = Int32.Parse(dr["poo_count"].ToString());
+                spPools.poo_id = Int32.Parse(dr["poo_id"].ToString());
+                spPools.poo_date_created_text = dr["poo_date_created_text"].ToString();
+                spPools.poo_details = dr["poo_details"].ToString();
+                spPools.poo_count = Int32.Parse(dr["poo_count"].ToString());
 
             }
 
-            return View(spPoolsWithStats);
+            return View(spPools);
         }
 
 
@@ -287,12 +287,44 @@ namespace USF_Health_MVC_EF.Controllers
         [Authorize("usfhealth_laboratory")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("poo_id,poo_date_created,poo_time_created,poo_details")] Pool pool)
+        public ActionResult Create([Bind("poo_id,poo_date_created,poo_time_created,poo_details")] Pool pool)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(pool);
-                await _context.SaveChangesAsync();
+                //_context.Add(pool);
+                //await _context.SaveChangesAsync();
+
+                SqlCommand sqlCommand = new SqlCommand();
+                SqlConnection sqlConnection = new SqlConnection(Globals.connection.ToString());
+                sqlCommand.CommandType = System.Data.CommandType.StoredProcedure;
+                sqlCommand.Connection = sqlConnection;
+                sqlCommand.CommandText = "usp_pools_insert";
+
+                SqlParameter sqlParameter01 = new SqlParameter("poo_details", pool.poo_details);
+                sqlParameter01.IsNullable = true;
+                sqlCommand.Parameters.Add(sqlParameter01);
+
+                SqlParameter sqlParameter02 = new SqlParameter("usr_id_audit", Globals.currentUserId);
+                sqlParameter02.IsNullable = true;
+                sqlCommand.Parameters.Add(sqlParameter02);
+
+                SqlParameter sqlParameter03 = new SqlParameter("ssn_id", Globals.sessionId);
+                sqlParameter03.IsNullable = true;
+                sqlCommand.Parameters.Add(sqlParameter03);
+
+                SqlDataReader sqlDataReader; 
+                sqlConnection.Open();
+                sqlDataReader = sqlCommand.ExecuteReader();
+
+                if (sqlDataReader.Read())
+                {
+                    pool.poo_id = Convert.ToInt32(sqlDataReader["poo_id"]);
+                }
+
+                sqlConnection.Close();
+
+
+
                 return RedirectToAction(nameof(Assign), new { id = pool.poo_id });
 
             }
@@ -309,15 +341,31 @@ namespace USF_Health_MVC_EF.Controllers
             SqlConnection sqlConnection = new SqlConnection(Globals.connection.ToString());
             sqlCommand.CommandType = System.Data.CommandType.StoredProcedure;
             sqlCommand.Connection = sqlConnection;
-            sqlCommand.CommandText = "usp_pools_results_update_result";
+            sqlCommand.CommandText = "usp_pools_results_update";
 
-            SqlParameter sqlParameter01 = new SqlParameter("poo_id", id);
+            SqlParameter sqlParameter01 = new SqlParameter("type", 2);
             sqlParameter01.IsNullable = false;
             sqlCommand.Parameters.Add(sqlParameter01);
 
-            SqlParameter sqlParameter02 = new SqlParameter("pr_result", Globals.Iif(value is null, "", value));//Globals.Iif(value is null, "", value));
-            sqlParameter02.IsNullable = true;
+            SqlParameter sqlParameter02 = new SqlParameter("poo_id", id);
+            sqlParameter02.IsNullable = false;
             sqlCommand.Parameters.Add(sqlParameter02);
+
+            SqlParameter sqlParameter03 = new SqlParameter("pr_value", Globals.Iif(value is null, "", value));
+            sqlParameter03.IsNullable = true;
+            sqlCommand.Parameters.Add(sqlParameter03);
+
+            SqlParameter sqlParameter04 = new SqlParameter("usr_id", Globals.currentUserId);
+            sqlParameter04.IsNullable = true;
+            sqlCommand.Parameters.Add(sqlParameter04);
+
+            SqlParameter sqlParameter05 = new SqlParameter("usr_id_audit", Globals.currentUserId);
+            sqlParameter05.IsNullable = true;
+            sqlCommand.Parameters.Add(sqlParameter05);
+
+            SqlParameter sqlParameter06 = new SqlParameter("ssn_id", Globals.sessionId);
+            sqlParameter06.IsNullable = true;
+            sqlCommand.Parameters.Add(sqlParameter06);
 
             sqlConnection.Open();
             sqlCommand.ExecuteNonQuery();
@@ -335,15 +383,31 @@ namespace USF_Health_MVC_EF.Controllers
             SqlConnection sqlConnection = new SqlConnection(Globals.connection.ToString());
             sqlCommand.CommandType = System.Data.CommandType.StoredProcedure;
             sqlCommand.Connection = sqlConnection;
-            sqlCommand.CommandText = "usp_pools_results_update_ct_value";
+            sqlCommand.CommandText = "usp_pools_results_update";
 
-            SqlParameter sqlParameter01 = new SqlParameter("poo_id", id);
+            SqlParameter sqlParameter01 = new SqlParameter("type", 1);
             sqlParameter01.IsNullable = false;
             sqlCommand.Parameters.Add(sqlParameter01);
 
-            SqlParameter sqlParameter02 = new SqlParameter("pr_ct_value", Globals.Iif(value is null, "", value));//Globals.Iif(value is null, "", value));
-            sqlParameter02.IsNullable = true;
+            SqlParameter sqlParameter02 = new SqlParameter("poo_id", id);
+            sqlParameter02.IsNullable = false;
             sqlCommand.Parameters.Add(sqlParameter02);
+
+            SqlParameter sqlParameter03 = new SqlParameter("pr_value", Globals.Iif(value is null, "", value));
+            sqlParameter03.IsNullable = true;
+            sqlCommand.Parameters.Add(sqlParameter03);
+
+            SqlParameter sqlParameter04 = new SqlParameter("usr_id", Globals.currentUserId);
+            sqlParameter04.IsNullable = true;
+            sqlCommand.Parameters.Add(sqlParameter04);
+
+            SqlParameter sqlParameter05 = new SqlParameter("usr_id_audit", Globals.currentUserId);
+            sqlParameter05.IsNullable = true;
+            sqlCommand.Parameters.Add(sqlParameter05);
+
+            SqlParameter sqlParameter06 = new SqlParameter("ssn_id", Globals.sessionId);
+            sqlParameter06.IsNullable = true;
+            sqlCommand.Parameters.Add(sqlParameter06);
 
             sqlConnection.Open();
             sqlCommand.ExecuteNonQuery();
@@ -363,19 +427,36 @@ namespace USF_Health_MVC_EF.Controllers
             SqlConnection sqlConnection = new SqlConnection(Globals.connection.ToString());
             sqlCommand.CommandType = System.Data.CommandType.StoredProcedure;
             sqlCommand.Connection = sqlConnection;
-            sqlCommand.CommandText = "usp_individuals_samples_update_pool_id";
+            sqlCommand.CommandText = "usp_individuals_samples_update";
 
-            SqlParameter sqlParameter01 = new SqlParameter("is_barcode", id);
+
+            SqlParameter sqlParameter01 = new SqlParameter("type", 2);
             sqlParameter01.IsNullable = false;
             sqlCommand.Parameters.Add(sqlParameter01);
 
-            SqlParameter sqlParameter02 = new SqlParameter("poo_id", value);
+            SqlParameter sqlParameter02 = new SqlParameter("is_barcode", id);
             sqlParameter02.IsNullable = false;
             sqlCommand.Parameters.Add(sqlParameter02);
 
-            SqlParameter sqlParameter03 = new SqlParameter("operation", operation);
-            sqlParameter02.IsNullable = false;
+            SqlParameter sqlParameter03 = new SqlParameter("poo_id", value);
+            sqlParameter03.IsNullable = false;
             sqlCommand.Parameters.Add(sqlParameter03);
+
+            SqlParameter sqlParameter04 = new SqlParameter("operation", operation);
+            sqlParameter04.IsNullable = false;
+            sqlCommand.Parameters.Add(sqlParameter04);
+
+            SqlParameter sqlParameter05 = new SqlParameter("usr_id_registered", Globals.currentUserId);
+            sqlParameter05.IsNullable = true;
+            sqlCommand.Parameters.Add(sqlParameter05);
+
+            SqlParameter sqlParameter06 = new SqlParameter("usr_id_audit", Globals.currentUserId);
+            sqlParameter06.IsNullable = true;
+            sqlCommand.Parameters.Add(sqlParameter06);
+
+            SqlParameter sqlParameter07 = new SqlParameter("ssn_id", Globals.sessionId);
+            sqlParameter07.IsNullable = true;
+            sqlCommand.Parameters.Add(sqlParameter07);
 
             sqlConnection.Open();
             rowsAffected = sqlCommand.ExecuteNonQuery();

@@ -51,18 +51,22 @@ namespace USF_Health_MVC_EF.Models
         [Column(TypeName = "date")] public DateTime? is_date_created { get; set; }
         [Column(TypeName = "time")] public TimeSpan? is_time_created { get; set; }
         public string? is_date_created_text { get; set; }
+        public int? usr_id_created { get; set; }
         [Column(TypeName = "date")] public DateTime? is_date_collected { get; set; }
         [Column(TypeName = "time")] public TimeSpan? is_time_collected { get; set; }
         public string? is_date_collected_text { get; set; }
+        public int? usr_id_collected { get; set; }
         [Column(TypeName = "date")] public DateTime? is_date_registered { get; set; }
         [Column(TypeName = "time")] public TimeSpan? is_time_registered { get; set; }
         public string? is_date_registered_text { get; set; }
+        public int? usr_id_registered { get; set; }
         public string? is_details { get; set; }
         public int? poo_id { get; set; }
         public string? poo_details { get; set; }
         [Column(TypeName = "date")] public DateTime? is_date_registered_pool { get; set; }
         [Column(TypeName = "time")] public TimeSpan? is_time_registered_pool { get; set; }
         public string? is_date_registered_pool_text { get; set; }
+        public int? usr_id_registered_pool { get; set; }
         public int? samples_count { get; set; }
         public int? position { get; set; }
         public string? is_well_number { get; set; }

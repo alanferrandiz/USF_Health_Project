@@ -131,6 +131,10 @@ namespace USF_Health_MVC_EF.Controllers
                 sqlParameter07.IsNullable = true;
                 sqlCommand.Parameters.Add(sqlParameter07);
 
+                SqlParameter sqlParameter08 = new SqlParameter("ssn_id", Globals.sessionId);
+                sqlParameter08.IsNullable = true;
+                sqlCommand.Parameters.Add(sqlParameter08);
+
                 SqlDataReader sqlDataReader;
                 sqlConnection.Open();
                 sqlDataReader = sqlCommand.ExecuteReader();
@@ -164,12 +168,12 @@ namespace USF_Health_MVC_EF.Controllers
 
             if (is_id == null) 
             {
-                sqlParameter01 = new SqlParameter("type", 1);
+                sqlParameter01 = new SqlParameter("type", 2);   //1
                 sqlParameter02 = new SqlParameter("ind_id", id);
             } 
             else 
             {
-                sqlParameter01 = new SqlParameter("type", 2);
+                sqlParameter01 = new SqlParameter("type", 3);   //2
                 sqlParameter02 = new SqlParameter("is_id", is_id);
             }
 

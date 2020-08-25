@@ -158,6 +158,9 @@ namespace USF_Health_MVC_EF.Controllers
                 sqlParameter11.IsNullable = true;
                 sqlCommand.Parameters.Add(sqlParameter11);
 
+                SqlParameter sqlParameter12 = new SqlParameter("ssn_id", Globals.sessionId);
+                sqlParameter12.IsNullable = true;
+                sqlCommand.Parameters.Add(sqlParameter12);
 
                 sqlConnection.Open();
                 sqlCommand.ExecuteNonQuery();
@@ -257,6 +260,10 @@ namespace USF_Health_MVC_EF.Controllers
                     sqlParameter11.IsNullable = true;
                     sqlCommand.Parameters.Add(sqlParameter11);
 
+                    SqlParameter sqlParameter12 = new SqlParameter("ssn_id", Globals.sessionId);
+                    sqlParameter12.IsNullable = true;
+                    sqlCommand.Parameters.Add(sqlParameter12);
+
 
                     sqlConnection.Open();
                     sqlCommand.ExecuteNonQuery();
@@ -338,6 +345,10 @@ namespace USF_Health_MVC_EF.Controllers
             SqlParameter sqlParameter02 = new SqlParameter("usr_id_audit", Globals.currentUserId);
             sqlParameter02.IsNullable = true;
             sqlCommand.Parameters.Add(sqlParameter02);
+
+            SqlParameter sqlParameter03 = new SqlParameter("ssn_id", Globals.sessionId);
+            sqlParameter03.IsNullable = true;
+            sqlCommand.Parameters.Add(sqlParameter03);
 
 
             sqlConnection.Open();

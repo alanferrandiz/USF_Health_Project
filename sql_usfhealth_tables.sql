@@ -132,9 +132,7 @@ create table tb_pools_results
 		pr_ct_value				varchar(800),	/*results value for the pool results*/
 		pr_date_ct_value		date,			/*date of the registration for the pool results*/
 		pr_time_ct_value		time,			/*time of the registration for the pool results*/
-		usr_id_ct_value			int,			/*foreign key for tb_users (user id who registered the pool results)*/
-		pr_details				varchar(max)	/*important details for the pool results*/
-)
+		usr_id_ct_value			int			/*foreign key for tb_users (user id who registered the pool results)*/)
 go
 
 create table tb_references
@@ -251,7 +249,8 @@ create table tb_audit
 	aud_field				varchar(800),
 	aud_before				varchar(max),
 	aud_after				varchar(max),
-	usr_id_audit			int
+	usr_id_audit			int,
+	ssn_id					int
 )
 go
 

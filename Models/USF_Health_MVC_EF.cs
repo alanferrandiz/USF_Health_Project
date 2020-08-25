@@ -22,7 +22,7 @@ namespace USF_Health_MVC_EF.Models
         public virtual DbSet<Pool> tb_pools { get; set; }
         public virtual DbSet<SpIndividuals> usp_individual_select { get; set; }
         public virtual DbSet<SpIndividualsSamples> usp_individuals_samples_select { get; set; }
-        public virtual DbSet<SpPoolsWithStats> usp_pools_select_with_stats { get; set; }
+        public virtual DbSet<SpPools> usp_pools_select { get; set; }
         public virtual DbSet<SpStudies> usp_studies_select { get; set; }
         public virtual DbSet<SpReferences> usp_references_select { get; set; }
 
@@ -184,7 +184,7 @@ namespace USF_Health_MVC_EF.Models
 
 
 
-            modelBuilder.Entity<SpPoolsWithStats> //().HasNoKey().ToView(null)
+            modelBuilder.Entity<SpPools> //().HasNoKey().ToView(null)
             (entity =>
             {
                 entity.HasNoKey().ToView(null);

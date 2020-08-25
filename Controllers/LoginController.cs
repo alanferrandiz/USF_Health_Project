@@ -45,6 +45,7 @@ namespace USF_Health_MVC_EF.Controllers
 
             if (sqlDataReader.Read())
             {
+                Globals.sessionId = Convert.ToInt32(sqlDataReader["ssn_id"]);
                 Globals.currentUserId = Convert.ToInt32(sqlDataReader["usr_id_audit"]);
                 Globals.currentUserName = sqlDataReader["usr_username_audit"].ToString();
             }

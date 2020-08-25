@@ -22,7 +22,7 @@ namespace USF_Health_MVC_EF.Controllers
             _context = context;
         }
 
-        [Authorize("usfhealth_laboratory")]
+        [Authorize]
         public ActionResult Details(int? id)
         {
             //if (id == null)
@@ -40,7 +40,7 @@ namespace USF_Health_MVC_EF.Controllers
             SqlDataAdapter dataAdapter = new SqlDataAdapter("usp_individuals_samples_select", Globals.connection);
             dataAdapter.SelectCommand.CommandType = System.Data.CommandType.StoredProcedure;
 
-            SqlParameter sqlParameter01 = new SqlParameter("type",2);
+            SqlParameter sqlParameter01 = new SqlParameter("type",3);   //2
             sqlParameter01.IsNullable = false;
 
             SqlParameter sqlParameter02 = new SqlParameter("is_id", id);
@@ -89,7 +89,7 @@ namespace USF_Health_MVC_EF.Controllers
             return View(SpIndividualsSamples);
         }
 
-        [Authorize("usfhealth_laboratory")]
+        [Authorize]
         public IActionResult Index()
         {
             SqlDataAdapter dataAdapter = new SqlDataAdapter("usp_individuals_samples_select", Globals.connection);
@@ -133,7 +133,7 @@ namespace USF_Health_MVC_EF.Controllers
 
 
 
-        [Authorize("usfhealth_laboratory")]
+        [Authorize]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -156,21 +156,44 @@ namespace USF_Health_MVC_EF.Controllers
         }
 
 
-        [Authorize("usfhealth_laboratory")]
+        [Authorize]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             
             var individualSamples = await _context.tb_individuals_samples.FindAsync(id);
-            _context.tb_individuals_samples.Remove(individualSamples);
-            await _context.SaveChangesAsync();
+            //_context.tb_individuals_samples.Remove(individualSamples);
+            //await _context.SaveChangesAsync();
+            SqlCommand sqlCommand = new SqlCommand();
+            SqlConnection sqlConnection = new SqlConnection(Globals.connection.ToString());
+            sqlCommand.CommandType = System.Data.CommandType.StoredProcedure;
+            sqlCommand.Connection = sqlConnection;
+            sqlCommand.CommandText = "usp_individuals_samples_delete";
+
+            SqlParameter sqlParameter01 = new SqlParameter("is_id", id);
+            sqlParameter01.IsNullable = true;
+            sqlCommand.Parameters.Add(sqlParameter01);
+
+            SqlParameter sqlParameter02 = new SqlParameter("usr_id_audit", Globals.currentUserId);
+            sqlParameter02.IsNullable = true;
+            sqlCommand.Parameters.Add(sqlParameter02);
+
+            SqlParameter sqlParameter03 = new SqlParameter("ssn_id", Globals.sessionId);
+            sqlParameter03.IsNullable = true;
+            sqlCommand.Parameters.Add(sqlParameter03);
+
+            sqlConnection.Open();
+            sqlCommand.ExecuteNonQuery();
+            sqlConnection.Close();
+
+
             return RedirectToAction(nameof(Index));
         }
 
 
 
-        [Authorize("usfhealth_laboratory")]
+        [Authorize]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -193,10 +216,10 @@ namespace USF_Health_MVC_EF.Controllers
 
 
 
-        [Authorize("usfhealth_laboratory")]
+        [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("is_id, is_date_collected, is_time_collected, usr_id_collected,is_date_registered,is_time_registered,ind_id,is_well_number,is_details")] IndividualSample individualSample)
+        public async Task<IActionResult> Edit(int id, [Bind("is_id, is_date_collected, is_time_collected, usr_id_collected, is_date_registered, is_time_registered, usr_id_registered, ind_id, is_well_number, is_details")] IndividualSample individualSample)
         {
             if (id != individualSample.is_id)
             {
@@ -232,29 +255,68 @@ namespace USF_Health_MVC_EF.Controllers
                     sqlParameter04.IsNullable = true;
                     sqlCommand.Parameters.Add(sqlParameter04);
 
-                    SqlParameter sqlParameter05 = new SqlParameter("is_date_registered", individualSample.is_date_registered);
-                    sqlParameter05.IsNullable = false;
+                    SqlParameter sqlParameter05 = new SqlParameter("usr_id_collected", individualSample.usr_id_collected);
+                    sqlParameter05.IsNullable = true;
                     sqlCommand.Parameters.Add(sqlParameter05);
 
-                    SqlParameter sqlParameter06 = new SqlParameter("is_time_registered", individualSample.is_time_registered);
-                    sqlParameter06.IsNullable = true;
+
+                    SqlParameter sqlParameter06 = new SqlParameter("is_date_registered", individualSample.is_date_registered);
+                    sqlParameter06.IsNullable = false;
                     sqlCommand.Parameters.Add(sqlParameter06);
 
-                    SqlParameter sqlParameter07 = new SqlParameter("ind_id", individualSample.ind_id);
-                    sqlParameter07.IsNullable = true;
-                    sqlCommand.Parameters.Add(sqlParameter07);
+                    if  (individualSample.is_date_registered == null)
+                    {
+                        SqlParameter sqlParameter07 = new SqlParameter("is_time_registered", individualSample.is_time_registered);
+                        sqlParameter07.IsNullable = true;
+                        sqlCommand.Parameters.Add(sqlParameter07);
 
-                    SqlParameter sqlParameter08 = new SqlParameter("is_well_number", individualSample.is_well_number);
-                    sqlParameter08.IsNullable = true;
-                    sqlCommand.Parameters.Add(sqlParameter08);
+                        SqlParameter sqlParameter08 = new SqlParameter("usr_id_registered", individualSample.usr_id_registered);
+                        sqlParameter08.IsNullable = true;
+                        sqlCommand.Parameters.Add(sqlParameter08);
+                    }
+                    else
+                    {
+                        if (individualSample.is_time_registered == null)
+                        {
+                            SqlParameter sqlParameter07 = new SqlParameter("is_time_registered", String.Empty);
+                            sqlParameter07.IsNullable = true;
+                            sqlCommand.Parameters.Add(sqlParameter07);
 
-                    SqlParameter sqlParameter09 = new SqlParameter("is_details", individualSample.is_details);
+                            SqlParameter sqlParameter08 = new SqlParameter("usr_id_registered", String.Empty);
+                            sqlParameter08.IsNullable = true;
+                            sqlCommand.Parameters.Add(sqlParameter08);
+                        }
+                        else 
+                        {
+                            SqlParameter sqlParameter07 = new SqlParameter("is_time_registered", individualSample.is_time_registered);
+                            sqlParameter07.IsNullable = true;
+                            sqlCommand.Parameters.Add(sqlParameter07);
+
+                            SqlParameter sqlParameter08 = new SqlParameter("usr_id_registered", individualSample.usr_id_registered);
+                            sqlParameter08.IsNullable = true;
+                            sqlCommand.Parameters.Add(sqlParameter08);
+                        }
+                    }
+
+                    SqlParameter sqlParameter09 = new SqlParameter("ind_id", individualSample.ind_id);
                     sqlParameter09.IsNullable = true;
                     sqlCommand.Parameters.Add(sqlParameter09);
 
-                    SqlParameter sqlParameter10 = new SqlParameter("usr_id_audit", Globals.currentUserId);
+                    SqlParameter sqlParameter10 = new SqlParameter("is_well_number", individualSample.is_well_number);
                     sqlParameter10.IsNullable = true;
                     sqlCommand.Parameters.Add(sqlParameter10);
+
+                    SqlParameter sqlParameter11 = new SqlParameter("is_details", individualSample.is_details);
+                    sqlParameter11.IsNullable = true;
+                    sqlCommand.Parameters.Add(sqlParameter11);
+
+                    SqlParameter sqlParameter12 = new SqlParameter("usr_id_audit", Globals.currentUserId);
+                    sqlParameter12.IsNullable = true;
+                    sqlCommand.Parameters.Add(sqlParameter12);
+
+                    SqlParameter sqlParameter13 = new SqlParameter("ssn_id", Globals.sessionId);
+                    sqlParameter13.IsNullable = true;
+                    sqlCommand.Parameters.Add(sqlParameter13);
 
                     sqlConnection.Open();
                     sqlCommand.ExecuteNonQuery();
@@ -314,6 +376,10 @@ namespace USF_Health_MVC_EF.Controllers
             sqlParameter04.IsNullable = true;
             sqlCommand.Parameters.Add(sqlParameter04);
 
+            SqlParameter sqlParameter05 = new SqlParameter("ssn_id", Globals.sessionId);//Globals.Iif(value is null, "", value));
+            sqlParameter05.IsNullable = true;
+            sqlCommand.Parameters.Add(sqlParameter05);
+
             sqlConnection.Open();
             sqlCommand.ExecuteNonQuery();
             sqlConnection.Close();
@@ -323,7 +389,7 @@ namespace USF_Health_MVC_EF.Controllers
 
 
 
-        [Authorize("usfhealth_laboratory")]
+        [Authorize]
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {

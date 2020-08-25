@@ -91,10 +91,13 @@ create procedure usp_individuals_insert
 @ref_id				int = null,
 @std_id				int = null,
 @ind_details		varchar(max) = null,
-@usr_id_audit		int = null
+@usr_id_audit		int = null,
+@ssn_id				int = null
 as
 begin
-	exec sp_set_session_context @key = N'usr_id_audit', @value = @usr_id_audit 
+	exec sp_set_session_context @key = N'usr_id_audit', @value = @usr_id_audit
+	exec sp_set_session_context @key = N'ssn_id', @value = @ssn_id 
+
 
 	insert into tb_individuals (usr_id_created,ind_first_name,ind_last_name,ind_email,ind_phone,ind_gender,ind_document,ref_id,std_id,ind_details)
 	values (@usr_id_created, @ind_first_name, @ind_last_name, @ind_email, @ind_phone, @ind_gender, @ind_document, @ref_id, @std_id, @ind_details)
@@ -108,10 +111,12 @@ if OBJECT_ID('usp_individuals_delete') is not null
 go
 create procedure usp_individuals_delete
 @ind_id				int,
-@usr_id_audit		int
+@usr_id_audit		int,
+@ssn_id				int = null
 as
 begin
 	exec sp_set_session_context @key = N'usr_id_audit', @value = @usr_id_audit 
+	exec sp_set_session_context @key = N'ssn_id', @value = @ssn_id 
 
 	delete from tb_individuals where ind_id = @ind_id
 end
@@ -133,10 +138,12 @@ create procedure usp_individuals_update
 @ref_id				int = null,
 @std_id				int = null,
 @ind_details		varchar(max) = null,
-@usr_id_audit		int = null
+@usr_id_audit		int = null,
+@ssn_id				int = null
 as
 begin
 	exec sp_set_session_context @key = N'usr_id_audit', @value = @usr_id_audit 
+	exec sp_set_session_context @key = N'ssn_id', @value = @ssn_id 
 
 	update tb_individuals 
 	set		ind_first_name = @ind_first_name,
@@ -168,10 +175,12 @@ create procedure usp_individuals_samples_insert
 @usr_id_collected	int = null,
 @ind_id				int = null,
 @is_details			varchar(max) = null,
-@usr_id_audit		int = null
+@usr_id_audit		int = null,
+@ssn_id				int = null
 as
 begin
 	exec sp_set_session_context @key = N'usr_id_audit', @value = @usr_id_audit 
+	exec sp_set_session_context @key = N'ssn_id', @value = @ssn_id 
 
 	insert into tb_individuals_samples (usr_id_created,is_date_collected,is_time_collected,usr_id_collected,ind_id,is_details)
 	values (@usr_id_created, isnull(@is_date_collected,dbo.udf_getdatelocal(default)), isnull(@is_time_collected,dbo.udf_getdatelocal(default)), @usr_id_collected, @ind_id, @is_details)
@@ -191,7 +200,7 @@ if OBJECT_ID('usp_individuals_samples_select') is not null
 	drop procedure usp_individuals_samples_select
 go
 create procedure [dbo].usp_individuals_samples_select
-@type	int = 0,
+@type	int = 1,
 @ind_id int = null,
 @is_id int = null,
 @is_barcode varchar(800) = null,
@@ -216,12 +225,15 @@ declare @tabla table	(
 	is_date_created					date,
 	is_time_created					time,
 	is_date_created_text			varchar(800),
+	usr_id_created					int,
 	is_date_collected				date,
 	is_time_collected				time,
 	is_date_collected_text			varchar(800),
+	usr_id_collected				int,
 	is_date_registered				date,
 	is_time_registered				time,
 	is_date_registered_text			varchar(800),
+	usr_id_registered				int,
 	is_well_number					varchar(800),
 	is_details						varchar(max),
 	poo_id							int,
@@ -229,6 +241,7 @@ declare @tabla table	(
 	is_date_registered_pool			date,
 	is_time_registered_pool			time,
 	is_date_registered_pool_text	varchar(800),
+	usr_id_registered_pool			int,
 	pr_result						varchar(800),
 	pr_ct_value						varchar(800),
 	samples_count					int
@@ -250,12 +263,15 @@ insert into @tabla
 			is_date_created,
 			is_time_created,
 			convert(varchar(800),convert(date,is_date_created)),
+			usr_id_created,
 			is_date_collected,
 			is_time_collected,
 			convert(varchar(800),convert(date,is_date_collected)),
+			usr_id_collected,
 			is_date_registered,
 			is_time_registered,
 			convert(varchar(800),convert(date,is_date_registered)),
+			usr_id_registered,
 			is_well_number,
 			is_details,
 			poo_id,
@@ -263,48 +279,49 @@ insert into @tabla
 			is_date_registered_pool,
 			is_time_registered_pool,
 			convert(varchar(800),convert(date,is_date_registered_pool)),
+			usr_id_registered_pool,
 			(select top 1 pr_result from tb_pools_results pr where pr.poo_id = [is].poo_id order by pr_date_result desc, pr_time_result desc) pr_result,
 			(select top 1 pr_ct_value from tb_pools_results pr where pr.poo_id = [is].poo_id order by pr_date_result desc, pr_time_result desc) pr_ct_value,
 			(select count(*) samples_count from [tb_individuals_samples] [is2] where [is2].ind_id = [is].ind_id) samples_count
 	from [dbo].[tb_individuals_samples] [is]
 	order by is_date_created desc, is_time_created desc
 
-if @type = 0
+if @type = 1
 begin
 	select *, 
 	ROW_NUMBER() over (order by is_date_created asc) position
 	from @tabla 
 	order by is_date_created desc, is_time_created desc
 end
-if @type = 1 
+if @type = 2 
 begin
 	select *, 
 	ROW_NUMBER() over (order by is_date_created asc) position
 	from @tabla where ind_id = @ind_id 
 	order by is_date_created desc, is_time_created desc
 end
-else if @type = 2
+else if @type = 3
 begin
 	select *, 
 	ROW_NUMBER() over (order by is_date_created asc) position
 	from @tabla where is_id = @is_id 
 	order by is_date_created desc, is_time_created desc
 end
-else if @type = 3
+else if @type = 4
 begin
 	select *, 
 	ROW_NUMBER() over (order by is_date_created asc) position
 	from @tabla where is_barcode = @is_barcode 
 	order by is_date_created desc, is_time_created desc
 end
-else if @type = 4
+else if @type = 5
 begin
 	select *, 
 	ROW_NUMBER() over (order by is_date_created asc) position
 	from @tabla where poo_id = @poo_id 
 	order by is_date_registered_pool desc, is_time_registered_pool desc
 end
-else if @type = 5
+else if @type = 6
 begin
 	select *, 
 	ROW_NUMBER() over (order by is_date_created asc) position
@@ -313,6 +330,24 @@ begin
 end
 go
 
+
+
+
+if OBJECT_ID('usp_individuals_samples_delete') is not null
+	drop procedure usp_individuals_samples_delete
+go
+create procedure usp_individuals_samples_delete
+@is_id				int,
+@usr_id_audit		int = null,
+@ssn_id				int = null
+as
+begin
+	exec sp_set_session_context @key = N'usr_id_audit', @value = @usr_id_audit 
+	exec sp_set_session_context @key = N'ssn_id', @value = @ssn_id  
+
+	delete from tb_individuals_samples where is_id = @is_id
+end
+go
 
 --alter procedure usp_individuals_samples_select_all
 --as
@@ -463,7 +498,7 @@ if OBJECT_ID('usp_pools_select') is not null
 	drop procedure usp_pools_select
 go
 create procedure [dbo].[usp_pools_select]
-@type	int = 0,
+@type	int = 1,
 @poo_id int = null
 as
 declare @tabla table	(
@@ -488,17 +523,47 @@ insert into @tabla
 	from [dbo].[tb_pools] as p 
 	order by poo_date_created desc, poo_time_created desc
 
-if @type = 0 
+if @type = 1 
 begin
 	select * from @tabla order by poo_date_created desc, poo_time_created desc
 end
-if @type = 1 
+if @type = 2 
 begin
 	select * from @tabla where poo_id = @poo_id order by poo_date_created desc, poo_time_created desc
 end
 go
 
 
+
+
+--select * from tb_pools
+if OBJECT_ID('usp_pools_insert') is not null
+	drop procedure usp_pools_insert
+go
+create procedure dbo.usp_pools_insert
+@poo_details			varchar(max) = null,
+@usr_id_audit			int = null,
+@ssn_id					int = null
+as
+begin
+	exec sp_set_session_context @key = N'usr_id_audit', @value = @usr_id_audit 
+	exec sp_set_session_context @key = N'ssn_id', @value = @ssn_id 
+
+	insert into tb_pools (usr_id_created, poo_details)
+	values (@usr_id_audit, @poo_details)
+
+	select IDENT_CURRENT('tb_pools') as poo_id
+end
+
+go
+
+
+
+
+
+
+
+--select * from tb_individuals_samples
 if OBJECT_ID('usp_individuals_samples_update') is not null
 	drop procedure usp_individuals_samples_update
 go
@@ -520,24 +585,23 @@ create procedure usp_individuals_samples_update
 @is_details					varchar(max) = null,
 @is_barcode					varchar(800) = null,
 @operation					int = null,
-@usr_id_audit				int = null
+@usr_id_audit				int = null,
+@ssn_id						int = null
 as
 begin
 	exec sp_set_session_context @key = N'usr_id_audit', @value = @usr_id_audit 
+	exec sp_set_session_context @key = N'ssn_id', @value = @ssn_id 
 
 	if	@type = 1 
 	begin
 			update	tb_individuals_samples 
 			set		is_date_collected = @is_date_collected,
-					is_time_collected = @is_time_collected,
+					is_time_collected  = @is_time_collected,
 					usr_id_collected = @usr_id_collected,
 					is_date_registered = @is_date_registered,
-					is_time_registered  = @is_time_registered,
-					usr_id_registered = @usr_id_registered,
+					is_time_registered  = case when @is_time_registered = '' then dbo.udf_getdatelocal(default) else @is_time_registered end ,
+					usr_id_registered = case when @usr_id_registered = '' then @usr_id_audit else @usr_id_registered end,
 					ind_id = @ind_id,
-					is_date_registered_pool = @is_date_registered_pool,
-					is_time_registered_pool	= @is_time_registered_pool,
-					usr_id_registered_pool	= @usr_id_registered_pool,
 					is_well_number	= @is_well_number,
 					is_details	= @is_details
 			where is_id = @is_id
@@ -558,11 +622,19 @@ begin
 			update	tb_individuals_samples
 			set		poo_id = null,
 					is_date_registered_pool = null,
-					is_time_registered_pool = null
+					is_time_registered_pool = null,
+					usr_id_registered_pool = null
 			where is_barcode = @is_barcode
 		end
 		else if @operation = 3
 		begin
+			update	tb_individuals_samples
+			set		poo_id = null,
+					is_date_registered_pool = null,
+					is_time_registered_pool = null,
+					usr_id_registered_pool = null
+			where is_id in (select is_id from tb_individuals_samples where poo_id = @poo_id) 
+
 			delete tb_pools where poo_id = @poo_id
 		end
 	end
@@ -697,11 +769,14 @@ go
 create procedure usp_pools_results_update
 @type				int,
 @poo_id				int,
-@pr_value			varchar(800) 
+@pr_value			varchar(800), 
+@usr_id				int,
+@usr_id_audit		int = null,
+@ssn_id				int = null
 as
 begin
-		declare @usr_id int
-		select @usr_id = cast(SESSION_CONTEXT(N'usr_id') as int)
+	exec sp_set_session_context @key = N'usr_id_audit', @value = @usr_id_audit 
+	exec sp_set_session_context @key = N'ssn_id', @value = @ssn_id  
 
 		if @type = 1
 		begin
@@ -717,8 +792,8 @@ begin
 			end
 			else 
 			begin
-				insert into	tb_pools_results (poo_id, pr_date_result, pr_time_result, pr_ct_value, usr_id_ct_value)
-				values		(@poo_id,dbo.udf_getdatelocal(default), dbo.udf_getdatelocal(default),(case when (@pr_value = '') then null else @pr_value end), @usr_id)
+				insert into	tb_pools_results (poo_id, pr_date_result, pr_time_result, usr_id_created, pr_ct_value, usr_id_ct_value)
+				values		(@poo_id,dbo.udf_getdatelocal(default), dbo.udf_getdatelocal(default), @usr_id,(case when (@pr_value = '') then null else @pr_value end), @usr_id)
 			end
 
 		end
@@ -736,8 +811,8 @@ begin
 			end
 			else 
 			begin
-				insert into	[dbo].[tb_pools_results] (poo_id, pr_date_result, pr_time_result, pr_result, usr_id_result)
-				values		(@poo_id,dbo.udf_getdatelocal(default), dbo.udf_getdatelocal(default),(case when (@pr_value = '') then null else @pr_value end), @usr_id)
+				insert into	[dbo].[tb_pools_results] (poo_id, pr_date_result, pr_time_result, usr_id_created, pr_result, usr_id_result)
+				values		(@poo_id,dbo.udf_getdatelocal(default), dbo.udf_getdatelocal(default), @usr_id,(case when (@pr_value = '') then null else @pr_value end), @usr_id)
 			end
 		end
 end
@@ -756,13 +831,15 @@ as
 begin
 	if @type = 1
 	begin
+		declare @ssn_id int
 		declare @usr_id_audit int
 		declare @usr_username_audit nvarchar(800)
 		select @usr_id_audit = usr_id, @usr_username_audit = usr_username from tb_users where @username like '%'+ usr_username +'%'
 
 		insert into tb_sessions (usr_id) values (@usr_id_audit)
+		set @ssn_id = IDENT_CURRENT('tb_sessions')
 
-		select @usr_id_audit 'usr_id_audit', @usr_username_audit 'usr_username_audit'
+		select @ssn_id 'ssn_id', @usr_id_audit 'usr_id_audit', @usr_username_audit 'usr_username_audit'
 	end
 end
 --select * from tb_sessions
@@ -805,10 +882,12 @@ begin
 		declare @column_value_before nvarchar(max)
 		declare @query_column_value_before nvarchar(max)
 		declare @usr_id_audit int
+		declare @ssn_id int
 
 		select @operation_id = isnull(max(aud_operation_id),0) + 1 from tb_audit 
 
-		select @usr_id_audit = cast(SESSION_CONTEXT(N'usr_id_audit') as int)		
+		select @usr_id_audit = cast(SESSION_CONTEXT(N'usr_id_audit') as int)
+		select @ssn_id = cast(SESSION_CONTEXT(N'ssn_id') as int)		
 
 	if exists (select * from inserted) and not exists (select * from deleted)
 	begin
@@ -846,8 +925,8 @@ begin
 
 					if (@column_value_after is not null)
 					begin
-						insert into tb_audit (aud_station,aud_operation_id, aud_operation,aud_date,aud_time, aud_user, aud_table, aud_identifier_id, aud_identifier_field, aud_field, aud_before, aud_after, usr_id_audit)
-						select HOST_NAME(),@operation_id,'INSERT',dbo.udf_getdatelocal(default),dbo.udf_getdatelocal(default),SYSTEM_USER,@tablename, @id_value, @columnname_first, @columnname, null, @column_value_after, @usr_id_audit
+						insert into tb_audit (aud_station,aud_operation_id, aud_operation,aud_date,aud_time, aud_user, aud_table, aud_identifier_id, aud_identifier_field, aud_field, aud_before, aud_after, usr_id_audit, ssn_id)
+						select HOST_NAME(),@operation_id,'INSERT',dbo.udf_getdatelocal(default),dbo.udf_getdatelocal(default),SYSTEM_USER,@tablename, @id_value, @columnname_first, @columnname, null, @column_value_after, @usr_id_audit, @ssn_id
 					end
 
 					set @contadorcolumnas = @contadorcolumnas + 1
@@ -898,8 +977,8 @@ begin
 
 					if @column_value_before != @column_value_after or (@column_value_before is not null and @column_value_after is null) or (@column_value_before is null and @column_value_after is not null)
 					begin
-						insert into tb_audit (aud_station,aud_operation_id,aud_operation,aud_date,aud_time, aud_user, aud_table, aud_identifier_id, aud_identifier_field, aud_field, aud_before, aud_after, usr_id_audit)
-						select HOST_NAME(),@operation_id,'UPDATE',dbo.udf_getdatelocal(default),dbo.udf_getdatelocal(default),SYSTEM_USER,@tablename, @id_value, @columnname_first, @columnname, @column_value_before, @column_value_after, @usr_id_audit
+						insert into tb_audit (aud_station,aud_operation_id,aud_operation,aud_date,aud_time, aud_user, aud_table, aud_identifier_id, aud_identifier_field, aud_field, aud_before, aud_after, usr_id_audit,ssn_id)
+						select HOST_NAME(),@operation_id,'UPDATE',dbo.udf_getdatelocal(default),dbo.udf_getdatelocal(default),SYSTEM_USER,@tablename, @id_value, @columnname_first, @columnname, @column_value_before, @column_value_after, @usr_id_audit, @ssn_id
 					end
 
 					set @contadorcolumnas = @contadorcolumnas + 1
@@ -946,8 +1025,8 @@ begin
 
 					if (@column_value_before is not null)
 					begin
-						insert into tb_audit (aud_station,aud_operation_id,aud_operation,aud_date,aud_time, aud_user, aud_table, aud_identifier_id, aud_identifier_field, aud_field, aud_before, aud_after, usr_id_audit)
-						select HOST_NAME(),@operation_id,'DELETE',dbo.udf_getdatelocal(default),dbo.udf_getdatelocal(default),SYSTEM_USER,@tablename, @id_value, @columnname_first, @columnname, @column_value_before, null, @usr_id_audit
+						insert into tb_audit (aud_station,aud_operation_id,aud_operation,aud_date,aud_time, aud_user, aud_table, aud_identifier_id, aud_identifier_field, aud_field, aud_before, aud_after, usr_id_audit, ssn_id)
+						select HOST_NAME(),@operation_id,'DELETE',dbo.udf_getdatelocal(default),dbo.udf_getdatelocal(default),SYSTEM_USER,@tablename, @id_value, @columnname_first, @columnname, @column_value_before, null, @usr_id_audit, @ssn_id
 					end
 					set @contadorcolumnas = @contadorcolumnas + 1
 				end
@@ -989,10 +1068,12 @@ begin
 		declare @column_value_before nvarchar(max)
 		declare @query_column_value_before nvarchar(max)
 		declare @usr_id_audit int
+		declare @ssn_id int
 
 		select @operation_id = isnull(max(aud_operation_id),0) + 1 from tb_audit 
 
-		select @usr_id_audit = cast(SESSION_CONTEXT(N'usr_id_audit') as int)		
+		select @usr_id_audit = cast(SESSION_CONTEXT(N'usr_id_audit') as int)
+		select @ssn_id = cast(SESSION_CONTEXT(N'ssn_id') as int)		
 
 	if exists (select * from inserted) and not exists (select * from deleted)
 	begin
@@ -1030,8 +1111,8 @@ begin
 
 					if (@column_value_after is not null)
 					begin
-						insert into tb_audit (aud_station,aud_operation_id, aud_operation,aud_date,aud_time, aud_user, aud_table, aud_identifier_id, aud_identifier_field, aud_field, aud_before, aud_after, usr_id_audit)
-						select HOST_NAME(),@operation_id,'INSERT',dbo.udf_getdatelocal(default),dbo.udf_getdatelocal(default),SYSTEM_USER,@tablename, @id_value, @columnname_first, @columnname, null, @column_value_after, @usr_id_audit
+						insert into tb_audit (aud_station,aud_operation_id, aud_operation,aud_date,aud_time, aud_user, aud_table, aud_identifier_id, aud_identifier_field, aud_field, aud_before, aud_after, usr_id_audit, ssn_id)
+						select HOST_NAME(),@operation_id,'INSERT',dbo.udf_getdatelocal(default),dbo.udf_getdatelocal(default),SYSTEM_USER,@tablename, @id_value, @columnname_first, @columnname, null, @column_value_after, @usr_id_audit, @ssn_id
 					end
 
 					set @contadorcolumnas = @contadorcolumnas + 1
@@ -1082,8 +1163,8 @@ begin
 
 					if @column_value_before != @column_value_after or (@column_value_before is not null and @column_value_after is null) or (@column_value_before is null and @column_value_after is not null)
 					begin
-						insert into tb_audit (aud_station,aud_operation_id,aud_operation,aud_date,aud_time, aud_user, aud_table, aud_identifier_id, aud_identifier_field, aud_field, aud_before, aud_after, usr_id_audit)
-						select HOST_NAME(),@operation_id,'UPDATE',dbo.udf_getdatelocal(default),dbo.udf_getdatelocal(default),SYSTEM_USER,@tablename, @id_value, @columnname_first, @columnname, @column_value_before, @column_value_after, @usr_id_audit
+						insert into tb_audit (aud_station,aud_operation_id,aud_operation,aud_date,aud_time, aud_user, aud_table, aud_identifier_id, aud_identifier_field, aud_field, aud_before, aud_after, usr_id_audit,ssn_id)
+						select HOST_NAME(),@operation_id,'UPDATE',dbo.udf_getdatelocal(default),dbo.udf_getdatelocal(default),SYSTEM_USER,@tablename, @id_value, @columnname_first, @columnname, @column_value_before, @column_value_after, @usr_id_audit, @ssn_id
 					end
 
 					set @contadorcolumnas = @contadorcolumnas + 1
@@ -1130,8 +1211,8 @@ begin
 
 					if (@column_value_before is not null)
 					begin
-						insert into tb_audit (aud_station,aud_operation_id,aud_operation,aud_date,aud_time, aud_user, aud_table, aud_identifier_id, aud_identifier_field, aud_field, aud_before, aud_after, usr_id_audit)
-						select HOST_NAME(),@operation_id,'DELETE',dbo.udf_getdatelocal(default),dbo.udf_getdatelocal(default),SYSTEM_USER,@tablename, @id_value, @columnname_first, @columnname, @column_value_before, null, @usr_id_audit
+						insert into tb_audit (aud_station,aud_operation_id,aud_operation,aud_date,aud_time, aud_user, aud_table, aud_identifier_id, aud_identifier_field, aud_field, aud_before, aud_after, usr_id_audit, ssn_id)
+						select HOST_NAME(),@operation_id,'DELETE',dbo.udf_getdatelocal(default),dbo.udf_getdatelocal(default),SYSTEM_USER,@tablename, @id_value, @columnname_first, @columnname, @column_value_before, null, @usr_id_audit, @ssn_id
 					end
 					set @contadorcolumnas = @contadorcolumnas + 1
 				end
@@ -1177,10 +1258,12 @@ begin
 		declare @column_value_before nvarchar(max)
 		declare @query_column_value_before nvarchar(max)
 		declare @usr_id_audit int
+		declare @ssn_id int
 
 		select @operation_id = isnull(max(aud_operation_id),0) + 1 from tb_audit 
 
-		select @usr_id_audit = cast(SESSION_CONTEXT(N'usr_id_audit') as int)		
+		select @usr_id_audit = cast(SESSION_CONTEXT(N'usr_id_audit') as int)
+		select @ssn_id = cast(SESSION_CONTEXT(N'ssn_id') as int)		
 
 	if exists (select * from inserted) and not exists (select * from deleted)
 	begin
@@ -1218,8 +1301,8 @@ begin
 
 					if (@column_value_after is not null)
 					begin
-						insert into tb_audit (aud_station,aud_operation_id, aud_operation,aud_date,aud_time, aud_user, aud_table, aud_identifier_id, aud_identifier_field, aud_field, aud_before, aud_after, usr_id_audit)
-						select HOST_NAME(),@operation_id,'INSERT',dbo.udf_getdatelocal(default),dbo.udf_getdatelocal(default),SYSTEM_USER,@tablename, @id_value, @columnname_first, @columnname, null, @column_value_after, @usr_id_audit
+						insert into tb_audit (aud_station,aud_operation_id, aud_operation,aud_date,aud_time, aud_user, aud_table, aud_identifier_id, aud_identifier_field, aud_field, aud_before, aud_after, usr_id_audit, ssn_id)
+						select HOST_NAME(),@operation_id,'INSERT',dbo.udf_getdatelocal(default),dbo.udf_getdatelocal(default),SYSTEM_USER,@tablename, @id_value, @columnname_first, @columnname, null, @column_value_after, @usr_id_audit, @ssn_id
 					end
 
 					set @contadorcolumnas = @contadorcolumnas + 1
@@ -1270,8 +1353,8 @@ begin
 
 					if @column_value_before != @column_value_after or (@column_value_before is not null and @column_value_after is null) or (@column_value_before is null and @column_value_after is not null)
 					begin
-						insert into tb_audit (aud_station,aud_operation_id,aud_operation,aud_date,aud_time, aud_user, aud_table, aud_identifier_id, aud_identifier_field, aud_field, aud_before, aud_after, usr_id_audit)
-						select HOST_NAME(),@operation_id,'UPDATE',dbo.udf_getdatelocal(default),dbo.udf_getdatelocal(default),SYSTEM_USER,@tablename, @id_value, @columnname_first, @columnname, @column_value_before, @column_value_after, @usr_id_audit
+						insert into tb_audit (aud_station,aud_operation_id,aud_operation,aud_date,aud_time, aud_user, aud_table, aud_identifier_id, aud_identifier_field, aud_field, aud_before, aud_after, usr_id_audit,ssn_id)
+						select HOST_NAME(),@operation_id,'UPDATE',dbo.udf_getdatelocal(default),dbo.udf_getdatelocal(default),SYSTEM_USER,@tablename, @id_value, @columnname_first, @columnname, @column_value_before, @column_value_after, @usr_id_audit, @ssn_id
 					end
 
 					set @contadorcolumnas = @contadorcolumnas + 1
@@ -1318,8 +1401,8 @@ begin
 
 					if (@column_value_before is not null)
 					begin
-						insert into tb_audit (aud_station,aud_operation_id,aud_operation,aud_date,aud_time, aud_user, aud_table, aud_identifier_id, aud_identifier_field, aud_field, aud_before, aud_after, usr_id_audit)
-						select HOST_NAME(),@operation_id,'DELETE',dbo.udf_getdatelocal(default),dbo.udf_getdatelocal(default),SYSTEM_USER,@tablename, @id_value, @columnname_first, @columnname, @column_value_before, null, @usr_id_audit
+						insert into tb_audit (aud_station,aud_operation_id,aud_operation,aud_date,aud_time, aud_user, aud_table, aud_identifier_id, aud_identifier_field, aud_field, aud_before, aud_after, usr_id_audit, ssn_id)
+						select HOST_NAME(),@operation_id,'DELETE',dbo.udf_getdatelocal(default),dbo.udf_getdatelocal(default),SYSTEM_USER,@tablename, @id_value, @columnname_first, @columnname, @column_value_before, null, @usr_id_audit, @ssn_id
 					end
 					set @contadorcolumnas = @contadorcolumnas + 1
 				end
@@ -1330,7 +1413,6 @@ begin
 	end
 end
 go
-
 
 
 
@@ -1360,10 +1442,12 @@ begin
 		declare @column_value_before nvarchar(max)
 		declare @query_column_value_before nvarchar(max)
 		declare @usr_id_audit int
+		declare @ssn_id int
 
 		select @operation_id = isnull(max(aud_operation_id),0) + 1 from tb_audit 
 
-		select @usr_id_audit = cast(SESSION_CONTEXT(N'usr_id_audit') as int)		
+		select @usr_id_audit = cast(SESSION_CONTEXT(N'usr_id_audit') as int)
+		select @ssn_id = cast(SESSION_CONTEXT(N'ssn_id') as int)		
 
 	if exists (select * from inserted) and not exists (select * from deleted)
 	begin
@@ -1401,8 +1485,8 @@ begin
 
 					if (@column_value_after is not null)
 					begin
-						insert into tb_audit (aud_station,aud_operation_id, aud_operation,aud_date,aud_time, aud_user, aud_table, aud_identifier_id, aud_identifier_field, aud_field, aud_before, aud_after, usr_id_audit)
-						select HOST_NAME(),@operation_id,'INSERT',dbo.udf_getdatelocal(default),dbo.udf_getdatelocal(default),SYSTEM_USER,@tablename, @id_value, @columnname_first, @columnname, null, @column_value_after, @usr_id_audit
+						insert into tb_audit (aud_station,aud_operation_id, aud_operation,aud_date,aud_time, aud_user, aud_table, aud_identifier_id, aud_identifier_field, aud_field, aud_before, aud_after, usr_id_audit, ssn_id)
+						select HOST_NAME(),@operation_id,'INSERT',dbo.udf_getdatelocal(default),dbo.udf_getdatelocal(default),SYSTEM_USER,@tablename, @id_value, @columnname_first, @columnname, null, @column_value_after, @usr_id_audit, @ssn_id
 					end
 
 					set @contadorcolumnas = @contadorcolumnas + 1
@@ -1453,8 +1537,8 @@ begin
 
 					if @column_value_before != @column_value_after or (@column_value_before is not null and @column_value_after is null) or (@column_value_before is null and @column_value_after is not null)
 					begin
-						insert into tb_audit (aud_station,aud_operation_id,aud_operation,aud_date,aud_time, aud_user, aud_table, aud_identifier_id, aud_identifier_field, aud_field, aud_before, aud_after, usr_id_audit)
-						select HOST_NAME(),@operation_id,'UPDATE',dbo.udf_getdatelocal(default),dbo.udf_getdatelocal(default),SYSTEM_USER,@tablename, @id_value, @columnname_first, @columnname, @column_value_before, @column_value_after, @usr_id_audit
+						insert into tb_audit (aud_station,aud_operation_id,aud_operation,aud_date,aud_time, aud_user, aud_table, aud_identifier_id, aud_identifier_field, aud_field, aud_before, aud_after, usr_id_audit,ssn_id)
+						select HOST_NAME(),@operation_id,'UPDATE',dbo.udf_getdatelocal(default),dbo.udf_getdatelocal(default),SYSTEM_USER,@tablename, @id_value, @columnname_first, @columnname, @column_value_before, @column_value_after, @usr_id_audit, @ssn_id
 					end
 
 					set @contadorcolumnas = @contadorcolumnas + 1
@@ -1501,8 +1585,8 @@ begin
 
 					if (@column_value_before is not null)
 					begin
-						insert into tb_audit (aud_station,aud_operation_id,aud_operation,aud_date,aud_time, aud_user, aud_table, aud_identifier_id, aud_identifier_field, aud_field, aud_before, aud_after, usr_id_audit)
-						select HOST_NAME(),@operation_id,'DELETE',dbo.udf_getdatelocal(default),dbo.udf_getdatelocal(default),SYSTEM_USER,@tablename, @id_value, @columnname_first, @columnname, @column_value_before, null, @usr_id_audit
+						insert into tb_audit (aud_station,aud_operation_id,aud_operation,aud_date,aud_time, aud_user, aud_table, aud_identifier_id, aud_identifier_field, aud_field, aud_before, aud_after, usr_id_audit, ssn_id)
+						select HOST_NAME(),@operation_id,'DELETE',dbo.udf_getdatelocal(default),dbo.udf_getdatelocal(default),SYSTEM_USER,@tablename, @id_value, @columnname_first, @columnname, @column_value_before, null, @usr_id_audit, @ssn_id
 					end
 					set @contadorcolumnas = @contadorcolumnas + 1
 				end

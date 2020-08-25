@@ -9,7 +9,7 @@ using System.Data;
 
 namespace USF_Health_MVC_EF.Models
 {
-    public class SpPoolsWithStats
+    public class SpPools
     {
         public int poo_id { get; set; }
         [Column(TypeName = "date")] public DateTime? poo_date_created { get; set; }

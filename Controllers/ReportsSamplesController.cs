@@ -36,7 +36,7 @@ namespace USF_Health_MVC_EF.Controllers
                 
                 System.Data.DataTable dataTable = new System.Data.DataTable();
 
-                SqlParameter sqlParameter01 = new SqlParameter("type", 5);
+                SqlParameter sqlParameter01 = new SqlParameter("type", 6);      //5
                 sqlParameter01.IsNullable = false;
                 dataAdapter.SelectCommand.Parameters.Add(sqlParameter01);
 

@@ -56,6 +56,10 @@ namespace USF_Health_MVC_EF.Controllers
             sqlParameter04.IsNullable = true;
             sqlCommand.Parameters.Add(sqlParameter04);
 
+            SqlParameter sqlParameter05 = new SqlParameter("ssn_id", Globals.sessionId);
+            sqlParameter05.IsNullable = true;
+            sqlCommand.Parameters.Add(sqlParameter05);
+
             sqlConnection.Open();
             sqlCommand.ExecuteNonQuery();
             sqlConnection.Close();
@@ -76,7 +80,7 @@ namespace USF_Health_MVC_EF.Controllers
             SqlDataAdapter dataAdapter = new SqlDataAdapter("[usp_individuals_samples_select]", Globals.connection); 
             dataAdapter.SelectCommand.CommandType = System.Data.CommandType.StoredProcedure;
 
-            SqlParameter sqlParameter01 = new SqlParameter("type", 3);
+            SqlParameter sqlParameter01 = new SqlParameter("type", 4);  //3
             dataAdapter.SelectCommand.Parameters.Add(sqlParameter01);
 
             SqlParameter sqlParameter02 = new SqlParameter("is_barcode", barcode);
@@ -111,6 +115,7 @@ namespace USF_Health_MVC_EF.Controllers
                     SpIndividualsSamples.is_date_created = dr["is_date_created"] is DBNull ? (DateTime?)null : (DateTime?)dr["is_date_created"];
                     SpIndividualsSamples.is_time_created = dr["is_time_created"] is DBNull ? (TimeSpan?)null : (TimeSpan?)dr["is_time_created"];
                     SpIndividualsSamples.is_date_created_text = dr["is_date_created_text"].ToString();
+                    SpIndividualsSamples.usr_id_created = Int32.Parse(dr["usr_id_created"].ToString());
                     SpIndividualsSamples.is_date_collected = dr["is_date_collected"] is DBNull ? (DateTime?)null : (DateTime?)dr["is_date_collected"];
                     SpIndividualsSamples.is_time_collected = dr["is_time_collected"] is DBNull ? (TimeSpan?)null : (TimeSpan?)dr["is_time_collected"];
                     SpIndividualsSamples.is_date_collected_text = dr["is_date_collected_text"].ToString();

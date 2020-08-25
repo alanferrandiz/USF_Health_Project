@@ -30,7 +30,7 @@ namespace USF_Health_MVC_EF.Models
 
             SqlDataAdapter dataAdapter = new SqlDataAdapter("[usp_individuals_samples_select]", Globals.connection);
             dataAdapter.SelectCommand.CommandType = System.Data.CommandType.StoredProcedure;
-            SqlParameter sqlParameter01 = new SqlParameter("type", 1);
+            SqlParameter sqlParameter01 = new SqlParameter("type", 2);      //1
             dataAdapter.SelectCommand.Parameters.Add(sqlParameter01);
             SqlParameter sqlParameter02 = new SqlParameter("ind_id", id);
             dataAdapter.SelectCommand.Parameters.Add(sqlParameter02);

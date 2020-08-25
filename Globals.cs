@@ -14,6 +14,7 @@ static class Globals
 {
     public static String connection;
     public static int currentUserId;
+    public static int sessionId;
     public static String currentUserName;
 
     public static T Iif<T>(bool cond, T left, T right)

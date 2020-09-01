@@ -45,11 +45,15 @@
         </div>
 
         <div class="div_button">
-            <input type="submit" id="btnSubmit" value="Assign" onclick="handle(event,document.getElementById('txtBarcode').value, document.getElementById('poo_id').value);" onsubmit="this.disabled = true;this.value='Submitting...';this.form.submit();"/>
+            <input type="submit" id="btnSubmit" value="Assign" onclick="handle(event,document.getElementById('txtBarcode').value, document.getElementById('poo_id').value);" onsubmit="this.disabled = true;this.value='Submitting...';this.form.submit();" />
         </div>
 
         <div class="div_label" style="width:500px;">
             <label id="lblStatus"></label>
+        </div>
+
+        <div class="div_label" style="width:800px;">
+            <label id="lblSeparator"></label>
         </div>
 
     </form>
@@ -215,11 +219,11 @@
         document.getElementById('lblStatus').hidden = true;
     } else if (type == 0) {
         document.getElementById('lblStatus').hidden = false;
-        document.getElementById('lblStatus').style.color = "red";
+        document.getElementById('lblStatus').style.color = "green";
         document.getElementById('lblStatus').textContent = status
     } else if (type == 1) {
         document.getElementById('lblStatus').hidden = false;
-        document.getElementById('lblStatus').style.color = "red";
+        document.getElementById('lblStatus').style.color = "green";
         document.getElementById('lblStatus').textContent = status
 
     }

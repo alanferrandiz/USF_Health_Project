@@ -1,8 +1,9 @@
 ﻿@model IEnumerable<USF_Health_MVC_EF.Models.SpIndividualsSamples>
 
 @{
-    ViewData["Title"] = "Reports - Samples";
+    ViewData["Title"] = "Reports - Individuals Samples";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    List<SpPools> spPools = ViewData["pools"] as List<SpPools>;
 }
 <script src="https://cdn.datatables.net/buttons/1.6.2/js/dataTables.buttons.min.js"></script>
 <script src="https://cdn.datatables.net/buttons/1.6.2/js/buttons.flash.min.js"></script>
@@ -14,7 +15,7 @@
 <link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.6.2/css/buttons.dataTables.min.css" runat=server>
 
 <div class="div_breadcrumb">
-    Reports&nbsp;&nbsp;&nbsp;>&nbsp;&nbsp;&nbsp;Samples
+    Reports&nbsp;&nbsp;&nbsp;>&nbsp;&nbsp;&nbsp;Individuals Samples
 </div>
 
 <script type="text/javascript">
@@ -51,30 +52,80 @@
 <div class="div_form" style="width:80%">
 
     <form id="frmForm">
+        <div>
+            <div style="float: left;  width:30%;">
+                <div class="div_text">
+                    Sample Date Start
+                </div>
+                <div class="div_input">
+                    <input type="date" id="txtDateStart" required />
+                </div>
 
-        <div class="div_text">
-            Date Start
-        </div>
-        <div class="div_input">
-            <input type="date" id="txtDateStart" required/>
-        </div>
+                <div class="div_text">
+                    Sample Date End
+                </div>
+                <div class="div_input">
+                    <input type="date" id="txtDateEnd" required />
+                </div>
 
-        <div class="div_text">
-            Date End
-        </div>
-        <div class="div_input">
-            <input type="date" id="txtDateEnd" required/>
-        </div>
+                <div class="div_button">
+                    <input type="submit" id="btnSubmit" value="Search" onclick="handle(event,document.getElementById('txtDateStart').value, document.getElementById('txtDateEnd').value, document.getElementById('ddlPoolResult').options[document.getElementById('ddlPoolResult').selectedIndex].value, document.getElementById('ddlPoolID').options[document.getElementById('ddlPoolID').selectedIndex].value, document.getElementById('ddlPoolResult').selectedIndex, document.getElementById('ddlPoolID').selectedIndex, document.getElementById('ddlPoolResult').options[document.getElementById('ddlPoolResult').selectedIndex].text, document.getElementById('ddlPoolID').options[document.getElementById('ddlPoolID').selectedIndex].text);" />
+                </div>
 
-        <div class="div_button">
-            <input type="submit" id="btnSubmit" value="Search" onclick="handle(event,document.getElementById('txtDateStart').value, document.getElementById('txtDateEnd').value);"/>
-        </div>
+                <div class="div_label" style="width:800px;">
+                    <label id="lblStatus"></label>
+                </div>
+                <div class="div_label" style="width:800px;">
+                    <label id="lblPoolResultStatus"></label>
+                </div>
+                <div class="div_label" style="width:800px;">
+                    <label id="lblPoolIDStatus"></label>
+                </div>
+                <div class="div_label" style="width:800px;">
+                    <label id="lblSeparator"></label>
+                </div>
+            </div>
+            <div style="float: left;  width:10%;">
+                <div class="div_text">
+                    AND
+                </div>
+            </div>
+            <div style="float: left; width:30%;">
+                <div class="div_text">
+                    Pool Result
+                </div>
+                <div class="div_dropdownlist">
+                    <select id="ddlPoolResult">
+                        <option value="A">All Results</option>
+                        <option value="P">Positive (P)</option>
+                        <option value="N">Negative (N)</option>
+                        <option value="U">Pools w/ No Result / Samples w/ No Pool</option>
+                    </select>
+                </div>
+            </div>
+            <div style="float: left;  width:10%;">
+                <div class="div_text">
+                    AND
+                </div>
+            </div>
+            <div style="float: right; width:20%;">
+                <div class="div_text">
+                    Pool ID
+                </div>
+                <div class="div_dropdownlist">
+                    <select id="ddlPoolID">
+                        <option value="0" selected>All Pools</option>
+                        @foreach (var item in spPools)
+                        {
+                            <option value="@item.poo_id">@item.poo_id</option>
 
-        <div class="div_label" style="width:500px;">
-            <label id="lblStatus"></label>
-        </div>
+                        }
+                    </select>
+                </div>
+            </div>
 
-    </form>
+        </div>
+</form>
 </div>
 
 
@@ -184,20 +235,20 @@
 
 <script type="text/javascript">
 
-    function handle(e, dateStart, dateEnd) {
+    function handle(e, dateStart, dateEnd, poolResult, PoolID, poolResultSelected, poolIDSelected, poolResultStatus, poolIDStatus) {
 
 
         if (e.keyCode === 13 || e.target.id == 'btnSubmit') {
             if (document.getElementById('frmForm').checkValidity()) {
                 e.preventDefault();
-                ReportsPersonSamples(dateStart, dateEnd);
+                ReportsPersonSamples(dateStart, dateEnd, poolResult, PoolID, poolResultSelected, poolIDSelected, poolResultStatus, poolIDStatus);
             }
         }
     }
 
 
-    function ReportsPersonSamples(dateStart, dateEnd) {
-        window.location.href = '@Url.Action("Index", "ReportsSamples")?type=1&datestart=' + dateStart + '&dateend=' + dateEnd + '&status=Samples from ' + dateStart + ' to ' + dateEnd;
+    function ReportsPersonSamples(dateStart, dateEnd, poolResult, PoolID, poolResultSelected, poolIDSelected, poolResultStatus, poolIDStatus) {
+        window.location.href = '@Url.Action("Index", "ReportsIndividualsSamples")?type=1&datestart=' + dateStart + '&dateend=' + dateEnd + '&poolResult=' + poolResult + '&poolID=' + PoolID + '&poolResultSelected=' + poolResultSelected + '&poolIDSelected=' + poolIDSelected + '&status=Sample Dates: from ' + dateStart + ' to ' + dateEnd + '&poolResultStatus=' + poolResultStatus + '&poolIDStatus=' + poolIDStatus;
     }
 </script>
 
@@ -206,21 +257,38 @@
     const params = new URLSearchParams(window.location.search);
     const type = params.get('type');
     const status = params.get('status');
+    const poolResultStatus = params.get('poolResultStatus');
+    const poolIDStatus = params.get('poolIDStatus');
     const dateStart = params.get('datestart');
     const dateEnd = params.get('dateend');
+    const poolResultSelected = params.get('poolResultSelected');
+    const poolIDSelected = params.get('poolIDSelected');
 
     if (type == null) {
         document.getElementById('lblStatus').hidden = true;
     } else if (type == 0) {
         document.getElementById('lblStatus').hidden = false;
-        document.getElementById('lblStatus').style.color = "red";
+        document.getElementById('lblStatus').style.color = "green";
         document.getElementById('lblStatus').textContent = status
     } else if (type == 1) {
         document.getElementById('txtDateStart').value = dateStart;
         document.getElementById('txtDateEnd').value = dateEnd;
+        document.getElementById('ddlPoolResult').selectedIndex = poolResultSelected;
+        document.getElementById('ddlPoolID').selectedIndex = poolIDSelected;
+
         document.getElementById('lblStatus').hidden = false;
-        document.getElementById('lblStatus').style.color = "red";
+        document.getElementById('lblStatus').style.color = "green";
         document.getElementById('lblStatus').textContent = status
+
+        document.getElementById('lblPoolResultStatus').hidden = false;
+        document.getElementById('lblPoolResultStatus').style.color = "green";
+        document.getElementById('lblPoolResultStatus').textContent = 'Pool Result: '+ poolResultStatus
+
+        document.getElementById('lblPoolIDStatus').hidden = false;
+        document.getElementById('lblPoolIDStatus').style.color = "green";
+        document.getElementById('lblPoolIDStatus').textContent = 'Pool ID: ' + poolIDStatus
+
+
     }
 
 </script>

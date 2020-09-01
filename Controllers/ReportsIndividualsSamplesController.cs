@@ -13,11 +13,11 @@ using USF_Health_MVC_EF.Models;
 
 namespace USF_Health_MVC_EF.Controllers
 {
-    public class ReportsSamplesController : Controller
+    public class ReportsIndividualsSamplesController : Controller
     {
        
         private readonly USF_Health_MVC_EFContext _context;
-        public ReportsSamplesController(USF_Health_MVC_EFContext context)
+        public ReportsIndividualsSamplesController(USF_Health_MVC_EFContext context)
         {
             _context = context;
         }
@@ -25,10 +25,35 @@ namespace USF_Health_MVC_EF.Controllers
 
 
         [Authorize]
-        public IActionResult Index(int? type, DateTime? dateStart, DateTime? dateEnd)
+        public IActionResult Index(int? type, DateTime? dateStart, DateTime? dateEnd, String ? poolResult, int ? poolID)
         {
 
-            
+            SqlDataAdapter dataAdapterPools = new SqlDataAdapter("usp_pools_select", Globals.connection);
+            dataAdapterPools.SelectCommand.CommandType = System.Data.CommandType.StoredProcedure;
+
+            System.Data.DataTable dataTablePools = new System.Data.DataTable();
+
+            SqlParameter sqlParameterPools01 = new SqlParameter("type", 3);      //5
+            sqlParameterPools01.IsNullable = false;
+            dataAdapterPools.SelectCommand.Parameters.Add(sqlParameterPools01);
+
+            dataAdapterPools.Fill(dataTablePools);
+            List<SpPools> listPools = new List<SpPools>();
+
+            for (int i = 0; i < dataTablePools.Rows.Count; i++)
+            {
+                SpPools item = new SpPools();
+                DataRow dr = dataTablePools.Rows[i];
+
+                item.poo_id = Int32.Parse(dr["poo_id"].ToString());
+                listPools.Add(item);
+            }
+            ViewData["pools"] = listPools;
+
+
+
+
+
             if (type == 1)
             {
                 SqlDataAdapter dataAdapter = new SqlDataAdapter("usp_individuals_samples_select", Globals.connection);
@@ -47,6 +72,14 @@ namespace USF_Health_MVC_EF.Controllers
                 SqlParameter sqlParameter03 = new SqlParameter("date_end", dateEnd);
                 sqlParameter03.IsNullable = true;
                 dataAdapter.SelectCommand.Parameters.Add(sqlParameter03);
+
+                SqlParameter sqlParameter04 = new SqlParameter("poo_result", poolResult);
+                sqlParameter03.IsNullable = true;
+                dataAdapter.SelectCommand.Parameters.Add(sqlParameter04);
+
+                SqlParameter sqlParameter05 = new SqlParameter("poo_id", poolID);
+                sqlParameter03.IsNullable = true;
+                dataAdapter.SelectCommand.Parameters.Add(sqlParameter05);
 
                 dataAdapter.Fill(dataTable);
                 List<SpIndividualsSamples> list = new List<SpIndividualsSamples>();
@@ -122,12 +155,12 @@ namespace USF_Health_MVC_EF.Controllers
         }
 
 
-        [HttpGet]
-        public int ReportsPersonSamples(DateTime? dateStart, DateTime? dateEnd)
-        {
+        //[HttpGet]
+        //public int ReportsPersonSamples(DateTime? dateStart, DateTime? dateEnd)
+        //{
 
-            return 1;
-        }
+        //    return 1;
+        //}
         
 
 

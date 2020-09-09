@@ -1,4 +1,3 @@
-
 --STORED PROCEDURES
 
 
@@ -227,22 +226,22 @@ go
 --exec usp_individuals_samples_select @type = 4, @is_barcode = 'A0000001'
 --exec usp_individuals_samples_select @type = 5, @poo_id = 1
 --exec usp_individuals_samples_select @type = 6, @date_start = '2020-08-01', @date_end  = '2020-09-01', @poo_id = 3, @poo_result = 'A'
-
---select * from tb_individuals_samples
+--exec usp_individuals_samples_select @type = 7, @is_id_list = '1,3,4,5'
 
 
 if OBJECT_ID('usp_individuals_samples_select') is not null
 	drop procedure usp_individuals_samples_select
 go
 create procedure [dbo].usp_individuals_samples_select
-@type	int = 1,
-@ind_id int = null,
-@is_id int = null,
-@is_barcode varchar(800) = null,
-@poo_result varchar(800) = null,
-@poo_id int = null,
-@date_start	date = null,
-@date_end	date = null
+@type				int = 1,
+@ind_id				int = null,
+@is_id				int = null,
+@is_barcode			varchar(800) = null,
+@poo_result			varchar(800) = null,
+@poo_id				int = null,
+@date_start			date = null,
+@date_end			date = null,
+@is_id_list			varchar(max) = null
 as
 --declare @tabla table	(
 --	is_id							int,
@@ -656,6 +655,112 @@ begin
 	select * from @tabla
 
 end
+else if @type = 7
+begin
+
+
+	declare @list table(is_id varchar(800))
+
+	while len(@is_id_list) > 0
+		begin
+			insert into @list(is_id)
+			select left(@is_id_list, charindex(',', @is_id_list+',') -1) as is_id
+    
+			set @is_id_list = stuff(@is_id_list, 1, charindex(',', @is_id_list + ','), '')
+		end
+
+
+	--select *, 
+	--ROW_NUMBER() over (order by is_date_created asc) position
+	--from @tabla where is_id = @is_id 
+	select	is_id	as is_id,
+			is_barcode	as is_barcode,
+			ind_id	as ind_id,
+			(select ind_first_name from tb_individuals i where i.ind_id = [is].ind_id) as ind_first_name,
+			(select ind_last_name from tb_individuals i where i.ind_id = [is].ind_id) as ind_last_name,
+			(select ind_first_name + ' ' + ind_last_name from tb_individuals i where i.ind_id = [is].ind_id) as 'first_name_last_name',
+			(select ind_gender from tb_individuals i where i.ind_id = [is].ind_id) as ind_gender,
+			(select ind_document from tb_individuals i where i.ind_id = [is].ind_id) as ind_document,
+			(select ind_details from tb_individuals i where i.ind_id = [is].ind_id) as ind_details,
+			(select ref_id from tb_individuals i where i.ind_id = [is].ind_id) as ref_id,
+			(select (select ref_name from tb_references where ref_id = i.ref_id) from tb_individuals i where i.ind_id = [is].ind_id) as ref_name,
+			(select std_id from tb_individuals i where i.ind_id = [is].ind_id) as std_id,
+			(select (select std_name from tb_studies where std_id = i.std_id) from tb_individuals i where i.ind_id = [is].ind_id) as std_name,
+			is_date_created as is_date_created,
+			is_time_created as is_time_created,
+			convert(varchar(800),convert(date,is_date_created)) as is_date_created_text,
+			usr_id_created as usr_id_created,
+			is_date_collected as is_date_collected,
+			is_time_collected as is_time_collected,
+			convert(varchar(800),convert(date,is_date_collected)) as is_date_collected_text,
+			usr_id_collected as usr_id_collected,
+			is_date_registered as is_date_registered,
+			is_time_registered as is_time_registered,
+			convert(varchar(800),convert(date,is_date_registered)) as is_date_registered_text,
+			usr_id_registered as usr_id_registered,
+			is_well_number as is_well_number,
+			is_details as is_details,
+			poo_id as poo_id,
+			(select poo_details from tb_pools where poo_id = [is].poo_id) as poo_details,
+			is_date_registered_pool as is_date_registered_pool,
+			is_time_registered_pool as is_time_registered_pool,
+			convert(varchar(800),convert(date,is_date_registered_pool)) as is_date_registered_pool_text,
+			usr_id_registered_pool as usr_id_registered_pool,
+			(select top 1 pr_result from tb_pools_results pr where pr.poo_id = [is].poo_id order by pr_date_result desc, pr_time_result desc) as pr_result,
+			(select top 1 pr_ct_value from tb_pools_results pr where pr.poo_id = [is].poo_id order by pr_date_result desc, pr_time_result desc) as pr_ct_value,
+			(select count(*) samples_count from [tb_individuals_samples] [is2] where [is2].ind_id = [is].ind_id) as samples_count,
+			ROW_NUMBER() over (order by is_date_created asc) as position
+	from [dbo].[tb_individuals_samples] [is]
+	where is_id in (select is_id from @list) 
+	order by is_date_created desc, is_time_created desc
+end
+if @type = 8
+begin
+--	select *,
+	select	top 500
+			is_id	as is_id,
+			is_barcode	as is_barcode,
+			ind_id	as ind_id,
+			(select ind_first_name from tb_individuals i where i.ind_id = [is].ind_id) as ind_first_name,
+			(select ind_last_name from tb_individuals i where i.ind_id = [is].ind_id) as ind_last_name,
+			(select ind_first_name + ' ' + ind_last_name from tb_individuals i where i.ind_id = [is].ind_id) as 'first_name_last_name',
+			(select ind_gender from tb_individuals i where i.ind_id = [is].ind_id) as ind_gender,
+			(select ind_document from tb_individuals i where i.ind_id = [is].ind_id) as ind_document,
+			(select ind_details from tb_individuals i where i.ind_id = [is].ind_id) as ind_details,
+			(select ref_id from tb_individuals i where i.ind_id = [is].ind_id) as ref_id,
+			(select (select ref_name from tb_references where ref_id = i.ref_id) from tb_individuals i where i.ind_id = [is].ind_id) as ref_name,
+			(select std_id from tb_individuals i where i.ind_id = [is].ind_id) as std_id,
+			(select (select std_name from tb_studies where std_id = i.std_id) from tb_individuals i where i.ind_id = [is].ind_id) as std_name,
+			is_date_created as is_date_created,
+			is_time_created as is_time_created,
+			convert(varchar(800),convert(date,is_date_created)) as is_date_created_text,
+			usr_id_created as usr_id_created,
+			is_date_collected as is_date_collected,
+			is_time_collected as is_time_collected,
+			convert(varchar(800),convert(date,is_date_collected)) as is_date_collected_text,
+			usr_id_collected as usr_id_collected,
+			is_date_registered as is_date_registered,
+			is_time_registered as is_time_registered,
+			convert(varchar(800),convert(date,is_date_registered)) as is_date_registered_text,
+			usr_id_registered as usr_id_registered,
+			is_well_number as is_well_number,
+			is_details as is_details,
+			poo_id as poo_id,
+			(select poo_details from tb_pools where poo_id = [is].poo_id) as poo_details,
+			is_date_registered_pool as is_date_registered_pool,
+			is_time_registered_pool as is_time_registered_pool,
+			convert(varchar(800),convert(date,is_date_registered_pool)) as is_date_registered_pool_text,
+			usr_id_registered_pool as usr_id_registered_pool,
+			(select top 1 pr_result from tb_pools_results pr where pr.poo_id = [is].poo_id order by pr_date_result desc, pr_time_result desc) as pr_result,
+			(select top 1 pr_ct_value from tb_pools_results pr where pr.poo_id = [is].poo_id order by pr_date_result desc, pr_time_result desc) as pr_ct_value,
+			(select count(*) samples_count from [tb_individuals_samples] [is2] where [is2].ind_id = [is].ind_id) as samples_count,
+			ROW_NUMBER() over (order by is_date_created asc) as position
+	from [dbo].[tb_individuals_samples] [is] with (index = ix_tb_individuals_samples_is_date_created)
+	where is_date_created >= '2000-01-01'
+	order by is_date_created desc, is_time_created desc
+end
+
+
 go
 
 
@@ -2044,4 +2149,365 @@ begin
 end
 create nonclustered index ix_tb_users_usr_username on tb_users (usr_username)
 
+go
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+if OBJECT_ID('usp_places_select') is not null
+	drop procedure [usp_places_select]
+go
+create procedure [dbo].[usp_places_select]
+@pla_id			int = null
+as
+begin
+if @pla_id is not null
+	select	pla_id,
+			pla_date_created,
+			pla_time_created,
+			pla_date_created_text = convert(varchar(800), convert(date,pla_date_created)), 
+			usr_id_created,
+			pla_name,
+			(pla_name + ' (' + convert(varchar(800),pla_id) + ')') 'name_id',
+			pla_location_reference,
+			pla_campus,
+			pla_details,
+			(select count(*) from tb_places_samples where pla_id = p.pla_id) ps_count
+	from [dbo].[tb_places] as p
+	where pla_id = @pla_id
+	order by pla_id desc
+else
+	select	pla_id,
+			pla_date_created,
+			pla_time_created,
+			pla_date_created_text = convert(varchar(800), convert(date,pla_date_created)), 
+			usr_id_created,
+			pla_name,
+			(pla_name + ' (' + convert(varchar(800),pla_id) + ')') 'name_id',
+			pla_location_reference,
+			pla_campus,
+			pla_details,
+			(select count(*) from tb_places_samples where pla_id = p.pla_id) ps_count
+	from [dbo].[tb_places] as p
+	order by pla_id desc
+end
+go
+
+
+
+
+if OBJECT_ID('usp_places_insert') is not null
+	drop procedure usp_places_insert
+go
+create procedure usp_places_insert
+@usr_id_created				int = null,
+@pla_name					varchar(800) = null,
+@pla_location_reference		varchar(800) = null,
+@pla_campus					varchar(800) = null,
+@pla_details				varchar(max) = null,
+@usr_id_audit				int = null,
+@ssn_id						int = null
+as
+begin
+	exec sp_set_session_context @key = N'usr_id_audit', @value = @usr_id_audit
+	exec sp_set_session_context @key = N'ssn_id', @value = @ssn_id 
+
+
+	insert into tb_places (usr_id_created,pla_name,pla_location_reference,pla_campus,pla_details)
+	values (@usr_id_created,@pla_name,@pla_location_reference,@pla_campus,@pla_details)
+end
+go
+
+
+
+
+if OBJECT_ID('usp_places_delete') is not null
+	drop procedure usp_places_delete
+go
+create procedure usp_places_delete
+@pla_id				int,
+@usr_id_audit		int = null,
+@ssn_id				int = null
+as
+begin
+	exec sp_set_session_context @key = N'usr_id_audit', @value = @usr_id_audit 
+	exec sp_set_session_context @key = N'ssn_id', @value = @ssn_id 
+
+	delete from tb_places where pla_id = @pla_id
+end
+go
+
+
+
+
+
+
+
+
+if OBJECT_ID('usp_places_samples_select') is not null
+	drop procedure usp_places_samples_select
+go
+create procedure [dbo].usp_places_samples_select
+@type				int = 1,
+@pla_id				int = null,
+@ps_id				int = null,
+@ps_barcode			varchar(800) = null,
+@date_start			date = null,
+@date_end			date = null,
+@ps_id_list			varchar(max) = null
+as
+if @type = 1
+begin
+	select	ps_id	as ps_id,
+			ps_barcode	as ps_barcode,
+			pla_id	as pla_id,
+			(select pla_name from tb_places p where p.pla_id = [ps].pla_id) as pla_name,
+			(select pla_location_reference from tb_places p where p.pla_id = [ps].pla_id) as pla_location_reference,
+			(select pla_campus from tb_places p where p.pla_id = [ps].pla_id) as pla_campus,
+			(select pla_details from tb_places p where p.pla_id = [ps].pla_id) as pla_details,
+			ps_date_created as ps_date_created,
+			ps_time_created as ps_time_created,
+			convert(varchar(800),convert(date,ps_date_created)) as ps_date_created_text,
+			usr_id_created as usr_id_created,
+			ps_date_collected as ps_date_collected,
+			ps_time_collected as ps_time_collected,
+			convert(varchar(800),convert(date,ps_date_collected)) as ps_date_collected_text,
+			usr_id_collected as usr_id_collected,
+			ps_date_registered as ps_date_registered,
+			ps_time_registered as ps_time_registered,
+			convert(varchar(800),convert(date,ps_date_registered)) as ps_date_registered_text,
+			usr_id_registered as usr_id_registered,
+			ps_well_number as ps_well_number,
+			ps_details as ps_details,
+			(select top 1 psres_result from tb_places_samples_results psres where psres.ps_id = [ps].ps_id order by psres_date_result desc, psres_time_result desc) as psres_result,
+			(select top 1 psres_ct_value from tb_places_samples_results psres where psres.ps_id = [ps].ps_id order by psres_date_result desc, psres_time_result desc) as psres_ct_value,
+			(select count(*) samples_count from [tb_places_samples] [ps2] where [ps2].ps_id = [ps].ps_id) as samples_count,
+			ROW_NUMBER() over (order by ps_date_created asc) as position
+	from [dbo].[tb_places_samples] [ps] --with (index = ix_tb_places_samples_ps_date_created)
+	where ps_date_created >= '2000-01-01'
+	order by ps_date_created desc, ps_time_created desc
+end
+if @type = 2 
+begin
+	select	ps_id	as ps_id,
+			ps_barcode	as ps_barcode,
+			pla_id	as pla_id,
+			(select pla_name from tb_places p where p.pla_id = [ps].pla_id) as pla_name,
+			(select pla_location_reference from tb_places p where p.pla_id = [ps].pla_id) as pla_location_reference,
+			(select pla_campus from tb_places p where p.pla_id = [ps].pla_id) as pla_campus,
+			(select pla_details from tb_places p where p.pla_id = [ps].pla_id) as pla_details,
+			ps_date_created as ps_date_created,
+			ps_time_created as ps_time_created,
+			convert(varchar(800),convert(date,ps_date_created)) as ps_date_created_text,
+			usr_id_created as usr_id_created,
+			ps_date_collected as ps_date_collected,
+			ps_time_collected as ps_time_collected,
+			convert(varchar(800),convert(date,ps_date_collected)) as ps_date_collected_text,
+			usr_id_collected as usr_id_collected,
+			ps_date_registered as ps_date_registered,
+			ps_time_registered as ps_time_registered,
+			convert(varchar(800),convert(date,ps_date_registered)) as ps_date_registered_text,
+			usr_id_registered as usr_id_registered,
+			ps_well_number as ps_well_number,
+			ps_details as ps_details,
+			(select top 1 psres_result from tb_places_samples_results psres where psres.ps_id = [ps].ps_id order by psres_date_result desc, psres_time_result desc) as psres_result,
+			(select top 1 psres_ct_value from tb_places_samples_results psres where psres.ps_id = [ps].ps_id order by psres_date_result desc, psres_time_result desc) as psres_ct_value,
+			(select count(*) samples_count from [tb_places_samples] [ps2] where [ps2].ps_id = [ps].ps_id) as samples_count,
+			ROW_NUMBER() over (order by ps_date_created asc) as position
+	from [dbo].[tb_places_samples] [ps] --with (index = ix_tb_places_samples_ps_date_created)
+	where pla_id >= @pla_id
+	order by ps_date_created desc, ps_time_created desc
+end
+else if @type = 3
+begin
+	select	ps_id	as ps_id,
+			ps_barcode	as ps_barcode,
+			pla_id	as pla_id,
+			(select pla_name from tb_places p where p.pla_id = [ps].pla_id) as pla_name,
+			(select pla_location_reference from tb_places p where p.pla_id = [ps].pla_id) as pla_location_reference,
+			(select pla_campus from tb_places p where p.pla_id = [ps].pla_id) as pla_campus,
+			(select pla_details from tb_places p where p.pla_id = [ps].pla_id) as pla_details,
+			ps_date_created as ps_date_created,
+			ps_time_created as ps_time_created,
+			convert(varchar(800),convert(date,ps_date_created)) as ps_date_created_text,
+			usr_id_created as usr_id_created,
+			ps_date_collected as ps_date_collected,
+			ps_time_collected as ps_time_collected,
+			convert(varchar(800),convert(date,ps_date_collected)) as ps_date_collected_text,
+			usr_id_collected as usr_id_collected,
+			ps_date_registered as ps_date_registered,
+			ps_time_registered as ps_time_registered,
+			convert(varchar(800),convert(date,ps_date_registered)) as ps_date_registered_text,
+			usr_id_registered as usr_id_registered,
+			ps_well_number as ps_well_number,
+			ps_details as ps_details,
+			(select top 1 psres_result from tb_places_samples_results psres where psres.ps_id = [ps].ps_id order by psres_date_result desc, psres_time_result desc) as psres_result,
+			(select top 1 psres_ct_value from tb_places_samples_results psres where psres.ps_id = [ps].ps_id order by psres_date_result desc, psres_time_result desc) as psres_ct_value,
+			(select count(*) samples_count from [tb_places_samples] [ps2] where [ps2].ps_id = [ps].ps_id) as samples_count,
+			ROW_NUMBER() over (order by ps_date_created asc) as position
+	from [dbo].[tb_places_samples] [ps] 
+	where ps_id >= @ps_id
+	order by ps_date_created desc, ps_time_created desc
+end
+else if @type = 4
+begin
+	select	ps_id	as ps_id,
+			ps_barcode	as ps_barcode,
+			pla_id	as pla_id,
+			(select pla_name from tb_places p where p.pla_id = [ps].pla_id) as pla_name,
+			(select pla_location_reference from tb_places p where p.pla_id = [ps].pla_id) as pla_location_reference,
+			(select pla_campus from tb_places p where p.pla_id = [ps].pla_id) as pla_campus,
+			(select pla_details from tb_places p where p.pla_id = [ps].pla_id) as pla_details,
+			usr_id_created as usr_id_created,
+			ps_date_collected as ps_date_collected,
+			ps_time_collected as ps_time_collected,
+			convert(varchar(800),convert(date,ps_date_collected)) as ps_date_collected_text,
+			usr_id_collected as usr_id_collected,
+			ps_date_registered as ps_date_registered,
+			ps_time_registered as ps_time_registered,
+			convert(varchar(800),convert(date,ps_date_registered)) as ps_date_registered_text,
+			usr_id_registered as usr_id_registered,
+			ps_well_number as ps_well_number,
+			ps_details as ps_details,
+			(select top 1 psres_result from tb_places_samples_results psres where psres.ps_id = [ps].ps_id order by psres_date_result desc, psres_time_result desc) as psres_result,
+			(select top 1 psres_ct_value from tb_places_samples_results psres where psres.ps_id = [ps].ps_id order by psres_date_result desc, psres_time_result desc) as psres_ct_value,
+			(select count(*) samples_count from [tb_places_samples] [ps2] where [ps2].ps_id = [ps].ps_id) as samples_count,
+			ROW_NUMBER() over (order by ps_date_created asc) as position
+	from [dbo].[tb_places_samples] [ps]  --with (index = ix_tb_places_samples_ps_barcode)
+	where ps_barcode >= @ps_barcode
+	order by ps_date_created desc, ps_time_created desc
+end
+else if @type = 7
+begin
+
+	declare @list table(ps_id varchar(800))
+
+	while len(@ps_id_list) > 0
+		begin
+			insert into @list(ps_id)
+			select left(@ps_id_list, charindex(',', @ps_id_list+',') -1) as ps_id
+    
+			set @ps_id_list = stuff(@ps_id_list, 1, charindex(',', @ps_id_list + ','), '')
+		end
+
+
+	select	ps_id	as ps_id,
+			ps_barcode	as ps_barcode,
+			pla_id	as pla_id,
+			(select pla_name from tb_places p where p.pla_id = [ps].pla_id) as pla_name,
+			(select pla_location_reference from tb_places p where p.pla_id = [ps].pla_id) as pla_location_reference,
+			(select pla_campus from tb_places p where p.pla_id = [ps].pla_id) as pla_campus,
+			(select pla_details from tb_places p where p.pla_id = [ps].pla_id) as pla_details,
+			usr_id_created as usr_id_created,
+			ps_date_collected as ps_date_collected,
+			ps_time_collected as ps_time_collected,
+			convert(varchar(800),convert(date,ps_date_collected)) as ps_date_collected_text,
+			usr_id_collected as usr_id_collected,
+			ps_date_registered as ps_date_registered,
+			ps_time_registered as ps_time_registered,
+			convert(varchar(800),convert(date,ps_date_registered)) as ps_date_registered_text,
+			usr_id_registered as usr_id_registered,
+			ps_well_number as ps_well_number,
+			ps_details as ps_details,
+			(select top 1 psres_result from tb_places_samples_results psres where psres.ps_id = [ps].ps_id order by psres_date_result desc, psres_time_result desc) as psres_result,
+			(select top 1 psres_ct_value from tb_places_samples_results psres where psres.ps_id = [ps].ps_id order by psres_date_result desc, psres_time_result desc) as psres_ct_value,
+			(select count(*) samples_count from [tb_places_samples] [ps2] where [ps2].ps_id = [ps].ps_id) as samples_count,
+			ROW_NUMBER() over (order by ps_date_created asc) as position
+	from [dbo].[tb_places_samples] [ps] 
+	where ps_id in (select ps_id from @list) 
+	order by ps_date_created desc, ps_time_created desc
+end
+if @type = 8
+begin
+	select	top 500
+			ps_id	as ps_id,
+			ps_barcode	as ps_barcode,
+			pla_id	as pla_id,
+			(select pla_name from tb_places p where p.pla_id = [ps].pla_id) as pla_name,
+			(select pla_location_reference from tb_places p where p.pla_id = [ps].pla_id) as pla_location_reference,
+			(select pla_campus from tb_places p where p.pla_id = [ps].pla_id) as pla_campus,
+			(select pla_details from tb_places p where p.pla_id = [ps].pla_id) as pla_details,
+			usr_id_created as usr_id_created,
+			ps_date_collected as ps_date_collected,
+			ps_time_collected as ps_time_collected,
+			convert(varchar(800),convert(date,ps_date_collected)) as ps_date_collected_text,
+			usr_id_collected as usr_id_collected,
+			ps_date_registered as ps_date_registered,
+			ps_time_registered as ps_time_registered,
+			convert(varchar(800),convert(date,ps_date_registered)) as ps_date_registered_text,
+			usr_id_registered as usr_id_registered,
+			ps_well_number as ps_well_number,
+			ps_details as ps_details,
+			(select top 1 psres_result from tb_places_samples_results psres where psres.ps_id = [ps].ps_id order by psres_date_result desc, psres_time_result desc) as psres_result,
+			(select top 1 psres_ct_value from tb_places_samples_results psres where psres.ps_id = [ps].ps_id order by psres_date_result desc, psres_time_result desc) as psres_ct_value,
+			(select count(*) samples_count from [tb_places_samples] [ps2] where [ps2].ps_id = [ps].ps_id) as samples_count,
+			ROW_NUMBER() over (order by ps_date_created asc) as position
+	from [dbo].[tb_places_samples] [ps] --with (index = ix_tb_places_samples_ps_date_created)
+	where ps_date_created >= '2000-01-01'
+	order by ps_date_created desc, ps_time_created desc
+end
+
+go
+
+
+
+if OBJECT_ID('usp_places_update') is not null
+	drop procedure usp_places_update
+go
+create procedure usp_places_update
+@pla_id						int = null,
+@pla_name					varchar(800) = null,
+@pla_location_reference		varchar(800) = null,
+@pla_campus					varchar(800) = null,
+@pla_details				varchar(max) = null,
+@usr_id_audit				int = null,
+@ssn_id						int = null
+as
+begin
+	exec sp_set_session_context @key = N'usr_id_audit', @value = @usr_id_audit 
+	exec sp_set_session_context @key = N'ssn_id', @value = @ssn_id 
+
+	update tb_places 
+	set		pla_name = @pla_name,
+			pla_location_reference = @pla_location_reference,
+			pla_campus = @pla_campus,
+			pla_details = @pla_details
+	where pla_id = @pla_id
+end
+go
+
+
+if OBJECT_ID('usp_places_samples_insert') is not null
+	drop procedure usp_places_samples_insert
+go
+create procedure usp_places_samples_insert
+@usr_id_created		int = null,
+@ps_date_collected	date = null,
+@ps_time_collected	time = null,
+@usr_id_collected	int = null,
+@pla_id				int = null,
+@ps_details			varchar(max) = null,
+@usr_id_audit		int = null,
+@ssn_id				int = null
+as
+begin
+	exec sp_set_session_context @key = N'usr_id_audit', @value = @usr_id_audit 
+	exec sp_set_session_context @key = N'ssn_id', @value = @ssn_id 
+
+	insert into tb_places_samples (usr_id_created,ps_date_collected,ps_time_collected,usr_id_collected,pla_id,ps_details)
+	values (@usr_id_created, isnull(@ps_date_collected,dbo.udf_getdatelocal(default)), isnull(@ps_time_collected,dbo.udf_getdatelocal(default)), @usr_id_collected, @pla_id, @ps_details)
+
+	select IDENT_CURRENT('tb_individuals_samples') as is_id
+end
 go

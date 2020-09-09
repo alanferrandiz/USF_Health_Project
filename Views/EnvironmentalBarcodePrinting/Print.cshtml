@@ -1,0 +1,117 @@
+﻿@model IEnumerable<USF_Health_MVC_EF.Models.SpPlacesSamples>
+
+@{
+    ViewData["Title"] = "Print";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="div_breadcrumb">
+    Environmental&nbsp;&nbsp;&nbsp;>&nbsp;&nbsp;&nbsp;Barcode Printing&nbsp;&nbsp;&nbsp;>&nbsp;&nbsp;&nbsp;Print
+</div>
+
+
+<div class="div_form">
+    @foreach (var item in Model)
+    {
+
+        <div class="div_labeltext">
+            <div class="div_label" style="float:left;">
+                Order
+            </div>
+            <div class="div_text">
+                @Html.DisplayFor(modelItem => item.position)
+            </div>
+        </div>
+
+        <div class="div_labeltext">
+            <div class="div_label" style="float:left;">
+                Barcode
+            </div>
+            <div class="div_text">
+                @Html.DisplayFor(modelItem => item.ps_barcode)
+            </div>
+        </div>
+
+        <div class="div_labeltext">
+            <div class="div_label" style="float:left;">
+                Name
+            </div>
+            <div class="div_text">
+                @Html.DisplayFor(modelItem => item.pla_name)
+            </div>
+        </div>
+
+        <div class="div_labeltext">
+            <div class="div_label" style="float:left;">
+                Location Reference
+            </div>
+            <div class="div_text">
+                @Html.DisplayFor(modelItem => item.pla_location_reference)
+            </div>
+        </div>
+
+        <div class="div_labeltext">
+            <div class="div_label" style="float:left;">
+                Campus
+            </div>
+            <div class="div_text">
+                @Html.DisplayFor(modelItem => item.pla_campus)
+            </div>
+        </div>
+
+        <div class="div_labeltext">
+            <div class="div_label" style="float:left;">
+                Date created
+            </div>
+            <div class="div_text">
+                @Html.DisplayFor(modelItem => item.ps_date_created_text)
+            </div>
+        </div>
+
+        <div class="div_labeltext">
+            <div class="div_label" style="float:left;">
+                Date collected
+            </div>
+            <div class="div_text">
+                @Html.DisplayFor(modelItem => item.ps_date_collected_text)
+            </div>
+        </div>
+
+        <div class="div_labeltext">
+            <div class="div_label" style="float:left;">
+                Sample Details
+            </div>
+            <div class="div_text">
+                @Html.DisplayFor(modelItem => item.ps_details)
+            </div>
+        </div>
+
+        <input type="hidden" id="ps_barcode_@Html.DisplayFor(modelItem => item.ps_barcode)" value="@Html.DisplayFor(modelItem => item.ps_barcode)" />
+        <input type="hidden" id="pla_name_@Html.DisplayFor(modelItem => item.ps_barcode)" value="@Html.DisplayFor(modelItem => item.pla_name)" />
+        <input type="hidden" id="pla_location_reference_@Html.DisplayFor(modelItem => item.ps_barcode)" value="@Html.DisplayFor(modelItem => item.pla_location_reference)" />
+        <input type="hidden" id="pla_campus_@Html.DisplayFor(modelItem => item.ps_barcode)" value="@Html.DisplayFor(modelItem => item.pla_campus)" />
+        <input type="hidden" id="ps_date_collected_text_@Html.DisplayFor(modelItem => item.ps_barcode)" value="@Html.DisplayFor(modelItem => item.ps_date_collected_text)" />
+
+        <div class="div_barcode">
+            <svg id="svgBarcode_@Html.DisplayFor(modelItem => item.ps_barcode)"></svg>
+        </div>
+
+        <div class="div_button">
+            <input type="submit" value="Print Barcode" onclick="printJS('svgBarcode_@Html.DisplayFor(modelItem => item.ps_barcode)', 'html');" />
+        </div>
+
+        <div class="div_breadcrumb">
+        </div>
+
+        <script>
+            JsBarcode('#svgBarcode_@Html.DisplayFor(modelItem => item.ps_barcode)', document.getElementById('ps_barcode_@Html.DisplayFor(modelItem => item.ps_barcode)').value, { format: 'code39', text: '' + document.getElementById('ps_date_collected_text_@Html.DisplayFor(modelItem => item.ps_barcode)').value + '|' + document.getElementById('pla_campus_@Html.DisplayFor(modelItem => item.ps_barcode)').value.substring(0, 3) + '|' + document.getElementById('pla_name_@Html.DisplayFor(modelItem => item.ps_barcode)').value.substring(0, 12) + '|' + document.getElementById('pla_location_reference_@Html.DisplayFor(modelItem => item.ps_barcode)').value.substring(0, 12),fontSize:8,height:36,width:0.96})
+        </script>
+    }
+</div>
+        <div class="div_mainlink">
+            <a asp-action="Index">Back to List</a>
+        </div>
+
+        @section Scripts {
+            @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+        }

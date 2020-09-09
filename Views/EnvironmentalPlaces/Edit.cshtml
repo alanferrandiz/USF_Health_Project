@@ -1,0 +1,104 @@
+﻿@model USF_Health_MVC_EF.Models.Place
+
+@{
+    ViewData["Title"] = "Edit";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+    <div class="div_breadcrumb">
+        Environmental&nbsp;&nbsp;&nbsp;>&nbsp;&nbsp;&nbsp;Places&nbsp;&nbsp;&nbsp;>&nbsp;&nbsp;&nbsp;Edit
+    </div>
+
+
+<div class="div_form">
+    <form asp-action="Edit">
+
+        <input type="hidden" asp-for="pla_id" />
+        <input type="hidden" asp-for="pla_date_created" />
+        <input type="hidden" asp-for="pla_time_created" />
+
+        <div class="div_text">
+            Place ID
+        </div>
+        <div class="div_input">
+            <input asp-for="pla_id" disabled />
+        </div>
+        <div class="div_span">
+            <span asp-validation-for="pla_id"></span>
+        </div>
+
+
+        <div class="div_text">
+            Date of creation
+        </div>
+        <div class="div_input">
+            <input asp-for="pla_date_created" disabled />
+        </div>
+        <div class="div_span">
+            <span asp-validation-for="pla_date_created"></span>
+        </div>
+
+
+        <div class="div_text">
+            Name
+        </div>
+        <div class="div_input">
+            <input asp-for="pla_name" required autofocus placeholder="Name (Required)" />
+        </div>
+        <div class="div_span">
+            <span asp-validation-for="pla_name"></span>
+        </div>
+
+        <div class="div_text">
+            Location Reference
+        </div>
+        <div class="div_input">
+            <input asp-for="pla_location_reference" required placeholder="Location Reference (Required)" />
+        </div>
+        <div class="div_span">
+            <span asp-validation-for="pla_location_reference"></span>
+        </div>
+
+        <div class="div_text">
+            Campus
+        </div>
+        <div class="div_dropdownlist">
+            <select asp-for="pla_campus" required>
+                <option value="" disabled selected>--Select campus--</option>
+                <option value="TAM (Tampa)">TAM (Tampa)</option>
+                <option value="SAR (Sarasota)">SAR (Sarasota)</option>
+                <option value="STP (St. Petersburg)">STP (St. Petersburg)</option>
+            </select>
+        </div>
+        <div class="div_span">
+            <span asp-validation-for="pla_campus"></span>
+        </div>
+
+        <div class="div_text">
+            Details
+        </div>
+        <div class="div_textArea">
+            <textarea asp-for="pla_details" class="textArea" rows="5" cols="36" placeholder="Enter details"></textarea>
+        </div>
+
+        <div class="div_button">
+            <input type="submit" value="Save" onsubmit="this.disabled=true;this.value='Submitting...'; this.form.submit();" />
+        </div>
+    </form>
+</div>
+    <div class="div_mainlink">
+        <a asp-action="Index">Back to List</a>
+    </div>
+
+    @section Scripts {
+        @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    }
+
+<script type="text/javascript">
+
+    $('form').submit(function () {
+        $(this).find('input[type=submit]').prop('disabled', true);
+        return true;
+    });
+
+</script>

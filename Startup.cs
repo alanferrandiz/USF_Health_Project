@@ -41,6 +41,19 @@ namespace USF_Health_MVC_EF
         {
             Globals.connection = Configuration.GetConnectionString("DefaultConnectionString");
 
+            services.AddHttpContextAccessor();
+            services.Configure<CookiePolicyOptions>(options =>
+            {
+                // This lambda determines whether user consent for non-essential cookies is needed for a given request.
+                options.CheckConsentNeeded = context => false;
+                options.MinimumSameSitePolicy = SameSiteMode.None;
+            });
+
+            services.AddSession(opts =>
+            {
+                opts.Cookie.IsEssential = true; // make the session cookie Essential
+            });
+
             services.AddAuthentication(AzureADDefaults.AuthenticationScheme)
             .AddAzureAD(options => Configuration.Bind("AzureAD", options));
 
@@ -74,13 +87,17 @@ namespace USF_Health_MVC_EF
             services.AddDbContext<USF_Health_MVC_EFContext>(options => options.UseSqlServer(Globals.connection));
             services.AddControllersWithViews();
 
+
+
+
         }
 
-      
+
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UseSession();
             app.UseDeveloperExceptionPage();
             //if (env.IsDevelopment())
             //{

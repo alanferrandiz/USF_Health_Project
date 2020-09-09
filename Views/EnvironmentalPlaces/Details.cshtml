@@ -1,0 +1,73 @@
+﻿@model USF_Health_MVC_EF.Models.Place
+
+@{
+    ViewData["Title"] = "Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+}
+
+
+
+<div class="div_breadcrumb">
+    Environmental&nbsp;&nbsp;&nbsp;>&nbsp;&nbsp;&nbsp;Places&nbsp;&nbsp;&nbsp;>&nbsp;&nbsp;&nbsp;Details
+</div>
+<div class="div_form">
+    <div class="div_labeltext">
+        <div class="div_label" style="float:left;">
+            Place Id
+        </div>
+        <div class="div_text">
+            @Html.DisplayFor(model => model.pla_id)
+        </div>
+    </div>
+
+    <div class="div_labeltext">
+        <div class="div_label" style="float:left;">
+            Date created
+        </div>
+        <div class="div_text">
+            @Html.DisplayFor(model => model.pla_date_created)
+        </div>
+    </div>
+
+    <div class="div_labeltext">
+        <div class="div_label" style="float:left;">
+            Name
+        </div>
+        <div class="div_text">
+            @Html.DisplayFor(model => model.pla_name)
+        </div>
+    </div>
+
+    <div class="div_labeltext">
+        <div class="div_label" style="float:left;">
+            Location Reference
+        </div>
+        <div class="div_text">
+            @Html.DisplayFor(model => model.pla_location_reference)
+        </div>
+    </div>
+
+    <div class="div_labeltext">
+        <div class="div_label" style="float:left;">
+            Campus
+        </div>
+        <div class="div_text">
+            @Html.DisplayFor(model => model.pla_campus)
+        </div>
+    </div>
+
+    <div class="div_labeltext">
+        <div class="div_label" style="float:left;">
+            Details
+        </div>
+        <div class="div_text">
+            @Html.DisplayFor(model => model.pla_details)
+        </div>
+    </div>
+
+</div>
+<div class="div_mainlink">
+    <a asp-action="Edit" asp-route-id="@Model.pla_id">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>

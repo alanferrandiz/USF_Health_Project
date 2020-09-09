@@ -1,0 +1,147 @@
+﻿@model USF_Health_MVC_EF.Models.SpPlacesSamples
+
+@{
+    ViewData["Title"] = "Save";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="div_breadcrumb">
+    Environmental&nbsp;&nbsp;&nbsp;>&nbsp;&nbsp;&nbsp;Barcode Reading
+</div>
+
+<div class="div_form">
+    <form asp-action="Save" method="post">
+        <input type="hidden" asp-for="ps_id" />
+        <input type="hidden" asp-for="ps_time_created" />
+        <input type="hidden" asp-for="ps_time_collected" />
+        <input type="hidden" asp-for="ps_time_registered" />
+
+        <div class="div_labeltext">
+            <div class="div_label" style="float:left;">
+                Sample ID
+            </div>
+            <div class="div_text">
+                @Html.DisplayFor(model => model.ps_id)
+            </div>
+        </div>
+
+
+        <div class="div_labeltext">
+            <div class="div_label" style="float:left;">
+                Sample Barcode
+            </div>
+            <div class="div_text">
+                @Html.DisplayFor(model => model.ps_barcode)
+            </div>
+        </div>
+
+        <div class="div_labeltext">
+            <div class="div_label" style="float:left;">
+                Date created
+            </div>
+            <div class="div_text">
+                @Html.DisplayFor(model => model.ps_date_created_text)
+            </div>
+        </div>
+
+        <div class="div_labeltext">
+            <div class="div_label" style="float:left;">
+                Date collected
+            </div>
+            <div class="div_text">
+                @Html.DisplayFor(model => model.ps_date_collected_text)
+            </div>
+        </div>
+
+
+        <div class="div_labeltext">
+            <div class="div_label" style="float:left;">
+                Name
+            </div>
+            <div class="div_text">
+                @Html.DisplayFor(model => model.pla_name)
+            </div>
+        </div>
+
+
+        <div class="div_labeltext">
+            <div class="div_label" style="float:left;">
+                Location Reference
+            </div>
+            <div class="div_text">
+                @Html.DisplayFor(model => model.pla_location_reference)
+            </div>
+        </div>
+
+        <div class="div_labeltext">
+            <div class="div_label" style="float:left;">
+                Campus
+            </div>
+            <div class="div_text">
+                @Html.DisplayFor(model => model.pla_campus)
+            </div>
+        </div>
+
+        <div class="div_labeltext">
+            <div class="div_label" style="float:left;">
+                Sample Details
+            </div>
+            <div class="div_text">
+                @Html.DisplayFor(model => model.ps_details)
+            </div>
+        </div>
+
+        <div class="div_labeltext">
+            <div class="div_label" style="float:left;">
+                Date registered
+            </div>
+            <div class="div_text" id="txt_is_date_registered_text">
+                @Html.DisplayFor(model => model.ps_date_registered_text)
+            </div>
+        </div>
+
+        <div class="div_labeltext">
+            <div class="div_label" style="float:left;color:red;background-color:yellow;">
+                Status
+            </div>
+            <div class="div_text" id="txt_is_date_registered_text" style="color:red;background-color:yellow;font-weight:bold;">
+                <label id="lblStatus"></label>
+            </div>
+        </div>
+
+        <div class="div_button">
+            <input type="submit" value="Register Barcode" autofocus id="btnSubmit" asp-route-id="@Model.ps_id" asp-route-barcode="@Model.ps_barcode" onsubmit="this.disabled=true;this.value='Submitting...';this.form.submit();" />
+        </div>
+    </form>
+</div>
+<div class="div_mainlink">
+    <a asp-action="Index" id="lnkBack">Back to List</a>
+</div>
+
+<script type="text/javascript">
+
+    if (document.getElementById('txt_ps_date_registered_text').innerHTML.trim() != '') {
+        document.getElementById('btnSubmit').hidden = true;
+        document.getElementById('lblStatus').textContent = "Registered"
+        $("#lnkBack").focus();
+    } else {
+        document.getElementById('btnSubmit').hidden = false;
+        document.getElementById('lblStatus').textContent = "NOT Registered"
+        $("#btnSubmit").focus();
+    }
+
+</script>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+
+
+<script type="text/javascript">
+
+    $('form').submit(function () {
+        $(this).find('input[type=submit]').prop('disabled', true);
+        return true;
+    });
+
+</script>

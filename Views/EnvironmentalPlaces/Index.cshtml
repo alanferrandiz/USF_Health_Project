@@ -1,0 +1,93 @@
+﻿@model IEnumerable<USF_Health_MVC_EF.Models.SpPlaces>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+}
+
+<div class="div_breadcrumb">
+    Environmental&nbsp;&nbsp;&nbsp;>&nbsp;&nbsp;&nbsp;Places
+</div>
+
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        $('#example').DataTable({
+            columnDefs: [{
+                targets: [0],
+                orderData: [0, 1]
+            }, {
+                targets: [1],
+                orderData: [1, 0]
+            }, {
+                targets: [4],
+                orderData: [4, 0]
+            }]
+        });
+    });
+
+</script>
+
+<div class="div_mainlink">
+    <a asp-action="Create">Create New</a>
+</div>
+
+<div class="div_datatables">
+    <table id="example" class="display" style="width:100%">
+        <thead>
+            <tr>
+                <td>
+                    Place ID
+                </td>
+                <td>
+                    Name
+                </td>
+                <td>
+                    Location Reference
+                </td>
+                <td>
+                    Campus
+                </td>
+                <td>
+                    Details
+                </td>
+                <td>
+                    Date Created
+                </td>
+                <td></td>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.pla_id)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.pla_name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.pla_location_reference)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.pla_campus)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.pla_details)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.pla_date_created_text)
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.pla_id">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.pla_id">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.pla_id">Delete</a>
+                </td>
+            </tr>
+            }
+        </tbody>
+    </table>
+</div>

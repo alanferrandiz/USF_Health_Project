@@ -1,0 +1,103 @@
+﻿@model USF_Health_MVC_EF.Models.Place
+
+@{
+    ViewData["Title"] = "Delete";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    Place place = new Place();
+
+}
+    <div class="div_breadcrumb">
+        Environmental&nbsp;&nbsp;&nbsp;>&nbsp;&nbsp;&nbsp;Places&nbsp;&nbsp;&nbsp;>&nbsp;&nbsp;&nbsp;Delete
+    </div>
+    <div class="div_form">
+        <div class="div_text">
+            Are you sure you want to delete this?
+        </div>
+
+        <div class="div_labeltext">
+            <div class="div_label" style="float:left;">
+                Place Id
+            </div>
+            <div class="div_text">
+                @Html.DisplayFor(model => model.pla_id)
+            </div>
+        </div>
+
+        <div class="div_labeltext">
+            <div class="div_label" style="float:left;">
+                Date created
+            </div>
+            <div class="div_text">
+                @Html.DisplayFor(model => model.pla_date_created)
+            </div>
+        </div>
+
+        <div class="div_labeltext">
+            <div class="div_label" style="float:left;">
+                Name
+            </div>
+            <div class="div_text">
+                @Html.DisplayFor(model => model.pla_name)
+            </div>
+        </div>
+
+        <div class="div_labeltext">
+            <div class="div_label" style="float:left;">
+                Location Reference
+            </div>
+            <div class="div_text">
+                @Html.DisplayFor(model => model.pla_location_reference)
+            </div>
+        </div>
+
+        <div class="div_labeltext">
+            <div class="div_label" style="float:left;">
+                Campus
+            </div>
+            <div class="div_text">
+                @Html.DisplayFor(model => model.pla_campus)
+            </div>
+        </div>
+
+        <div class="div_labeltext">
+            <div class="div_label" style="float:left;">
+                Details
+            </div>
+            <div class="div_text">
+                @Html.DisplayFor(model => model.pla_details)
+            </div>
+        </div>
+
+
+        <div class="div_labeltext">
+            <div class="div_label" style="float:left;color:red;background-color:yellow;">
+                Samples collected
+            </div>
+            <div class="div_text" style="color:red;background-color:yellow;font-weight:bold;">
+                @place.GetNumberOfSamplesbyId(Model.pla_id)
+            </div>
+        </div>
+
+
+
+        <form asp-action="Delete">
+            <input type="hidden" asp-for="pla_id" />
+            <div class="div_button">
+                <input type="submit" value="Delete" id="btnSubmit" style="background-color: #bd2130;" onsubmit="this.disabled=true;this.value='Submitting...'; this.form.submit();" />
+            </div>
+        </form>
+    </div>
+        <div class="div_mainlink">
+            <a asp-action="Index">Back to List</a>
+        </div>
+
+        <script type="text/javascript">
+
+            $('form').submit(function () {
+                $(this).find('input[type=submit]').prop('disabled', true);
+                return true;
+            });
+
+            $("#btnSubmit").focus();
+
+        </script>

@@ -1,0 +1,64 @@
+﻿@model USF_Health_MVC_EF.Models.Place
+
+@{
+    ViewData["Title"] = "Create";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+}
+
+    <div class="div_breadcrumb">
+        Environmental&nbsp;&nbsp;&nbsp;>&nbsp;&nbsp;&nbsp;Places&nbsp;&nbsp;&nbsp;>&nbsp;&nbsp;&nbsp;Create New
+    </div>
+    <div class="div_form">
+        <form asp-action="Create">
+
+            <div class="div_input">
+                <input asp-for="pla_name" placeholder="Place Name (Required)" required autofocus />
+            </div>
+            <div class="div_span">
+                <span asp-validation-for="pla_name"></span>
+            </div>
+
+            <div class="div_input">
+                <input asp-for="pla_location_reference" placeholder="Location Reference (Required)" required />
+            </div>
+            <div class="div_span">
+                <span asp-validation-for="pla_location_reference"></span>
+            </div>
+
+            <div class="div_dropdownlist">
+                <select asp-for="pla_campus" required>
+                    <option value="" disabled selected>--Select campus--</option>
+                    <option value="TAM (Tampa)">TAM (Tampa)</option>
+                    <option value="SAR (Sarasota)">SAR (Sarasota)</option>
+                    <option value="STP (St. Petersburg)">STP (St. Petersburg)</option>
+                </select>
+            </div>
+
+            <div class="div_textArea">
+                <textarea asp-for="pla_details" class="textArea" rows="5" cols="36" placeholder="Enter details"></textarea>
+            </div>
+
+            <div class="div_button">
+                <input type="submit" id="btnSubmit" value="Create" onsubmit="this.disabled = true;this.value='Submitting...';this.form.submit();" />
+            </div>
+        </form>
+    </div>
+    
+    <div class="div_mainlink">
+        <a asp-action="Index">Back to List</a>
+    </div>
+
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+
+<script type="text/javascript">
+
+    $('form').submit(function () {
+        $(this).find('input[type=submit]').prop('disabled', true);
+        return true;
+    });
+
+</script>

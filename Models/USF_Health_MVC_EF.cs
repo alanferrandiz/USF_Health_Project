@@ -20,11 +20,13 @@ namespace USF_Health_MVC_EF.Models
         public virtual DbSet<IndividualSample> tb_individuals_samples { get; set; }
         public virtual DbSet<Login> tb_login { get; set; }
         public virtual DbSet<Pool> tb_pools { get; set; }
+        public virtual DbSet<Place> tb_places { get; set; }
         public virtual DbSet<SpIndividuals> usp_individual_select { get; set; }
         public virtual DbSet<SpIndividualsSamples> usp_individuals_samples_select { get; set; }
         public virtual DbSet<SpPools> usp_pools_select { get; set; }
         public virtual DbSet<SpStudies> usp_studies_select { get; set; }
         public virtual DbSet<SpReferences> usp_references_select { get; set; }
+        public virtual DbSet<SpPlaces> usp_places_select { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -214,6 +216,107 @@ namespace USF_Health_MVC_EF.Models
                 entity.HasNoKey().ToView(null);
             });
 
+            modelBuilder.Entity<SpPlaces> //().HasNoKey().ToView(null)
+            (entity =>
+            {
+                entity.HasNoKey().ToView(null);
+            });
+
+
+            modelBuilder.Entity<Place>
+             (entity =>
+             {
+                 entity.HasKey(e => e.pla_id)
+                     .HasName("pk_tb_place");
+
+                 entity.Property(e => e.pla_date_created)
+                     .HasColumnType("date");
+
+                 entity.Property(e => e.pla_time_created)
+                     .HasColumnType("time");
+
+                 entity.Property(e => e.usr_id_created)
+                      .HasColumnType("int");
+
+                 entity.Property(e => e.pla_name)
+                     .HasColumnType("varchar(800)")
+                     .HasMaxLength(800)
+                     .IsUnicode(false);
+
+                 entity.Property(e => e.pla_location_reference)
+                   .HasColumnType("varchar(800)")
+                   .HasMaxLength(800)
+                   .IsUnicode(false);
+
+                 entity.Property(e => e.pla_campus)
+                   .HasColumnType("varchar(800)")
+                   .HasMaxLength(800)
+                   .IsUnicode(false);
+
+                 entity.Property(e => e.pla_details)
+                  .HasColumnType("varchar(800)")
+                  .HasMaxLength(800)
+                  .IsUnicode(false);
+
+             });
+
+
+
+                modelBuilder.Entity<PlaceSample>
+                (entity =>
+                {
+                  entity.HasKey(e => e.ps_id)
+                      .HasName("pk_tb_places_samples");
+
+                  entity.Property(e => e.ps_barcode)
+                      .HasColumnType("varchar(8)")
+                      .HasMaxLength(8)
+                      .IsUnicode(false);
+
+                  entity.Property(e => e.ps_date_created)
+                        .HasColumnType("date")
+                        .HasDefaultValueSql("GETDATE()");
+
+                  entity.Property(e => e.ps_time_created)
+                         .HasColumnType("time")
+                         .HasDefaultValueSql("GETDATE()");
+
+                  entity.Property(e => e.usr_id_created)
+                        .HasColumnType("int");
+
+                  entity.Property(e => e.ps_date_collected)
+                        .HasColumnType("date")
+                        .HasDefaultValueSql("GETDATE()");
+
+                  entity.Property(e => e.ps_time_collected)
+                         .HasColumnType("time")
+                         .HasDefaultValueSql("GETDATE()");
+
+                  entity.Property(e => e.usr_id_collected)
+                         .HasColumnType("int");
+
+                  entity.Property(e => e.ps_date_registered)
+                        .HasColumnType("date")
+                        .HasDefaultValueSql("GETDATE()");
+
+                  entity.Property(e => e.ps_time_registered)
+                         .HasColumnType("time")
+                         .HasDefaultValueSql("GETDATE()");
+
+                  entity.Property(e => e.usr_id_registered)
+                        .HasColumnType("int");
+
+                  entity.Property(e => e.pla_id)
+                       .HasColumnType("int");
+
+                  entity.Property(e => e.ps_well_number)
+                      .HasColumnType("varchar(800)")
+                      .IsUnicode(false);
+
+                  entity.Property(e => e.ps_details)
+                      .HasColumnType("varchar(max)")
+                      .IsUnicode(false);
+                });
 
             OnModelCreatingPartial(modelBuilder);
         }

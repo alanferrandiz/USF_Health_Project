@@ -1,0 +1,204 @@
+﻿@model IEnumerable<USF_Health_MVC_EF.Models.SpIndividualsSamples>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    List<SpIndividualsSamples> spIndividualsSamples = ViewData["is_list"] as List<SpIndividualsSamples>;
+    List<SpIndividualsSamples> spIndividualsSamplesSelected = ViewData["is_list_selected"] as List<SpIndividualsSamples>;
+
+}
+<div class="div_breadcrumb">
+    Reports&nbsp;&nbsp;&nbsp;>&nbsp;&nbsp;&nbsp;Individuals Batch Printing
+</div>
+
+
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        $('#example').DataTable({
+            columnDefs: [{
+                targets: [0],
+                orderData: [0, 1]
+            }, {
+                targets: [1],
+                orderData: [1, 0]
+            }, {
+                targets: [4],
+                orderData: [4, 0]
+            }]
+        });
+    });
+
+</script>
+
+
+
+<div class="div_form">
+
+    <form id="frmForm">
+        <input type="hidden" id="poo_id" value="@ViewBag.is_list" runat="server" />
+        <input type="hidden" id="poo_id" value="@ViewBag.is_list_selected" runat="server" />
+
+        @*<input type="hidden" id="poo_id" value="@ViewBag.poo_id" />*@
+
+
+        @*<div class="div_bigtitle">
+            Details for Pool ID @ViewBag.poo_id
+        </div>*@
+        @*<div class="div_input">
+            <input type="text" id="txtSampleID" placeholder="Enter sample ID" required onkeydown="handle(event,document.getElementById('txtSampleID').value" autofocus />
+        </div>*@
+        <div class="div_text">
+            Sample ID (Most Recent 500)
+        </div>
+
+        <div class="div_dropdownlist">
+            <select id="cboSamples" required onkeydown="handleInclude(event, document.getElementById('cboSamples').options[document.getElementById('cboSamples').selectedIndex].value);">
+                <option value="" disabled selected>--Select Sample ID--</option>
+                @foreach (var item in spIndividualsSamples)
+                {
+                    <option value="@item.is_id">@item.is_id | @item.is_barcode | @item.std_name | @item.is_date_collected_text </option>
+
+                }
+            </select>
+        </div>
+
+        <div class="div_button">
+            <input type="submit" id="btnInclude" value="Include" onclick="UpdateIndividualsBatchPrinting(document.getElementById('cboSamples').options[document.getElementById('cboSamples').selectedIndex].value, 1)" onsubmit="this.disabled = true;this.value='Submitting...';this.form.submit();" />
+        </div>
+
+
+        <div class="div_text">
+            Sample ID (Selected for printing)
+        </div>
+        <div class="div_dropdownlist">
+            <select id="cboSamplesSelected" onkeydown="handleRemove(event, document.getElementById('cboSamplesSelected').options[document.getElementById('cboSamplesSelected').selectedIndex].value);">
+                <option value="" disabled selected>--Select Sample ID--</option>
+                @foreach (var item in spIndividualsSamplesSelected)
+                {
+                    <option value="@item.is_id">@item.is_id | @item.is_barcode | @item.std_name | @item.is_date_collected_text </option>
+
+                }
+            </select>
+        </div>
+
+
+        <script type="text/javascript">
+            sessionStorage.setItem("is_list", spIndividualsSamples);
+            sessionStorage.setItem("is_list_selected", spIndividualsSamplesSelected);
+        </script>
+
+        <div class="div_button">
+            <input type="submit" id="btnRemove" value="Remove" onclick="UpdateIndividualsBatchPrinting(document.getElementById('cboSamples').options[document.getElementById('cboSamples').selectedIndex].value, 2)" onsubmit="this.disabled = true;this.value='Submitting...';this.form.submit();" />
+        </div>
+
+        <div class="div_label" style="width:500px;">
+            <label id="lblStatus"></label>
+        </div>
+
+        <div class="div_label" style="width:800px;">
+            <label id="lblSeparator"></label>
+        </div>
+
+
+
+    </form>
+</div>
+
+
+
+@*<div class="div_mainlink">
+    <a asp-action="Index">Back to List</a>
+</div>*@
+
+<script type="text/javascript">
+
+    function handleInclude(e, id, pList, pListSelected) {
+
+
+        if (e.keyCode === 13 || e.target.id == 'btnSubmit') {
+            if (document.getElementById('frmForm').checkValidity()) {
+                e.preventDefault();
+                alert(id);
+                UpdateIndividualsBatchPrinting(id, 1, pList, pListSelected);
+            }
+        }
+    }
+
+    function handleRemove(e, id, pList, pListSelected) {
+
+
+        if (e.keyCode === 13 || e.target.id == 'btnSubmit') {
+            if (document.getElementById('frmForm').checkValidity()) {
+                e.preventDefault();
+                alert(id);
+                UpdateIndividualsBatchPrinting(id, 2);
+            }
+        }
+    }
+
+
+    function UpdateIndividualsBatchPrinting(id, operation) {
+
+        if (document.getElementById('frmForm').checkValidity()) {
+              $.ajax({
+                url: '@Url.Action("UpdateIndividualsBatchPrinting")',
+                type: 'GET',
+                dataType: 'text',
+                cache: false,
+                  data: { 'id': id, 'operation': operation},
+                      success: function (results) {
+                          return results;
+                },
+                error: function () {
+                    alert('Error occured');
+                }
+            });
+
+        }
+
+    }
+
+
+</script>
+
+
+
+<script type="text/javascript">
+
+    $('form').submit(function () {
+        $(this).find('input[type=submit]').prop('disabled', true);
+        return true;
+    });
+
+    $("#btnSubmit").focus();
+
+</script>
+
+
+
+<script type="text/javascript">
+
+    const params = new URLSearchParams(window.location.search);
+    const type = params.get('type');
+    const status = params.get('status');
+
+    if (type == null) {
+        document.getElementById('lblStatus').hidden = true;
+    } else if (type == 0) {
+        document.getElementById('lblStatus').hidden = false;
+        document.getElementById('lblStatus').style.color = "green";
+        document.getElementById('lblStatus').textContent = status
+    } else if (type == 1) {
+        document.getElementById('lblStatus').hidden = false;
+        document.getElementById('lblStatus').style.color = "green";
+        document.getElementById('lblStatus').textContent = status
+
+    }
+
+</script>
+
+<script type="text/javascript">
+    $("#txtSampleID").focus();
+</script>

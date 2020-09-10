@@ -1,0 +1,124 @@
+﻿@model USF_Health_MVC_EF.Models.PlaceSample
+
+@{
+    ViewData["Title"] = "Edit";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    SpPlaces spPlaces = ViewData["spPlaces"] as SpPlaces;
+}
+
+<div class="div_breadcrumb">
+    Environmental&nbsp;&nbsp;&nbsp;>&nbsp;&nbsp;&nbsp;Samples&nbsp;&nbsp;&nbsp;>&nbsp;&nbsp;&nbsp;Edit
+</div>
+
+
+
+<div class="div_form">
+    <form asp-action="Edit">
+        <input type="hidden" asp-for="ps_id" />
+        <input type="hidden" asp-for="pla_id" />
+        <input type="hidden" asp-for="ps_date_created" />
+        <input type="hidden" asp-for="ps_time_created" />
+        <input type="hidden" asp-for="usr_id_created" />
+        <input type="hidden" asp-for="ps_time_collected" />
+        <input type="hidden" asp-for="usr_id_collected" />
+        <input type="hidden" asp-for="ps_time_registered" />
+        <input type="hidden" asp-for="usr_id_registered" />
+
+        <div class="div_text">
+            Barcode
+        </div>
+        <div class="div_input">
+            <input asp-for="ps_barcode" disabled />
+        </div>
+
+        <div class="div_text">
+            Date created
+        </div>
+        <div class="div_input">
+            <input asp-for="ps_date_created" disabled />
+        </div>
+
+        <div class="div_text">
+            Date collected
+        </div>
+        <div class="div_input">
+            <input asp-for="ps_date_collected" required placeholder="Date collected" />
+        </div>
+        <div class="div_span">
+            <span asp-validation-for="ps_date_collected"></span>
+        </div>
+
+        <div class="div_text">
+            Date registered
+        </div>
+        <div class="div_input">
+            <input asp-for="ps_date_registered" placeholder="Date registered" />
+        </div>
+        <div class="div_span">
+            <span asp-validation-for="ps_date_registered"></span>
+        </div>
+
+        <div class="div_text">
+            Well number
+        </div>
+        <div class="div_input">
+            <input asp-for="ps_well_number" placeholder="Well number" />
+        </div>
+        <div class="div_span">
+            <span asp-validation-for="ps_well_number"></span>
+        </div>
+
+        <div class="div_text">
+            Sample details
+        </div>
+        <div class="div_textArea">
+            <textarea asp-for="ps_details" class="textArea" rows="5" cols="36" autofocus placeholder="Enter sample details"></textarea>
+        </div>
+
+        <div class="div_text">
+            Name
+        </div>
+        <div class="div_input">
+            <input value="@spPlaces.pla_name" disabled />
+
+        </div>
+
+        <div class="div_text">
+            Location Reference
+        </div>
+        <div class="div_input">
+            <input value="@spPlaces.pla_location_reference" disabled />
+
+        </div>
+
+
+        <div class="div_text">
+            Details
+        </div>
+        <div class="div_input">
+            <input value="@spPlaces.pla_details" disabled />
+
+        </div>
+
+
+        <div class="div_button">
+            <input type="submit" value="Save" onsubmit="this.disabled=true;this.value='Submitting...'; this.form.submit();" />
+        </div>
+    </form>
+</div>
+<div class="div_mainlink">
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+
+<script type="text/javascript">
+
+    $('form').submit(function () {
+        $(this).find('input[type=submit]').prop('disabled', true);
+        return true;
+    });
+
+</script>

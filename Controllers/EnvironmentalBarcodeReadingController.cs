@@ -21,7 +21,7 @@ namespace USF_Health_MVC_EF.Controllers
             _context = context;
         }
 
-        [Authorize]
+        [Authorize("usfhealth_laboratory")]
         public IActionResult Index()
         {
 

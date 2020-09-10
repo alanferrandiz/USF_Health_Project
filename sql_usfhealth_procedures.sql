@@ -2294,7 +2294,7 @@ begin
 			(select top 1 psres_ct_value from tb_places_samples_results psres where psres.ps_id = [ps].ps_id order by psres_date_result desc, psres_time_result desc) as psres_ct_value,
 			(select count(*) samples_count from [tb_places_samples] [ps2] where [ps2].ps_id = [ps].ps_id) as samples_count,
 			ROW_NUMBER() over (order by ps_date_created asc) as position
-	from [dbo].[tb_places_samples] [ps] --with (index = ix_tb_places_samples_ps_date_created)
+	from [dbo].[tb_places_samples] [ps] with (index = ix_tb_places_samples_ps_date_created)
 	where ps_date_created >= '2000-01-01'
 	order by ps_date_created desc, ps_time_created desc
 end
@@ -2325,8 +2325,8 @@ begin
 			(select top 1 psres_ct_value from tb_places_samples_results psres where psres.ps_id = [ps].ps_id order by psres_date_result desc, psres_time_result desc) as psres_ct_value,
 			(select count(*) samples_count from [tb_places_samples] [ps2] where [ps2].ps_id = [ps].ps_id) as samples_count,
 			ROW_NUMBER() over (order by ps_date_created asc) as position
-	from [dbo].[tb_places_samples] [ps] --with (index = ix_tb_places_samples_ps_date_created)
-	where pla_id >= @pla_id
+	from [dbo].[tb_places_samples] [ps] with (index = ix_tb_places_samples_ps_date_created)
+	where pla_id = @pla_id
 	order by ps_date_created desc, ps_time_created desc
 end
 else if @type = 3
@@ -2357,7 +2357,7 @@ begin
 			(select count(*) samples_count from [tb_places_samples] [ps2] where [ps2].ps_id = [ps].ps_id) as samples_count,
 			ROW_NUMBER() over (order by ps_date_created asc) as position
 	from [dbo].[tb_places_samples] [ps] 
-	where ps_id >= @ps_id
+	where ps_id = @ps_id
 	order by ps_date_created desc, ps_time_created desc
 end
 else if @type = 4
@@ -2369,6 +2369,9 @@ begin
 			(select pla_location_reference from tb_places p where p.pla_id = [ps].pla_id) as pla_location_reference,
 			(select pla_campus from tb_places p where p.pla_id = [ps].pla_id) as pla_campus,
 			(select pla_details from tb_places p where p.pla_id = [ps].pla_id) as pla_details,
+			ps_date_created as ps_date_created,
+			ps_time_created as ps_time_created,
+			convert(varchar(800),convert(date,ps_date_created)) as ps_date_created_text,
 			usr_id_created as usr_id_created,
 			ps_date_collected as ps_date_collected,
 			ps_time_collected as ps_time_collected,
@@ -2384,8 +2387,8 @@ begin
 			(select top 1 psres_ct_value from tb_places_samples_results psres where psres.ps_id = [ps].ps_id order by psres_date_result desc, psres_time_result desc) as psres_ct_value,
 			(select count(*) samples_count from [tb_places_samples] [ps2] where [ps2].ps_id = [ps].ps_id) as samples_count,
 			ROW_NUMBER() over (order by ps_date_created asc) as position
-	from [dbo].[tb_places_samples] [ps]  --with (index = ix_tb_places_samples_ps_barcode)
-	where ps_barcode >= @ps_barcode
+	from [dbo].[tb_places_samples] [ps]  with (index = ix_tb_places_samples_ps_barcode)
+	where ps_barcode = @ps_barcode
 	order by ps_date_created desc, ps_time_created desc
 end
 else if @type = 7
@@ -2453,7 +2456,7 @@ begin
 			(select top 1 psres_ct_value from tb_places_samples_results psres where psres.ps_id = [ps].ps_id order by psres_date_result desc, psres_time_result desc) as psres_ct_value,
 			(select count(*) samples_count from [tb_places_samples] [ps2] where [ps2].ps_id = [ps].ps_id) as samples_count,
 			ROW_NUMBER() over (order by ps_date_created asc) as position
-	from [dbo].[tb_places_samples] [ps] --with (index = ix_tb_places_samples_ps_date_created)
+	from [dbo].[tb_places_samples] [ps] with (index = ix_tb_places_samples_ps_date_created)
 	where ps_date_created >= '2000-01-01'
 	order by ps_date_created desc, ps_time_created desc
 end
@@ -2508,6 +2511,736 @@ begin
 	insert into tb_places_samples (usr_id_created,ps_date_collected,ps_time_collected,usr_id_collected,pla_id,ps_details)
 	values (@usr_id_created, isnull(@ps_date_collected,dbo.udf_getdatelocal(default)), isnull(@ps_time_collected,dbo.udf_getdatelocal(default)), @usr_id_collected, @pla_id, @ps_details)
 
-	select IDENT_CURRENT('tb_individuals_samples') as is_id
+	select IDENT_CURRENT('tb_places_samples') as ps_id
 end
 go
+
+
+if OBJECT_ID('usp_places_samples_update') is not null
+	drop procedure usp_places_samples_update
+go
+create procedure usp_places_samples_update
+@type						int = null,
+@ps_id						int = null,
+@ps_date_collected			date = null,
+@ps_time_collected			time = null,
+@usr_id_collected			int = null,
+@ps_date_registered			date = null,
+@ps_time_registered			time = null,
+@usr_id_registered			int = null,
+@pla_id						int = null,
+@ps_well_number				varchar(800) = null,
+@ps_details					varchar(max) = null,
+@ps_barcode					varchar(800) = null,
+@operation					int = null,
+@usr_id_audit				int = null,
+@ssn_id						int = null
+as
+begin
+	exec sp_set_session_context @key = N'usr_id_audit', @value = @usr_id_audit 
+	exec sp_set_session_context @key = N'ssn_id', @value = @ssn_id 
+
+	if	@type = 1 
+	begin
+			update	tb_places_samples 
+			set		ps_date_collected = @ps_date_collected,
+					ps_time_collected  = @ps_time_collected,
+					usr_id_collected = @usr_id_collected,
+					ps_date_registered = @ps_date_registered,
+					ps_time_registered  = case when @ps_time_registered = '' then dbo.udf_getdatelocal(default) else @ps_time_registered end ,
+					usr_id_registered = case when @usr_id_registered = '' then @usr_id_audit else @usr_id_registered end,
+					pla_id = @pla_id,
+					ps_well_number	= @ps_well_number,
+					ps_details	= @ps_details
+			where ps_id = @ps_id
+	end
+	if	@type = 3 --register barcode
+	begin
+		update tb_places_samples
+		set		ps_date_registered = dbo.udf_getdatelocal(default),
+				ps_time_registered = dbo.udf_getdatelocal(default),
+				usr_id_registered = @usr_id_registered
+		where ps_id = @ps_id
+	end
+	if	@type = 4
+	begin
+		update tb_places_samples
+		set		ps_well_number = (case when (@ps_well_number = '') then null else @ps_well_number end)
+		where ps_id = @ps_id
+	end
+end
+go
+
+
+if OBJECT_ID('usp_places_samples_delete') is not null
+	drop procedure usp_places_samples_delete
+go
+create procedure usp_places_samples_delete
+@ps_id				int,
+@usr_id_audit		int = null,
+@ssn_id				int = null
+as
+begin
+	exec sp_set_session_context @key = N'usr_id_audit', @value = @usr_id_audit 
+	exec sp_set_session_context @key = N'ssn_id', @value = @ssn_id  
+
+	delete from tb_places_samples where ps_id = @ps_id
+end
+go
+
+
+
+
+if OBJECT_ID('usp_places_samples_results_update') is not null
+	drop procedure usp_places_samples_results_update
+go
+create procedure usp_places_samples_results_update
+@type				int = null,
+@ps_id				int = null,
+@psres_value		varchar(800) = null, 
+@usr_id				int = null,
+@usr_id_audit		int = null,
+@ssn_id				int = null
+as
+begin
+	exec sp_set_session_context @key = N'usr_id_audit', @value = @usr_id_audit 
+	exec sp_set_session_context @key = N'ssn_id', @value = @ssn_id  
+
+		if @type = 1
+		begin
+	
+			if exists (select * from tb_places_samples_results where ps_id= @ps_id)
+			begin
+				update	tb_places_samples_results
+				set		psres_ct_value = (case when (@psres_value = '') then null else @psres_value end),
+						psres_date_ct_value = dbo.udf_getdatelocal(default),
+						psres_time_ct_value = dbo.udf_getdatelocal(default),
+						usr_id_ct_value = @usr_id
+				where	ps_id = @ps_id
+			end
+			else 
+			begin
+				insert into	tb_places_samples_results (ps_id, psres_date_result, psres_time_result, usr_id_created, psres_ct_value, usr_id_ct_value)
+				values		(@ps_id,dbo.udf_getdatelocal(default), dbo.udf_getdatelocal(default), @usr_id,(case when (@psres_value = '') then null else @psres_value end), @usr_id)
+			end
+
+		end
+		else if @type = 2
+		begin
+
+			if exists (select * from tb_places_samples_results where ps_id= @ps_id)
+			begin
+				update	tb_places_samples_results
+				set		psres_result = (case when (@psres_value = '') then null else @psres_value end),
+						psres_date_result = dbo.udf_getdatelocal(default),
+						psres_time_result = dbo.udf_getdatelocal(default),
+						usr_id_result = @usr_id
+				where	ps_id = @ps_id
+			end
+			else 
+			begin
+				insert into	tb_places_samples_results (ps_id, psres_date_result, psres_time_result, usr_id_created, psres_result, usr_id_result)
+				values		(@ps_id,dbo.udf_getdatelocal(default), dbo.udf_getdatelocal(default), @usr_id,(case when (@psres_value = '') then null else @psres_value end), @usr_id)
+			end
+		end
+end
+go
+
+
+
+--AUDITS
+drop trigger if exists tr_tb_places
+go
+create trigger tr_tb_places
+on tb_places
+after insert, update, delete
+as
+set nocount on
+begin
+		declare @operation_id nvarchar(800)
+		declare @tablename nvarchar(800)
+		declare @columnname nvarchar(800)
+		declare @columnname_first nvarchar(800)
+		declare @tablecolumnsinserted int = 1
+		declare @tablerowsinserted int = 1
+		declare @tablecolumnsdeleted int = 1
+		declare @tablerowsdeleted int = 1
+		declare @contadorfilas int = 1
+		declare @contadorcolumnas int = 1
+		declare @id_value nvarchar(max)
+		declare @query_id_value nvarchar(max)
+		declare @column_value_after nvarchar(max)
+		declare @query_column_value_after nvarchar(max)
+		declare @column_value_before nvarchar(max)
+		declare @query_column_value_before nvarchar(max)
+		declare @usr_id_audit int
+		declare @ssn_id int
+
+		select @operation_id = isnull(max(aud_operation_id),0) + 1 from tb_audit 
+
+		select @usr_id_audit = cast(SESSION_CONTEXT(N'usr_id_audit') as int)
+		select @ssn_id = cast(SESSION_CONTEXT(N'ssn_id') as int)		
+
+	if exists (select * from inserted) and not exists (select * from deleted)
+	begin
+
+		select * into #inserted_i from inserted
+
+		select @tablename = OBJECT_NAME(parent_object_id) 
+		FROM sys.objects 
+		WHERE sys.objects.name = OBJECT_NAME(@@PROCID)
+
+		select @tablecolumnsinserted = COUNT(*) 
+		from INFORMATION_SCHEMA.COLUMNS 
+		where TABLE_NAME = @tablename
+
+		select @tablerowsinserted = COUNT(*) 
+		from inserted
+
+		select @columnname_first = COLUMN_NAME 
+		from INFORMATION_SCHEMA.COLUMNS 
+		where TABLE_NAME = @tablename and ORDINAL_POSITION = 1
+
+		set @contadorfilas = 1
+		while @contadorfilas <= @tablerowsinserted
+		begin
+				set @query_id_value = 'select @id_value_out = ' + @columnname_first  + ' from (select *, (row_number() over (order by ' + @columnname_first  + ')) pos from #inserted_i ) a where pos = ' + convert(varchar(800),@contadorfilas) 
+				exec sp_executesql @query_id_value, N'@id_value_out nvarchar(800) output', @id_value_out = @id_value output
+
+				set @contadorcolumnas = 1
+				while @contadorcolumnas <= @tablecolumnsinserted
+				begin
+					select @columnname = COLUMN_NAME from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME = @tablename and ORDINAL_POSITION = @contadorcolumnas 
+			
+					set @query_column_value_after = 'select @column_value_after_out = ' + @columnname  + ' from (select *, (row_number() over (order by ' + @columnname_first  + ')) pos from #inserted_i) a where pos = ' + convert(varchar(800),@contadorfilas) 
+					exec sp_executesql @query_column_value_after, N'@column_value_after_out nvarchar(800) output', @column_value_after_out = @column_value_after output
+
+					if (@column_value_after is not null)
+					begin
+						insert into tb_audit (aud_station,aud_operation_id, aud_operation,aud_date,aud_time, aud_user, aud_table, aud_identifier_id, aud_identifier_field, aud_field, aud_before, aud_after, usr_id_audit, ssn_id)
+						select HOST_NAME(),@operation_id,'INSERT',dbo.udf_getdatelocal(default),dbo.udf_getdatelocal(default),SYSTEM_USER,@tablename, @id_value, @columnname_first, @columnname, null, @column_value_after, @usr_id_audit, @ssn_id
+					end
+
+					set @contadorcolumnas = @contadorcolumnas + 1
+				end
+			set @contadorfilas = @contadorfilas + 1
+		end
+		drop table #inserted_i 
+
+	end
+	else if exists (select * from inserted) and exists (select * from deleted)
+	begin
+
+		select * into #inserted_u from inserted
+		select * into #deleted_u from deleted
+
+		select @tablename = OBJECT_NAME(parent_object_id) 
+		FROM sys.objects 
+		WHERE sys.objects.name = OBJECT_NAME(@@PROCID)
+
+		select @tablecolumnsinserted = COUNT(*) 
+		from INFORMATION_SCHEMA.COLUMNS 
+		where TABLE_NAME = @tablename
+
+		select @tablerowsinserted = COUNT(*) 
+		from inserted
+
+		select @columnname_first = COLUMN_NAME 
+		from INFORMATION_SCHEMA.COLUMNS 
+		where TABLE_NAME = @tablename and ORDINAL_POSITION = 1
+
+		set @contadorfilas = 1
+		while @contadorfilas <= @tablerowsinserted
+		begin
+				set @query_id_value = 'select @id_value_out = ' + @columnname_first  + ' from (select *, (row_number() over (order by ' + @columnname_first  + ')) pos from #inserted_u ) a where pos = ' + convert(varchar(800),@contadorfilas) 
+				exec sp_executesql @query_id_value, N'@id_value_out nvarchar(800) output', @id_value_out = @id_value output
+
+				set @contadorcolumnas = 1
+				while @contadorcolumnas <= @tablecolumnsinserted
+				begin
+					select @columnname = COLUMN_NAME from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME = @tablename and ORDINAL_POSITION = @contadorcolumnas 
+			
+					set @query_column_value_before = 'select @column_value_before_out = ' + @columnname  + ' from (select *, (row_number() over (order by ' + @columnname_first  + ')) pos from #deleted_u) a where pos = ' + convert(varchar(800),@contadorfilas) 
+					exec sp_executesql @query_column_value_before, N'@column_value_before_out nvarchar(800) output', @column_value_before_out = @column_value_before output
+
+
+					set @query_column_value_after = 'select @column_value_after_out = ' + @columnname  + ' from (select *, (row_number() over (order by ' + @columnname_first  + ')) pos from #inserted_u) a where pos = ' + convert(varchar(800),@contadorfilas) 
+					exec sp_executesql @query_column_value_after, N'@column_value_after_out nvarchar(800) output', @column_value_after_out = @column_value_after output
+
+					if @column_value_before != @column_value_after or (@column_value_before is not null and @column_value_after is null) or (@column_value_before is null and @column_value_after is not null)
+					begin
+						insert into tb_audit (aud_station,aud_operation_id,aud_operation,aud_date,aud_time, aud_user, aud_table, aud_identifier_id, aud_identifier_field, aud_field, aud_before, aud_after, usr_id_audit,ssn_id)
+						select HOST_NAME(),@operation_id,'UPDATE',dbo.udf_getdatelocal(default),dbo.udf_getdatelocal(default),SYSTEM_USER,@tablename, @id_value, @columnname_first, @columnname, @column_value_before, @column_value_after, @usr_id_audit, @ssn_id
+					end
+
+					set @contadorcolumnas = @contadorcolumnas + 1
+				end
+			set @contadorfilas = @contadorfilas + 1
+		end
+		drop table #inserted_u
+		drop table #deleted_u
+
+	end
+	else if not exists (select * from inserted) and exists (select * from deleted)
+	begin
+
+		select * into #deleted_d from deleted
+		
+		select @tablename = OBJECT_NAME(parent_object_id) 
+		FROM sys.objects 
+		WHERE sys.objects.name = OBJECT_NAME(@@PROCID)
+
+		select @tablecolumnsdeleted= COUNT(*) 
+		from INFORMATION_SCHEMA.COLUMNS 
+		where TABLE_NAME = @tablename
+
+		select @tablerowsdeleted = COUNT(*) 
+		from deleted
+
+		select @columnname_first = COLUMN_NAME 
+		from INFORMATION_SCHEMA.COLUMNS 
+		where TABLE_NAME = @tablename and ORDINAL_POSITION = 1
+
+		set @contadorfilas = 1
+		while @contadorfilas <= @tablerowsdeleted
+		begin
+				set @query_id_value = 'select @id_value_out = ' + @columnname_first  + ' from (select *, (row_number() over (order by ' + @columnname_first  + ')) pos from #deleted_d) a where pos = ' + convert(varchar(800),@contadorfilas) 
+				exec sp_executesql @query_id_value, N'@id_value_out nvarchar(800) output', @id_value_out = @id_value output
+
+				set @contadorcolumnas = 1
+				while @contadorcolumnas <= @tablecolumnsdeleted
+				begin
+					select @columnname = COLUMN_NAME from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME = @tablename and ORDINAL_POSITION = @contadorcolumnas 
+			
+					set @query_column_value_before = 'select @column_value_before_out = ' + @columnname  + ' from (select *, (row_number() over (order by ' + @columnname_first  + ')) pos from #deleted_d) a where pos = ' + convert(varchar(800),@contadorfilas) 
+					exec sp_executesql @query_column_value_before, N'@column_value_before_out nvarchar(800) output', @column_value_before_out = @column_value_before output
+
+					if (@column_value_before is not null)
+					begin
+						insert into tb_audit (aud_station,aud_operation_id,aud_operation,aud_date,aud_time, aud_user, aud_table, aud_identifier_id, aud_identifier_field, aud_field, aud_before, aud_after, usr_id_audit, ssn_id)
+						select HOST_NAME(),@operation_id,'DELETE',dbo.udf_getdatelocal(default),dbo.udf_getdatelocal(default),SYSTEM_USER,@tablename, @id_value, @columnname_first, @columnname, @column_value_before, null, @usr_id_audit, @ssn_id
+					end
+					set @contadorcolumnas = @contadorcolumnas + 1
+				end
+			set @contadorfilas = @contadorfilas + 1
+		end
+		drop table #deleted_d 
+
+	end
+end
+go
+
+
+
+
+drop trigger if exists tr_tb_places_samples
+go
+create trigger tr_tb_places_samples
+on tb_places_samples
+after insert, update, delete
+as
+set nocount on
+begin
+		declare @operation_id nvarchar(800)
+		declare @tablename nvarchar(800)
+		declare @columnname nvarchar(800)
+		declare @columnname_first nvarchar(800)
+		declare @tablecolumnsinserted int = 1
+		declare @tablerowsinserted int = 1
+		declare @tablecolumnsdeleted int = 1
+		declare @tablerowsdeleted int = 1
+		declare @contadorfilas int = 1
+		declare @contadorcolumnas int = 1
+		declare @id_value nvarchar(max)
+		declare @query_id_value nvarchar(max)
+		declare @column_value_after nvarchar(max)
+		declare @query_column_value_after nvarchar(max)
+		declare @column_value_before nvarchar(max)
+		declare @query_column_value_before nvarchar(max)
+		declare @usr_id_audit int
+		declare @ssn_id int
+
+		select @operation_id = isnull(max(aud_operation_id),0) + 1 from tb_audit 
+
+		select @usr_id_audit = cast(SESSION_CONTEXT(N'usr_id_audit') as int)
+		select @ssn_id = cast(SESSION_CONTEXT(N'ssn_id') as int)		
+
+	if exists (select * from inserted) and not exists (select * from deleted)
+	begin
+
+		select * into #inserted_i from inserted
+
+		select @tablename = OBJECT_NAME(parent_object_id) 
+		FROM sys.objects 
+		WHERE sys.objects.name = OBJECT_NAME(@@PROCID)
+
+		select @tablecolumnsinserted = COUNT(*) 
+		from INFORMATION_SCHEMA.COLUMNS 
+		where TABLE_NAME = @tablename
+
+		select @tablerowsinserted = COUNT(*) 
+		from inserted
+
+		select @columnname_first = COLUMN_NAME 
+		from INFORMATION_SCHEMA.COLUMNS 
+		where TABLE_NAME = @tablename and ORDINAL_POSITION = 1
+
+		set @contadorfilas = 1
+		while @contadorfilas <= @tablerowsinserted
+		begin
+				set @query_id_value = 'select @id_value_out = ' + @columnname_first  + ' from (select *, (row_number() over (order by ' + @columnname_first  + ')) pos from #inserted_i ) a where pos = ' + convert(varchar(800),@contadorfilas) 
+				exec sp_executesql @query_id_value, N'@id_value_out nvarchar(800) output', @id_value_out = @id_value output
+
+				set @contadorcolumnas = 1
+				while @contadorcolumnas <= @tablecolumnsinserted
+				begin
+					select @columnname = COLUMN_NAME from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME = @tablename and ORDINAL_POSITION = @contadorcolumnas 
+			
+					set @query_column_value_after = 'select @column_value_after_out = ' + @columnname  + ' from (select *, (row_number() over (order by ' + @columnname_first  + ')) pos from #inserted_i) a where pos = ' + convert(varchar(800),@contadorfilas) 
+					exec sp_executesql @query_column_value_after, N'@column_value_after_out nvarchar(800) output', @column_value_after_out = @column_value_after output
+
+					if (@column_value_after is not null)
+					begin
+						insert into tb_audit (aud_station,aud_operation_id, aud_operation,aud_date,aud_time, aud_user, aud_table, aud_identifier_id, aud_identifier_field, aud_field, aud_before, aud_after, usr_id_audit, ssn_id)
+						select HOST_NAME(),@operation_id,'INSERT',dbo.udf_getdatelocal(default),dbo.udf_getdatelocal(default),SYSTEM_USER,@tablename, @id_value, @columnname_first, @columnname, null, @column_value_after, @usr_id_audit, @ssn_id
+					end
+
+					set @contadorcolumnas = @contadorcolumnas + 1
+				end
+			set @contadorfilas = @contadorfilas + 1
+		end
+		drop table #inserted_i 
+
+	end
+	else if exists (select * from inserted) and exists (select * from deleted)
+	begin
+
+		select * into #inserted_u from inserted
+		select * into #deleted_u from deleted
+
+		select @tablename = OBJECT_NAME(parent_object_id) 
+		FROM sys.objects 
+		WHERE sys.objects.name = OBJECT_NAME(@@PROCID)
+
+		select @tablecolumnsinserted = COUNT(*) 
+		from INFORMATION_SCHEMA.COLUMNS 
+		where TABLE_NAME = @tablename
+
+		select @tablerowsinserted = COUNT(*) 
+		from inserted
+
+		select @columnname_first = COLUMN_NAME 
+		from INFORMATION_SCHEMA.COLUMNS 
+		where TABLE_NAME = @tablename and ORDINAL_POSITION = 1
+
+		set @contadorfilas = 1
+		while @contadorfilas <= @tablerowsinserted
+		begin
+				set @query_id_value = 'select @id_value_out = ' + @columnname_first  + ' from (select *, (row_number() over (order by ' + @columnname_first  + ')) pos from #inserted_u ) a where pos = ' + convert(varchar(800),@contadorfilas) 
+				exec sp_executesql @query_id_value, N'@id_value_out nvarchar(800) output', @id_value_out = @id_value output
+
+				set @contadorcolumnas = 1
+				while @contadorcolumnas <= @tablecolumnsinserted
+				begin
+					select @columnname = COLUMN_NAME from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME = @tablename and ORDINAL_POSITION = @contadorcolumnas 
+			
+					set @query_column_value_before = 'select @column_value_before_out = ' + @columnname  + ' from (select *, (row_number() over (order by ' + @columnname_first  + ')) pos from #deleted_u) a where pos = ' + convert(varchar(800),@contadorfilas) 
+					exec sp_executesql @query_column_value_before, N'@column_value_before_out nvarchar(800) output', @column_value_before_out = @column_value_before output
+
+
+					set @query_column_value_after = 'select @column_value_after_out = ' + @columnname  + ' from (select *, (row_number() over (order by ' + @columnname_first  + ')) pos from #inserted_u) a where pos = ' + convert(varchar(800),@contadorfilas) 
+					exec sp_executesql @query_column_value_after, N'@column_value_after_out nvarchar(800) output', @column_value_after_out = @column_value_after output
+
+					if @column_value_before != @column_value_after or (@column_value_before is not null and @column_value_after is null) or (@column_value_before is null and @column_value_after is not null)
+					begin
+						insert into tb_audit (aud_station,aud_operation_id,aud_operation,aud_date,aud_time, aud_user, aud_table, aud_identifier_id, aud_identifier_field, aud_field, aud_before, aud_after, usr_id_audit,ssn_id)
+						select HOST_NAME(),@operation_id,'UPDATE',dbo.udf_getdatelocal(default),dbo.udf_getdatelocal(default),SYSTEM_USER,@tablename, @id_value, @columnname_first, @columnname, @column_value_before, @column_value_after, @usr_id_audit, @ssn_id
+					end
+
+					set @contadorcolumnas = @contadorcolumnas + 1
+				end
+			set @contadorfilas = @contadorfilas + 1
+		end
+		drop table #inserted_u
+		drop table #deleted_u
+
+	end
+	else if not exists (select * from inserted) and exists (select * from deleted)
+	begin
+
+		select * into #deleted_d from deleted
+		
+		select @tablename = OBJECT_NAME(parent_object_id) 
+		FROM sys.objects 
+		WHERE sys.objects.name = OBJECT_NAME(@@PROCID)
+
+		select @tablecolumnsdeleted= COUNT(*) 
+		from INFORMATION_SCHEMA.COLUMNS 
+		where TABLE_NAME = @tablename
+
+		select @tablerowsdeleted = COUNT(*) 
+		from deleted
+
+		select @columnname_first = COLUMN_NAME 
+		from INFORMATION_SCHEMA.COLUMNS 
+		where TABLE_NAME = @tablename and ORDINAL_POSITION = 1
+
+		set @contadorfilas = 1
+		while @contadorfilas <= @tablerowsdeleted
+		begin
+				set @query_id_value = 'select @id_value_out = ' + @columnname_first  + ' from (select *, (row_number() over (order by ' + @columnname_first  + ')) pos from #deleted_d) a where pos = ' + convert(varchar(800),@contadorfilas) 
+				exec sp_executesql @query_id_value, N'@id_value_out nvarchar(800) output', @id_value_out = @id_value output
+
+				set @contadorcolumnas = 1
+				while @contadorcolumnas <= @tablecolumnsdeleted
+				begin
+					select @columnname = COLUMN_NAME from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME = @tablename and ORDINAL_POSITION = @contadorcolumnas 
+			
+					set @query_column_value_before = 'select @column_value_before_out = ' + @columnname  + ' from (select *, (row_number() over (order by ' + @columnname_first  + ')) pos from #deleted_d) a where pos = ' + convert(varchar(800),@contadorfilas) 
+					exec sp_executesql @query_column_value_before, N'@column_value_before_out nvarchar(800) output', @column_value_before_out = @column_value_before output
+
+					if (@column_value_before is not null)
+					begin
+						insert into tb_audit (aud_station,aud_operation_id,aud_operation,aud_date,aud_time, aud_user, aud_table, aud_identifier_id, aud_identifier_field, aud_field, aud_before, aud_after, usr_id_audit, ssn_id)
+						select HOST_NAME(),@operation_id,'DELETE',dbo.udf_getdatelocal(default),dbo.udf_getdatelocal(default),SYSTEM_USER,@tablename, @id_value, @columnname_first, @columnname, @column_value_before, null, @usr_id_audit, @ssn_id
+					end
+					set @contadorcolumnas = @contadorcolumnas + 1
+				end
+			set @contadorfilas = @contadorfilas + 1
+		end
+		drop table #deleted_d 
+
+	end
+end
+go
+
+
+
+
+drop trigger if exists tr_tb_places_samples_results
+go
+create trigger tr_tb_places_samples_results
+on tb_places_samples_results
+after insert, update, delete
+as
+set nocount on
+begin
+		declare @operation_id nvarchar(800)
+		declare @tablename nvarchar(800)
+		declare @columnname nvarchar(800)
+		declare @columnname_first nvarchar(800)
+		declare @tablecolumnsinserted int = 1
+		declare @tablerowsinserted int = 1
+		declare @tablecolumnsdeleted int = 1
+		declare @tablerowsdeleted int = 1
+		declare @contadorfilas int = 1
+		declare @contadorcolumnas int = 1
+		declare @id_value nvarchar(max)
+		declare @query_id_value nvarchar(max)
+		declare @column_value_after nvarchar(max)
+		declare @query_column_value_after nvarchar(max)
+		declare @column_value_before nvarchar(max)
+		declare @query_column_value_before nvarchar(max)
+		declare @usr_id_audit int
+		declare @ssn_id int
+
+		select @operation_id = isnull(max(aud_operation_id),0) + 1 from tb_audit 
+
+		select @usr_id_audit = cast(SESSION_CONTEXT(N'usr_id_audit') as int)
+		select @ssn_id = cast(SESSION_CONTEXT(N'ssn_id') as int)		
+
+	if exists (select * from inserted) and not exists (select * from deleted)
+	begin
+
+		select * into #inserted_i from inserted
+
+		select @tablename = OBJECT_NAME(parent_object_id) 
+		FROM sys.objects 
+		WHERE sys.objects.name = OBJECT_NAME(@@PROCID)
+
+		select @tablecolumnsinserted = COUNT(*) 
+		from INFORMATION_SCHEMA.COLUMNS 
+		where TABLE_NAME = @tablename
+
+		select @tablerowsinserted = COUNT(*) 
+		from inserted
+
+		select @columnname_first = COLUMN_NAME 
+		from INFORMATION_SCHEMA.COLUMNS 
+		where TABLE_NAME = @tablename and ORDINAL_POSITION = 1
+
+		set @contadorfilas = 1
+		while @contadorfilas <= @tablerowsinserted
+		begin
+				set @query_id_value = 'select @id_value_out = ' + @columnname_first  + ' from (select *, (row_number() over (order by ' + @columnname_first  + ')) pos from #inserted_i ) a where pos = ' + convert(varchar(800),@contadorfilas) 
+				exec sp_executesql @query_id_value, N'@id_value_out nvarchar(800) output', @id_value_out = @id_value output
+
+				set @contadorcolumnas = 1
+				while @contadorcolumnas <= @tablecolumnsinserted
+				begin
+					select @columnname = COLUMN_NAME from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME = @tablename and ORDINAL_POSITION = @contadorcolumnas 
+			
+					set @query_column_value_after = 'select @column_value_after_out = ' + @columnname  + ' from (select *, (row_number() over (order by ' + @columnname_first  + ')) pos from #inserted_i) a where pos = ' + convert(varchar(800),@contadorfilas) 
+					exec sp_executesql @query_column_value_after, N'@column_value_after_out nvarchar(800) output', @column_value_after_out = @column_value_after output
+
+					if (@column_value_after is not null)
+					begin
+						insert into tb_audit (aud_station,aud_operation_id, aud_operation,aud_date,aud_time, aud_user, aud_table, aud_identifier_id, aud_identifier_field, aud_field, aud_before, aud_after, usr_id_audit, ssn_id)
+						select HOST_NAME(),@operation_id,'INSERT',dbo.udf_getdatelocal(default),dbo.udf_getdatelocal(default),SYSTEM_USER,@tablename, @id_value, @columnname_first, @columnname, null, @column_value_after, @usr_id_audit, @ssn_id
+					end
+
+					set @contadorcolumnas = @contadorcolumnas + 1
+				end
+			set @contadorfilas = @contadorfilas + 1
+		end
+		drop table #inserted_i 
+
+	end
+	else if exists (select * from inserted) and exists (select * from deleted)
+	begin
+
+		select * into #inserted_u from inserted
+		select * into #deleted_u from deleted
+
+		select @tablename = OBJECT_NAME(parent_object_id) 
+		FROM sys.objects 
+		WHERE sys.objects.name = OBJECT_NAME(@@PROCID)
+
+		select @tablecolumnsinserted = COUNT(*) 
+		from INFORMATION_SCHEMA.COLUMNS 
+		where TABLE_NAME = @tablename
+
+		select @tablerowsinserted = COUNT(*) 
+		from inserted
+
+		select @columnname_first = COLUMN_NAME 
+		from INFORMATION_SCHEMA.COLUMNS 
+		where TABLE_NAME = @tablename and ORDINAL_POSITION = 1
+
+		set @contadorfilas = 1
+		while @contadorfilas <= @tablerowsinserted
+		begin
+				set @query_id_value = 'select @id_value_out = ' + @columnname_first  + ' from (select *, (row_number() over (order by ' + @columnname_first  + ')) pos from #inserted_u ) a where pos = ' + convert(varchar(800),@contadorfilas) 
+				exec sp_executesql @query_id_value, N'@id_value_out nvarchar(800) output', @id_value_out = @id_value output
+
+				set @contadorcolumnas = 1
+				while @contadorcolumnas <= @tablecolumnsinserted
+				begin
+					select @columnname = COLUMN_NAME from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME = @tablename and ORDINAL_POSITION = @contadorcolumnas 
+			
+					set @query_column_value_before = 'select @column_value_before_out = ' + @columnname  + ' from (select *, (row_number() over (order by ' + @columnname_first  + ')) pos from #deleted_u) a where pos = ' + convert(varchar(800),@contadorfilas) 
+					exec sp_executesql @query_column_value_before, N'@column_value_before_out nvarchar(800) output', @column_value_before_out = @column_value_before output
+
+
+					set @query_column_value_after = 'select @column_value_after_out = ' + @columnname  + ' from (select *, (row_number() over (order by ' + @columnname_first  + ')) pos from #inserted_u) a where pos = ' + convert(varchar(800),@contadorfilas) 
+					exec sp_executesql @query_column_value_after, N'@column_value_after_out nvarchar(800) output', @column_value_after_out = @column_value_after output
+
+					if @column_value_before != @column_value_after or (@column_value_before is not null and @column_value_after is null) or (@column_value_before is null and @column_value_after is not null)
+					begin
+						insert into tb_audit (aud_station,aud_operation_id,aud_operation,aud_date,aud_time, aud_user, aud_table, aud_identifier_id, aud_identifier_field, aud_field, aud_before, aud_after, usr_id_audit,ssn_id)
+						select HOST_NAME(),@operation_id,'UPDATE',dbo.udf_getdatelocal(default),dbo.udf_getdatelocal(default),SYSTEM_USER,@tablename, @id_value, @columnname_first, @columnname, @column_value_before, @column_value_after, @usr_id_audit, @ssn_id
+					end
+
+					set @contadorcolumnas = @contadorcolumnas + 1
+				end
+			set @contadorfilas = @contadorfilas + 1
+		end
+		drop table #inserted_u
+		drop table #deleted_u
+
+	end
+	else if not exists (select * from inserted) and exists (select * from deleted)
+	begin
+
+		select * into #deleted_d from deleted
+		
+		select @tablename = OBJECT_NAME(parent_object_id) 
+		FROM sys.objects 
+		WHERE sys.objects.name = OBJECT_NAME(@@PROCID)
+
+		select @tablecolumnsdeleted= COUNT(*) 
+		from INFORMATION_SCHEMA.COLUMNS 
+		where TABLE_NAME = @tablename
+
+		select @tablerowsdeleted = COUNT(*) 
+		from deleted
+
+		select @columnname_first = COLUMN_NAME 
+		from INFORMATION_SCHEMA.COLUMNS 
+		where TABLE_NAME = @tablename and ORDINAL_POSITION = 1
+
+		set @contadorfilas = 1
+		while @contadorfilas <= @tablerowsdeleted
+		begin
+				set @query_id_value = 'select @id_value_out = ' + @columnname_first  + ' from (select *, (row_number() over (order by ' + @columnname_first  + ')) pos from #deleted_d) a where pos = ' + convert(varchar(800),@contadorfilas) 
+				exec sp_executesql @query_id_value, N'@id_value_out nvarchar(800) output', @id_value_out = @id_value output
+
+				set @contadorcolumnas = 1
+				while @contadorcolumnas <= @tablecolumnsdeleted
+				begin
+					select @columnname = COLUMN_NAME from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME = @tablename and ORDINAL_POSITION = @contadorcolumnas 
+			
+					set @query_column_value_before = 'select @column_value_before_out = ' + @columnname  + ' from (select *, (row_number() over (order by ' + @columnname_first  + ')) pos from #deleted_d) a where pos = ' + convert(varchar(800),@contadorfilas) 
+					exec sp_executesql @query_column_value_before, N'@column_value_before_out nvarchar(800) output', @column_value_before_out = @column_value_before output
+
+					if (@column_value_before is not null)
+					begin
+						insert into tb_audit (aud_station,aud_operation_id,aud_operation,aud_date,aud_time, aud_user, aud_table, aud_identifier_id, aud_identifier_field, aud_field, aud_before, aud_after, usr_id_audit, ssn_id)
+						select HOST_NAME(),@operation_id,'DELETE',dbo.udf_getdatelocal(default),dbo.udf_getdatelocal(default),SYSTEM_USER,@tablename, @id_value, @columnname_first, @columnname, @column_value_before, null, @usr_id_audit, @ssn_id
+					end
+					set @contadorcolumnas = @contadorcolumnas + 1
+				end
+			set @contadorfilas = @contadorfilas + 1
+		end
+		drop table #deleted_d 
+
+	end
+end
+go
+
+
+
+
+--INDEXES
+
+--INDIVIDUALS
+
+
+--INDIVIDUALS SAMPLES
+
+if exists(select * from sys.indexes 
+where name='ix_tb_places_samples_pla_id' and object_id = object_id('tb_places_samples'))
+begin
+	drop index tb_places_samples.ix_tb_places_samples_pla_id
+end
+create nonclustered index ix_tb_places_samples_pla_id on tb_places_samples (pla_id, ps_date_created, ps_time_created)
+include (	ps_barcode, usr_id_created, ps_date_collected, 
+			ps_time_collected, usr_id_collected, ps_date_registered, ps_time_registered, usr_id_registered,
+			ps_well_number, ps_details)
+go
+
+
+
+if exists(select * from sys.indexes 
+where name='ix_tb_places_samples_ps_barcode' and object_id = object_id('tb_places_samples'))
+begin
+	drop index tb_places_samples.ix_tb_places_samples_ps_barcode
+end
+create nonclustered index ix_tb_places_samples_ps_barcode on tb_places_samples (ps_barcode, ps_date_created, ps_time_created)
+include (	pla_id , usr_id_created, ps_date_collected, 
+			ps_time_collected, usr_id_collected, ps_date_registered, ps_time_registered, usr_id_registered,
+			ps_well_number, ps_details)
+go
+
+
+if exists(select * from sys.indexes 
+where name='ix_tb_places_samples_ps_date_created' and object_id = object_id('tb_places_samples'))
+begin
+	drop index tb_places_samples.ix_tb_places_samples_ps_date_created
+end
+create nonclustered index ix_tb_places_samples_ps_date_created on tb_places_samples (ps_date_created, ps_time_created, ps_id)
+include (	ps_barcode, pla_id, usr_id_created, ps_date_collected, 
+			ps_time_collected, usr_id_collected, ps_date_registered, ps_time_registered, usr_id_registered,
+			ps_well_number, ps_details)
+go
+

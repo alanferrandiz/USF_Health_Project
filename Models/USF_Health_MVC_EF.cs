@@ -21,6 +21,7 @@ namespace USF_Health_MVC_EF.Models
         public virtual DbSet<Login> tb_login { get; set; }
         public virtual DbSet<Pool> tb_pools { get; set; }
         public virtual DbSet<Place> tb_places { get; set; }
+        public virtual DbSet<PlaceSample> tb_places_samples { get; set; }
         public virtual DbSet<SpIndividuals> usp_individual_select { get; set; }
         public virtual DbSet<SpIndividualsSamples> usp_individuals_samples_select { get; set; }
         public virtual DbSet<SpPools> usp_pools_select { get; set; }
@@ -222,6 +223,11 @@ namespace USF_Health_MVC_EF.Models
                 entity.HasNoKey().ToView(null);
             });
 
+            modelBuilder.Entity<SpPlacesSamples> //().HasNoKey().ToView(null)
+            (entity =>
+            {
+                entity.HasNoKey().ToView(null);
+            });
 
             modelBuilder.Entity<Place>
              (entity =>

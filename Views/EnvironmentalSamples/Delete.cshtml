@@ -1,0 +1,129 @@
+﻿@model USF_Health_MVC_EF.Models.PlaceSample   
+
+@{
+    ViewData["Title"] = "Delete";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    SpPlaces spPlaces = ViewData["spPlaces"] as SpPlaces;
+
+}
+<div class="div_breadcrumb">
+    Environmental&nbsp;&nbsp;&nbsp;>&nbsp;&nbsp;&nbsp;Samples&nbsp;&nbsp;&nbsp;>&nbsp;&nbsp;&nbsp;Delete
+</div>
+<div class="div_form">
+    <div class="div_text">
+        Are you sure you want to delete this barcode?
+    </div>
+
+    <div class="div_labeltext">
+        <div class="div_label" style="float:left;">
+            Sample Id
+        </div>
+        <div class="div_text">
+            @Html.DisplayFor(model => model.ps_id)
+        </div>
+    </div>
+
+    <div class="div_labeltext">
+        <div class="div_label" style="float:left;">
+            Sample Barcode
+        </div>
+        <div class="div_text">
+            @Html.DisplayFor(model => model.ps_barcode)
+        </div>
+    </div>
+
+    <div class="div_labeltext">
+        <div class="div_label" style="float:left;">
+            Date of creation
+        </div>
+        <div class="div_text">
+            @Html.DisplayFor(model => model.ps_date_created)
+        </div>
+    </div>
+
+    <div class="div_labeltext">
+        <div class="div_label" style="float:left;">
+            Date collected
+        </div>
+        <div class="div_text">
+            @Html.DisplayFor(model => model.ps_date_collected)
+        </div>
+    </div>
+
+    <div class="div_labeltext">
+        <div class="div_label" style="float:left;">
+            Date registered
+        </div>
+        <div class="div_text">
+            @Html.DisplayFor(model => model.ps_date_registered)
+        </div>
+    </div>
+
+    <div class="div_labeltext">
+        <div class="div_label" style="float:left;">
+            Well number
+        </div>
+        <div class="div_text">
+            @Html.DisplayFor(model => model.ps_well_number)
+        </div>
+    </div>
+    <div class="div_labeltext">
+        <div class="div_label" style="float:left;">
+            Name
+        </div>
+        <div class="div_text">
+            @spPlaces.pla_name
+        </div>
+    </div>
+
+
+    <div class="div_labeltext">
+        <div class="div_label" style="float:left;">
+            Location Reference
+        </div>
+        <div class="div_text">
+            @spPlaces.pla_location_reference
+        </div>
+    </div>
+
+    <div class="div_labeltext">
+        <div class="div_label" style="float:left;">
+            Details
+        </div>
+        <div class="div_text">
+            @spPlaces.pla_details
+        </div>
+    </div>
+
+    <div class="div_labeltext">
+        <div class="div_label" style="float:left;">
+            Sample details
+        </div>
+        <div class="div_text">
+            @Html.DisplayFor(model => model.ps_details)
+        </div>
+    </div>
+
+
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="ps_id" />
+        <div class="div_button">
+            <input type="submit" value="Delete" id="btnSubmit" style="background-color: #bd2130;" onsubmit="this.disabled=true;this.value='Submitting...'; this.form.submit();" />
+        </div>
+    </form>
+
+</div>
+<div class="div_mainlink">
+    <a asp-action="Index">Back to List</a>
+</div>
+
+<script type="text/javascript">
+
+            $('form').submit(function () {
+                $(this).find('input[type=submit]').prop('disabled', true);
+                return true;
+            });
+
+            $("#btnSubmit").focus();
+
+</script>

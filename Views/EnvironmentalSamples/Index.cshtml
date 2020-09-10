@@ -1,0 +1,276 @@
+﻿@model IEnumerable<USF_Health_MVC_EF.Models.SpPlacesSamples>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jeditable.js/2.0.17/jquery.jeditable.js"></script>
+
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        $('#example').DataTable({
+            columnDefs: [{
+                targets: [0],
+                orderData: [0, 1]
+            }, {
+                targets: [1],
+                orderData: [1, 0]
+            }, {
+                targets: [4],
+                orderData: [4, 0]
+            }]
+        });
+    });
+
+
+
+
+</script>
+
+<div class="div_breadcrumb">
+    Environmental&nbsp;&nbsp;&nbsp;>&nbsp;&nbsp;&nbsp;Samples
+</div>
+
+
+@using (Html.BeginForm("Index", "EnvironmentalSamples", FormMethod.Post))
+{
+    <div class="div_datatables">
+        <table id="example" class="display" style="width:100%">
+            <thead>
+                <tr>
+                    <td>
+                        Sample ID
+                    </td>
+                    <td>
+                        Barcode
+                    </td>
+                    <td>
+                        Name
+                    </td>
+                    <td>
+                        Location Reference
+                    </td>
+                    <td>
+                        Details
+                    </td>
+                    <td>
+                        Date created
+                    </td>
+                    <td>
+                        Date collected
+                    </td>
+                    <td>
+                        Date registered
+                    </td>
+                    <td>
+                        Sample details
+                    </td>
+                    <td>
+                        Well number
+                    </td>
+                    <td>
+                        Results (P/N)
+                    </td>
+                    <td>
+                        CT Value
+                    </td>
+                    <td></td>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.ps_id, new { htmlAttributes = new { @id = "ps_id_" + item.ps_id } })
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.ps_barcode)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.pla_name)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.pla_location_reference)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.pla_details)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.ps_date_created_text)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.ps_date_collected_text)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.ps_date_registered_text)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.ps_details)
+                    </td>
+                    <td style="background-color:yellow;" id="ps_well_number_td_@item.ps_id" onkeydown="handle(event,'ps_well_number_td_@item.ps_id','ps_well_number_editor_@item.ps_id','ps_well_number_display_@item.ps_id','ps_well_number_txtEditor_@item.ps_id','ps_well_number_txtDisplay_@item.ps_id',@item.ps_id)" ondblclick="edit('ps_well_number_td_@item.ps_id','ps_well_number_editor_@item.ps_id','ps_well_number_display_@item.ps_id','ps_well_number_txtEditor_@item.ps_id','ps_well_number_txtDisplay_@item.ps_id',@item.ps_id)">
+                        <div id="ps_well_number_editor_@item.ps_id" style="display:none;">
+                            @Html.EditorFor(modelItem => item.ps_well_number, new { htmlAttributes = new { @class = "form-editor", @id = "ps_well_number_txtEditor_" + item.ps_id } })
+                        </div>
+                        <div id="ps_well_number_display_@item.ps_id">
+                            @Html.DisplayFor(modelItem => item.ps_well_number, new { htmlAttributes = new { @id = "ps_well_number_txtDisplay_" + item.ps_id } })
+                        </div>
+                    </td>
+                    <td style="background-color:yellow;" id="psres_result_td_@item.ps_id" onkeydown="handle(event,'psres_result_td_@item.ps_id','psres_result_editor_@item.ps_id','psres_result_display_@item.ps_id','psres_result_txtEditor_@item.ps_id','psres_result_txtDisplay_@item.ps_id',@item.ps_id)" ondblclick="edit('psres_result_td_@item.ps_id','psres_result_editor_@item.ps_id','psres_result_display_@item.ps_id','psres_result_txtEditor_@item.ps_id','psres_result_txtDisplay_@item.ps_id',@item.ps_id)">
+                        <div id="psres_result_editor_@item.ps_id" style="display:none;">
+                            @Html.EditorFor(modelItem => item.psres_result, new { htmlAttributes = new { @class = "form-editor", @id = "psres_result_txtEditor_" + item.ps_id } })
+                        </div>
+                        <div id="psres_result_display_@item.ps_id">
+                            @Html.DisplayFor(modelItem => item.psres_result, new { htmlAttributes = new { @id = "psres_result_txtDisplay_" + item.ps_id } })
+                        </div>
+                    </td>
+                    <td style="background-color:yellow;" id="psres_ct_value_td_@item.ps_id" onkeydown="handle(event,'psres_ct_value_td_@item.ps_id','psres_ct_value_editor_@item.ps_id','psres_ct_value_display_@item.ps_id','psres_ct_value_txtEditor_@item.ps_id','psres_ct_value_txtDisplay_@item.ps_id',@item.ps_id)" ondblclick="edit('psres_ct_value_td_@item.ps_id','psres_ct_value_editor_@item.ps_id','psres_ct_value_display_@item.ps_id','psres_ct_value_txtEditor_@item.ps_id','psres_ct_value_txtDisplay_@item.ps_id',@item.ps_id)">
+                        <div id="psres_ct_value_editor_@item.ps_id" style="display:none;">
+                            @Html.EditorFor(modelItem => item.psres_ct_value, new { htmlAttributes = new { @class = "form-editor", @id = "psres_ct_value_txtEditor_" + item.ps_id } })
+                        </div>
+                        <div id="psres_ct_value_display_@item.ps_id">
+                            @Html.DisplayFor(modelItem => item.psres_ct_value, new { htmlAttributes = new { @id = "psres_ct_value_txtDisplay_" + item.ps_id } })
+                        </div>
+                    </td>
+
+                    <td>
+                        <a asp-action="Edit" asp-route-id="@item.ps_id">Edit</a> |
+                        <a asp-action="Details" asp-route-id="@item.ps_id">Details</a> |
+                        <a asp-action="Delete" asp-route-id="@item.ps_id">Delete</a>
+                    </td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+
+<script type="text/javascript">
+
+    function edit(tdID, editorID, displayID, txtEditorID, txtDisplayID, ps_id) {
+
+
+        if (document.getElementById(editorID).style.display == 'none') {
+            document.getElementById(editorID).style.display = 'block';
+            document.getElementById(displayID).style.display = 'none';
+
+            document.getElementById(txtEditorID).value = document.getElementById(displayID).innerHTML.trim();
+
+            document.getElementById(txtEditorID).focus();
+            document.getElementById(txtEditorID).select();
+        }
+        else if (document.getElementById(displayID).style.display == 'none') {
+
+            if (tdID.includes('psres_result_td') == true) {
+
+                if (document.getElementById(txtEditorID).value.toUpperCase().trim() == 'P' || document.getElementById(txtEditorID).value.toUpperCase().trim() == 'N' || document.getElementById(txtEditorID).value.toUpperCase().trim() == '') {
+                    UpdateResult(ps_id, document.getElementById(txtEditorID).value.toUpperCase().trim(), txtEditorID, displayID);
+                }
+                else {
+                    alert('Only P or N allowed');
+                }
+
+            } else if (tdID.includes('psres_ct_value_td') == true) {
+                UpdateCTValue(ps_id, document.getElementById(txtEditorID).value, txtEditorID, displayID);
+            } else if (tdID.includes('ps_well_number_td') == true) {
+                UpdateWellNumber(ps_id, document.getElementById(txtEditorID).value, txtEditorID, displayID);
+            }
+            
+            document.getElementById(displayID).style.display = 'block';
+            document.getElementById(editorID).style.display = 'none';
+            
+        }
+    }
+
+    function handle(e, tdID, editorID, displayID, txtEditorID, txtDisplayID, ps_id) {
+
+        if (e.keyCode === 13) {
+            e.preventDefault();
+            edit(tdID, editorID, displayID, txtEditorID, txtDisplayID, ps_id);
+
+        } else if (e.keyCode === 27) {
+            e.preventDefault();
+            document.getElementById(displayID).style.display = 'block';
+            document.getElementById(editorID).style.display = 'none';
+        }
+    }
+
+</script>
+
+
+<script type="text/javascript">
+
+
+    function UpdateWellNumber(id, value, txtEditorID, displayID) {
+    $.ajax({
+    url: '@Url.Action("UpdateWellNumber")',
+    type: 'GET',
+    dataType: 'text',
+    cache: false,
+        data: { 'id': id, 'value': value},
+        success: function (results) {
+            document.getElementById(txtEditorID).value = value;
+            document.getElementById(displayID).innerHTML = value;
+    },
+    error: function () {
+        alert('Error occured');
+    }
+    });
+    }
+
+
+</script>
+
+<script type="text/javascript">
+
+
+    function UpdateResult(id, value, txtEditorID, displayID) {
+    $.ajax({
+    url: '@Url.Action("UpdateResult")',
+    type: 'GET',
+    dataType: 'text',
+    cache: false,
+        data: { 'id': id, 'value': value},
+        success: function (results) {
+            document.getElementById(txtEditorID).value = value;
+            document.getElementById(displayID).innerHTML = value;
+    },
+    error: function () {
+        alert('Error occured');
+    }
+    });
+    }
+
+
+</script>
+
+
+<script type="text/javascript">
+
+
+    function UpdateCTValue(id, value, txtEditorID, displayID) {
+    $.ajax({
+    url: '@Url.Action("UpdateCTValue")',
+    type: 'GET',
+    dataType: 'text',
+    cache: false,
+        data: { 'id': id, 'value': value},
+        success: function (results) {
+            document.getElementById(txtEditorID).value = value;
+            document.getElementById(displayID).innerHTML = value;
+    },
+    error: function () {
+        alert('Error occured');
+    }
+    });
+    }
+
+
+</script>

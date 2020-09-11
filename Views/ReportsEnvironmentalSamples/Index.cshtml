@@ -1,0 +1,274 @@
+﻿@model IEnumerable<USF_Health_MVC_EF.Models.SpPlacesSamples>
+
+@{
+    ViewData["Title"] = "Reports - Environmental Samples";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script src="https://cdn.datatables.net/buttons/1.6.2/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.6.2/js/buttons.flash.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.6.2/js/buttons.html5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.6.2/js/buttons.print.min.js"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.6.2/css/buttons.dataTables.min.css" runat=server>
+
+<div class="div_breadcrumb">
+    Reports&nbsp;&nbsp;&nbsp;>&nbsp;&nbsp;&nbsp;Environmental Samples
+</div>
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        $('#example').DataTable({
+            columnDefs: [{
+                targets: [0],
+                orderData: [0, 1]
+            }, {
+                targets: [1],
+                orderData: [1, 0]
+            }, {
+                targets: [4],
+                orderData: [4, 0]
+                }],
+            dom: 'Bfrtip',
+            buttons: [
+                {
+                    extend: 'pdfHtml5',
+                    orientation: 'landscape',
+                    pageSize: 'LEGAL'
+                },
+
+                'copy', 'csv', 'excel', 'print'
+            ]
+        });
+    });
+
+</script>
+
+
+
+<div class="div_form" style="width:80%">
+
+    <form id="frmForm">
+        <div>
+            <div style="float: left;  width:30%;">
+                <div class="div_text">
+                    Sample Date Start
+                </div>
+                <div class="div_input">
+                    <input type="date" id="txtDateStart" required />
+                </div>
+
+                <div class="div_text">
+                    Sample Date End
+                </div>
+                <div class="div_input">
+                    <input type="date" id="txtDateEnd" required />
+                </div>
+
+                <div class="div_button">
+                    <input type="submit" id="btnSubmit" value="Search" onclick="handle(event,document.getElementById('txtDateStart').value, document.getElementById('txtDateEnd').value, document.getElementById('ddlSampleResult').options[document.getElementById('ddlSampleResult').selectedIndex].value, document.getElementById('ddlSampleResult').selectedIndex, document.getElementById('ddlSampleResult').options[document.getElementById('ddlSampleResult').selectedIndex].text);" />
+                </div>
+
+                <div class="div_label" style="width:800px;">
+                    <label id="lblStatus"></label>
+                </div>
+                <div class="div_label" style="width:800px;">
+                    <label id="lblSampleResultStatus"></label>
+                </div>
+                <div class="div_label" style="width:800px;">
+                    <label id="lblSeparator"></label>
+                </div>
+            </div>
+            <div style="float: left;  width:10%;">
+                <div class="div_text">
+                    AND
+                </div>
+            </div>
+            <div style="float: left; width:30%;">
+                <div class="div_text">
+                    Sample Result
+                </div>
+                <div class="div_dropdownlist">
+                    <select id="ddlSampleResult">
+                        <option value="A">All Results</option>
+                        <option value="P">Positive (P)</option>
+                        <option value="N">Negative (N)</option>
+                        <option value="U">Sample w/ No Result</option>
+                    </select>
+                </div>
+            </div>
+
+
+        </div>
+</form>
+</div>
+
+
+@using (Html.BeginForm("Index", "PersonSamples", FormMethod.Post))
+{
+    <div class="div_datatables">
+
+        <table id="example" class="display" style="width:100%">
+            <thead>
+                <tr>
+                    <td>
+                        Sample ID
+                    </td>
+                    <td>
+                        Barcode
+                    </td>
+                    <td>
+                        Name
+                    </td>
+                    <td>
+                        Location Reference
+                    </td>
+                    <td>
+                        Campus
+                    </td>
+                    <td>
+                        Details
+                    </td>
+                    <td>
+                        Date of creation
+                    </td>
+                    <td>
+                        Date of collection
+                    </td>
+                    <td>
+                        Date registered
+                    </td>
+                    <td>
+                        Sample Details
+                    </td>
+                    <td>
+                        Sample Results
+                    </td>
+                    <td>
+                        Sample CT Value
+                    </td>
+
+                    <td></td>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.ps_id, new { htmlAttributes = new { @id = "ps_id_" + item.ps_id } })
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.ps_barcode)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.pla_name)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.pla_location_reference)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.pla_campus)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.pla_details)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.ps_date_created_text)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.ps_date_collected_text)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.ps_date_registered_text)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.ps_details)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.psres_result)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.psres_ct_value)
+                    </td>
+                    <td>
+                    </td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>}
+
+
+
+
+<script type="text/javascript">
+
+    function handle(e, dateStart, dateEnd, sampleResult, sampleResultSelected, sampleResultStatus) {
+
+
+        if (e.keyCode === 13 || e.target.id == 'btnSubmit') {
+            if (document.getElementById('frmForm').checkValidity()) {
+                e.preventDefault();
+                ReportsPersonSamples(dateStart, dateEnd, sampleResult, sampleResultSelected, sampleResultStatus);
+            }
+        }
+    }
+
+
+    function ReportsPersonSamples(dateStart, dateEnd, sampleResult, sampleResultSelected, sampleResultStatus) {
+        window.location.href = '@Url.Action("Index", "ReportsEnvironmentalSamples")?type=1&datestart=' + dateStart + '&dateend=' + dateEnd + '&sampleResult=' + sampleResult + '&sampleResultSelected=' + sampleResultSelected + '&status=Sample Dates: from ' + dateStart + ' to ' + dateEnd + '&sampleResultStatus=' + sampleResultStatus;
+    }
+</script>
+
+<script type="text/javascript">
+
+    const params = new URLSearchParams(window.location.search);
+    const type = params.get('type');
+    const status = params.get('status');
+    const sampleResultStatus = params.get('sampleResultStatus');
+    const dateStart = params.get('datestart');
+    const dateEnd = params.get('dateend');
+    const sampleResultSelected = params.get('sampleResultSelected');
+
+    if (type == null) {
+        document.getElementById('lblStatus').hidden = true;
+    } else if (type == 0) {
+        document.getElementById('lblStatus').hidden = false;
+        document.getElementById('lblStatus').style.color = "green";
+        document.getElementById('lblStatus').textContent = status
+    } else if (type == 1) {
+        document.getElementById('txtDateStart').value = dateStart;
+        document.getElementById('txtDateEnd').value = dateEnd;
+        document.getElementById('ddlSampleResult').selectedIndex = sampleResultSelected;
+
+        document.getElementById('lblStatus').hidden = false;
+        document.getElementById('lblStatus').style.color = "green";
+        document.getElementById('lblStatus').textContent = status
+
+        document.getElementById('lblSampleResultStatus').hidden = false;
+        document.getElementById('lblSampleResultStatus').style.color = "green";
+        document.getElementById('lblSampleResultStatus').textContent = 'Sample Result: ' + sampleResultStatus
+
+
+    }
+
+</script>
+
+<script type="text/javascript">
+
+    $('form').submit(function () {
+        $(this).find('input[type=submit]').prop('disabled', true);
+        return true;
+    });
+
+    $("#btnSubmit").focus();
+
+</script>
+
+
+<script type="text/javascript">
+    $("#txtBarcode").focus();
+</script>

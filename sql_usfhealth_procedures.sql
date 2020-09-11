@@ -2263,6 +2263,7 @@ create procedure [dbo].usp_places_samples_select
 @pla_id				int = null,
 @ps_id				int = null,
 @ps_barcode			varchar(800) = null,
+@psres_result		varchar(800) = null,
 @date_start			date = null,
 @date_end			date = null,
 @ps_id_list			varchar(max) = null
@@ -2390,6 +2391,82 @@ begin
 	from [dbo].[tb_places_samples] [ps]  with (index = ix_tb_places_samples_ps_barcode)
 	where ps_barcode = @ps_barcode
 	order by ps_date_created desc, ps_time_created desc
+end
+else if @type = 6
+begin
+	declare @table	table	(
+			ps_id									int,
+			ps_barcode								varchar(800),
+			pla_id									int,
+			pla_name								varchar(800),
+			pla_location_reference					varchar(800),
+			pla_campus								varchar(800),
+			pla_details								varchar(800),
+			ps_date_created							date,
+			ps_time_created							time,
+			ps_date_created_text					varchar(800),
+			usr_id_created							int,
+			ps_date_collected						date,
+			ps_time_collected						time,
+			ps_date_collected_text					varchar(800),
+			usr_id_collected						int,
+			ps_date_registered						date,
+			ps_time_registered						time,
+			ps_date_registered_text					varchar(800),
+			usr_id_registered						int,
+			ps_well_number							varchar(800),
+			ps_details								varchar(max),
+			psres_result							varchar(800),
+			psres_ct_value							varchar(800),
+			samples_count							int,
+			position								int
+	)
+
+	insert into @table
+	select	ps_id	as ps_id,
+			ps_barcode	as ps_barcode,
+			pla_id	as pla_id,
+			(select pla_name from tb_places p where p.pla_id = [ps].pla_id) as pla_name,
+			(select pla_location_reference from tb_places p where p.pla_id = [ps].pla_id) as pla_location_reference,
+			(select pla_campus from tb_places p where p.pla_id = [ps].pla_id) as pla_campus,
+			(select pla_details from tb_places p where p.pla_id = [ps].pla_id) as pla_details,
+			ps_date_created as ps_date_created,
+			ps_time_created as ps_time_created,
+			convert(varchar(800),convert(date,ps_date_created)) as ps_date_created_text,
+			usr_id_created as usr_id_created,
+			ps_date_collected as ps_date_collected,
+			ps_time_collected as ps_time_collected,
+			convert(varchar(800),convert(date,ps_date_collected)) as ps_date_collected_text,
+			usr_id_collected as usr_id_collected,
+			ps_date_registered as ps_date_registered,
+			ps_time_registered as ps_time_registered,
+			convert(varchar(800),convert(date,ps_date_registered)) as ps_date_registered_text,
+			usr_id_registered as usr_id_registered,
+			ps_well_number as ps_well_number,
+			ps_details as ps_details,
+			(select top 1 psres_result from tb_places_samples_results psres where psres.ps_id = [ps].ps_id order by psres_date_result desc, psres_time_result desc) as psres_result,
+			(select top 1 psres_ct_value from tb_places_samples_results psres where psres.ps_id = [ps].ps_id order by psres_date_result desc, psres_time_result desc) as psres_ct_value,
+			(select count(*) samples_count from [tb_places_samples] [ps2] where [ps2].ps_id = [ps].ps_id) as samples_count,
+			ROW_NUMBER() over (order by ps_date_created asc) as position
+	from [dbo].[tb_places_samples] [ps]  with (index = ix_tb_places_samples_ps_barcode)
+	where ps_date_created >= @date_start and ps_date_created <= @date_end
+	order by ps_date_created desc, ps_time_created desc
+
+	if @psres_result = 'P'
+	begin
+		delete from @table where not psres_result = 'P' or psres_result is null or psres_result = '' 
+	end
+	else if @psres_result = 'N'
+	begin
+		delete from @table where not psres_result = 'N' or psres_result is null or psres_result = ''
+	end
+	else if @psres_result = 'U'
+	begin
+		delete from @table where not (psres_result is null or psres_result = '')
+	end
+
+	select * from @table
+
 end
 else if @type = 7
 begin

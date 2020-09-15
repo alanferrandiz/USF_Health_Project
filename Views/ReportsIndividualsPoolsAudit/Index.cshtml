@@ -1,7 +1,7 @@
-﻿@model IEnumerable<USF_Health_MVC_EF.Models.SpIndividualsSamples>
+﻿@model IEnumerable<USF_Health_MVC_EF.Models.SpAudit>
 
 @{
-    ViewData["Title"] = "Reports - Individuals Samples";
+    ViewData["Title"] = "Reports - Individuals Pools Audit";
     Layout = "~/Views/Shared/_Layout.cshtml";
     List<SpPools> spPools = ViewData["pools"] as List<SpPools>;
 }
@@ -15,7 +15,7 @@
 <link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.6.2/css/buttons.dataTables.min.css" runat=server>
 
 <div class="div_breadcrumb">
-    Reports&nbsp;&nbsp;&nbsp;>&nbsp;&nbsp;&nbsp;Individuals Samples
+    Reports&nbsp;&nbsp;&nbsp;>&nbsp;&nbsp;&nbsp;Individuals Pools Audit
 </div>
 
 <script type="text/javascript">
@@ -55,14 +55,14 @@
         <div>
             <div style="float: left;  width:30%;">
                 <div class="div_text">
-                    Sample Date Start
+                    Audit Date Start
                 </div>
                 <div class="div_input">
                     <input type="date" id="txtDateStart" required />
                 </div>
 
                 <div class="div_text">
-                    Sample Date End
+                    Audit Date End
                 </div>
                 <div class="div_input">
                     <input type="date" id="txtDateEnd" required />
@@ -99,7 +99,7 @@
                         <option value="A">All Results</option>
                         <option value="P">Positive (P)</option>
                         <option value="N">Negative (N)</option>
-                        <option value="U">Pools w/ No Result / Samples w/ No Pool</option>
+                        <option value="U">Pools w/ No Result</option>
                     </select>
                 </div>
             </div>
@@ -129,7 +129,7 @@
 </div>
 
 
-@using (Html.BeginForm("Index", "PersonSamples", FormMethod.Post))
+@using (Html.BeginForm("Index", "SpPools", FormMethod.Post))
 {
     <div class="div_datatables">
 
@@ -137,46 +137,47 @@
             <thead>
                 <tr>
                     <td>
-                        Sample ID
+                        Audit ID
                     </td>
                     <td>
-                        Barcode
+                        Audit Operation ID
                     </td>
                     <td>
-                        Pool ID
+                        Audit Operation
                     </td>
                     <td>
-                        Pool Details
+                        Audit Date
                     </td>
                     <td>
-                        Date of creation
+                        Audit Time
                     </td>
                     <td>
-                        Date of collection
+                        Audit Table
                     </td>
                     <td>
-                        Date registered
+                        Audit Pool ID
                     </td>
                     <td>
-                        Sample Details
+                        Audit Identifier ID
                     </td>
                     <td>
-                        Pool Results
+                        Audit Identifier Field
                     </td>
                     <td>
-                        Pool CT Value
+                        Audit Field
                     </td>
                     <td>
-                        Reference ID
+                        Audit Before
                     </td>
                     <td>
-                        Study ID
+                        Audit After
                     </td>
                     <td>
-                        Gender
+                        Audit User
                     </td>
-
-                    <td></td>
+                    <td>
+                        Session ID
+                    </td>
                 </tr>
             </thead>
             <tbody>
@@ -184,45 +185,46 @@
                 {
                 <tr>
                     <td>
-                        @Html.DisplayFor(modelItem => item.is_id, new { htmlAttributes = new { @id = "is_id_" + item.is_id } })
+                        @Html.DisplayFor(modelItem => item.aud_id, new { htmlAttributes = new { @id = "aud_id" + item.aud_id } })
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.is_barcode)
+                        @Html.DisplayFor(modelItem => item.aud_operation_id)
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.poo_id)
+                        @Html.DisplayFor(modelItem => item.aud_operation)
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.poo_details)
+                        @Html.DisplayFor(modelItem => item.aud_date)
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.is_date_created_text)
+                        @Html.DisplayFor(modelItem => item.aud_time)
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.is_date_collected_text)
+                        @Html.DisplayFor(modelItem => item.aud_table)
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.is_date_registered_text)
+                        @Html.DisplayFor(modelItem => item.aud_poo_id)
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.is_details)
+                        @Html.DisplayFor(modelItem => item.aud_identifier_id)
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.pr_result)
+                        @Html.DisplayFor(modelItem => item.aud_identifier_field)
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.pr_ct_value)
+                        @Html.DisplayFor(modelItem => item.aud_field)
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.ref_name)
+                        @Html.DisplayFor(modelItem => item.aud_before)
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.std_name)
+                        @Html.DisplayFor(modelItem => item.aud_after)
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.ind_gender)
+                        @Html.DisplayFor(modelItem => item.usr_username)
                     </td>
                     <td>
+                        @Html.DisplayFor(modelItem => item.ssn_id)
                     </td>
                 </tr>
                 }
@@ -241,14 +243,14 @@
         if (e.keyCode === 13 || e.target.id == 'btnSubmit') {
             if (document.getElementById('frmForm').checkValidity()) {
                 e.preventDefault();
-                ReportsPersonSamples(dateStart, dateEnd, poolResult, PoolID, poolResultSelected, poolIDSelected, poolResultStatus, poolIDStatus);
+                ReportsIndividualsPoolsAudit(dateStart, dateEnd, poolResult, PoolID, poolResultSelected, poolIDSelected, poolResultStatus, poolIDStatus);
             }
         }
     }
 
 
-    function ReportsPersonSamples(dateStart, dateEnd, poolResult, PoolID, poolResultSelected, poolIDSelected, poolResultStatus, poolIDStatus) {
-        window.location.href = '@Url.Action("Index", "ReportsIndividualsSamples")?type=1&datestart=' + dateStart + '&dateend=' + dateEnd + '&poolResult=' + poolResult + '&poolID=' + PoolID + '&poolResultSelected=' + poolResultSelected + '&poolIDSelected=' + poolIDSelected + '&status=Sample Dates: from ' + dateStart + ' to ' + dateEnd + '&poolResultStatus=' + poolResultStatus + '&poolIDStatus=' + poolIDStatus;
+    function ReportsIndividualsPoolsAudit(dateStart, dateEnd, poolResult, PoolID, poolResultSelected, poolIDSelected, poolResultStatus, poolIDStatus) {
+        window.location.href = '@Url.Action("Index", "ReportsIndividualsPoolsAudit")?type=1&datestart=' + dateStart + '&dateend=' + dateEnd + '&poolResult=' + poolResult + '&poolID=' + PoolID + '&poolResultSelected=' + poolResultSelected + '&poolIDSelected=' + poolIDSelected + '&status=Audit Dates: from ' + dateStart + ' to ' + dateEnd + '&poolResultStatus=' + poolResultStatus + '&poolIDStatus=' + poolIDStatus;
     }
 </script>
 
@@ -303,4 +305,3 @@
     $("#btnSubmit").focus();
 
 </script>
->

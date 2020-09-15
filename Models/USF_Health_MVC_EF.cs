@@ -186,6 +186,12 @@ namespace USF_Health_MVC_EF.Models
             });
 
 
+            modelBuilder.Entity<SpAudit> //().HasNoKey().ToView(null)
+            (entity =>
+            {
+                entity.HasNoKey().ToView(null);
+            });
+
 
             modelBuilder.Entity<SpPools> //().HasNoKey().ToView(null)
             (entity =>

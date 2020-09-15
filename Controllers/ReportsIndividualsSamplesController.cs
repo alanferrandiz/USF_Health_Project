@@ -73,7 +73,7 @@ namespace USF_Health_MVC_EF.Controllers
                 sqlParameter03.IsNullable = true;
                 dataAdapter.SelectCommand.Parameters.Add(sqlParameter03);
 
-                SqlParameter sqlParameter04 = new SqlParameter("poo_result", poolResult);
+                SqlParameter sqlParameter04 = new SqlParameter("pr_result", poolResult);
                 sqlParameter03.IsNullable = true;
                 dataAdapter.SelectCommand.Parameters.Add(sqlParameter04);
 

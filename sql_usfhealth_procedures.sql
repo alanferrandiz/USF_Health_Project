@@ -237,90 +237,12 @@ create procedure [dbo].usp_individuals_samples_select
 @ind_id				int = null,
 @is_id				int = null,
 @is_barcode			varchar(800) = null,
-@poo_result			varchar(800) = null,
+@pr_result			varchar(800) = null,
 @poo_id				int = null,
 @date_start			date = null,
 @date_end			date = null,
 @is_id_list			varchar(max) = null
 as
---declare @tabla table	(
---	is_id							int,
---	is_barcode						varchar(800),
---	ind_id							int,
---	ind_first_name					varchar(800),
---	ind_last_name					varchar(800),
---	first_name_last_name			varchar(800),
---	ind_gender						varchar(800),
---	ind_document					varchar(800),
---	ind_details						varchar(max),
---	ref_id							int,
---	ref_name						varchar(800),
---	std_id							int,
---	std_name						varchar(800),
---	is_date_created					date,
---	is_time_created					time,
---	is_date_created_text			varchar(800),
---	usr_id_created					int,
---	is_date_collected				date,
---	is_time_collected				time,
---	is_date_collected_text			varchar(800),
---	usr_id_collected				int,
---	is_date_registered				date,
---	is_time_registered				time,
---	is_date_registered_text			varchar(800),
---	usr_id_registered				int,
---	is_well_number					varchar(800),
---	is_details						varchar(max),
---	poo_id							int,
---	poo_details						varchar(max),
---	is_date_registered_pool			date,
---	is_time_registered_pool			time,
---	is_date_registered_pool_text	varchar(800),
---	usr_id_registered_pool			int,
---	pr_result						varchar(800),
---	pr_ct_value						varchar(800),
---	samples_count					int
---)
---insert into @tabla
-	--select	is_id,
-	--		is_barcode,
-	--		ind_id,
-	--		(select ind_first_name from tb_individuals i where i.ind_id = [is].ind_id) ind_first_name,
-	--		(select ind_last_name from tb_individuals i where i.ind_id = [is].ind_id) ind_last_name,
-	--		(select ind_first_name + ' ' + ind_last_name from tb_individuals i where i.ind_id = [is].ind_id) 'first_name_last_name',
-	--		(select ind_gender from tb_individuals i where i.ind_id = [is].ind_id) ind_gender,
-	--		(select ind_document from tb_individuals i where i.ind_id = [is].ind_id) ind_document,
-	--		(select ind_details from tb_individuals i where i.ind_id = [is].ind_id) ind_details,
-	--		(select ref_id from tb_individuals i where i.ind_id = [is].ind_id) ref_id,
-	--		(select (select ref_name from tb_references where ref_id = i.ref_id) from tb_individuals i where i.ind_id = [is].ind_id) ref_name,
-	--		(select std_id from tb_individuals i where i.ind_id = [is].ind_id) std_id,
-	--		(select (select std_name from tb_studies where std_id = i.std_id) from tb_individuals i where i.ind_id = [is].ind_id) std_name,
-	--		is_date_created,
-	--		is_time_created,
-	--		convert(varchar(800),convert(date,is_date_created)),
-	--		usr_id_created,
-	--		is_date_collected,
-	--		is_time_collected,
-	--		convert(varchar(800),convert(date,is_date_collected)),
-	--		usr_id_collected,
-	--		is_date_registered,
-	--		is_time_registered,
-	--		convert(varchar(800),convert(date,is_date_registered)),
-	--		usr_id_registered,
-	--		is_well_number,
-	--		is_details,
-	--		poo_id,
-	--		(select poo_details from tb_pools where poo_id = [is].poo_id) poo_details,
-	--		is_date_registered_pool,
-	--		is_time_registered_pool,
-	--		convert(varchar(800),convert(date,is_date_registered_pool)),
-	--		usr_id_registered_pool,
-	--		(select top 1 pr_result from tb_pools_results pr where pr.poo_id = [is].poo_id order by pr_date_result desc, pr_time_result desc) pr_result,
-	--		(select top 1 pr_ct_value from tb_pools_results pr where pr.poo_id = [is].poo_id order by pr_date_result desc, pr_time_result desc) pr_ct_value,
-	--		(select count(*) samples_count from [tb_individuals_samples] [is2] where [is2].ind_id = [is].ind_id) samples_count
-	--from [dbo].[tb_individuals_samples] [is]
-	--order by is_date_created desc, is_time_created desc
-
 if @type = 1
 begin
 --	select *,
@@ -639,15 +561,15 @@ begin
 		delete from @tabla where poo_id != @poo_id 
 	end
 
-	if @poo_result = 'P'
+	if @pr_result = 'P'
 	begin
 		delete from @tabla where not pr_result = 'P' or pr_result is null or pr_result = '' 
 	end
-	else if @poo_result = 'N'
+	else if @pr_result = 'N'
 	begin
 		delete from @tabla where not pr_result = 'N' or pr_result is null or pr_result = ''
 	end
-	else if @poo_result = 'U'
+	else if @pr_result = 'U'
 	begin
 		delete from @tabla where not (pr_result is null or pr_result = '' or poo_id is null)
 	end
@@ -714,51 +636,51 @@ begin
 	where is_id in (select is_id from @list) 
 	order by is_date_created desc, is_time_created desc
 end
-if @type = 8
-begin
---	select *,
-	select	top 500
-			is_id	as is_id,
-			is_barcode	as is_barcode,
-			ind_id	as ind_id,
-			(select ind_first_name from tb_individuals i where i.ind_id = [is].ind_id) as ind_first_name,
-			(select ind_last_name from tb_individuals i where i.ind_id = [is].ind_id) as ind_last_name,
-			(select ind_first_name + ' ' + ind_last_name from tb_individuals i where i.ind_id = [is].ind_id) as 'first_name_last_name',
-			(select ind_gender from tb_individuals i where i.ind_id = [is].ind_id) as ind_gender,
-			(select ind_document from tb_individuals i where i.ind_id = [is].ind_id) as ind_document,
-			(select ind_details from tb_individuals i where i.ind_id = [is].ind_id) as ind_details,
-			(select ref_id from tb_individuals i where i.ind_id = [is].ind_id) as ref_id,
-			(select (select ref_name from tb_references where ref_id = i.ref_id) from tb_individuals i where i.ind_id = [is].ind_id) as ref_name,
-			(select std_id from tb_individuals i where i.ind_id = [is].ind_id) as std_id,
-			(select (select std_name from tb_studies where std_id = i.std_id) from tb_individuals i where i.ind_id = [is].ind_id) as std_name,
-			is_date_created as is_date_created,
-			is_time_created as is_time_created,
-			convert(varchar(800),convert(date,is_date_created)) as is_date_created_text,
-			usr_id_created as usr_id_created,
-			is_date_collected as is_date_collected,
-			is_time_collected as is_time_collected,
-			convert(varchar(800),convert(date,is_date_collected)) as is_date_collected_text,
-			usr_id_collected as usr_id_collected,
-			is_date_registered as is_date_registered,
-			is_time_registered as is_time_registered,
-			convert(varchar(800),convert(date,is_date_registered)) as is_date_registered_text,
-			usr_id_registered as usr_id_registered,
-			is_well_number as is_well_number,
-			is_details as is_details,
-			poo_id as poo_id,
-			(select poo_details from tb_pools where poo_id = [is].poo_id) as poo_details,
-			is_date_registered_pool as is_date_registered_pool,
-			is_time_registered_pool as is_time_registered_pool,
-			convert(varchar(800),convert(date,is_date_registered_pool)) as is_date_registered_pool_text,
-			usr_id_registered_pool as usr_id_registered_pool,
-			(select top 1 pr_result from tb_pools_results pr where pr.poo_id = [is].poo_id order by pr_date_result desc, pr_time_result desc) as pr_result,
-			(select top 1 pr_ct_value from tb_pools_results pr where pr.poo_id = [is].poo_id order by pr_date_result desc, pr_time_result desc) as pr_ct_value,
-			(select count(*) samples_count from [tb_individuals_samples] [is2] where [is2].ind_id = [is].ind_id) as samples_count,
-			ROW_NUMBER() over (order by is_date_created asc) as position
-	from [dbo].[tb_individuals_samples] [is] with (index = ix_tb_individuals_samples_is_date_created)
-	where is_date_created >= '2000-01-01'
-	order by is_date_created desc, is_time_created desc
-end
+--if @type = 8
+--begin
+----	select *,
+--	select	top 500
+--			is_id	as is_id,
+--			is_barcode	as is_barcode,
+--			ind_id	as ind_id,
+--			(select ind_first_name from tb_individuals i where i.ind_id = [is].ind_id) as ind_first_name,
+--			(select ind_last_name from tb_individuals i where i.ind_id = [is].ind_id) as ind_last_name,
+--			(select ind_first_name + ' ' + ind_last_name from tb_individuals i where i.ind_id = [is].ind_id) as 'first_name_last_name',
+--			(select ind_gender from tb_individuals i where i.ind_id = [is].ind_id) as ind_gender,
+--			(select ind_document from tb_individuals i where i.ind_id = [is].ind_id) as ind_document,
+--			(select ind_details from tb_individuals i where i.ind_id = [is].ind_id) as ind_details,
+--			(select ref_id from tb_individuals i where i.ind_id = [is].ind_id) as ref_id,
+--			(select (select ref_name from tb_references where ref_id = i.ref_id) from tb_individuals i where i.ind_id = [is].ind_id) as ref_name,
+--			(select std_id from tb_individuals i where i.ind_id = [is].ind_id) as std_id,
+--			(select (select std_name from tb_studies where std_id = i.std_id) from tb_individuals i where i.ind_id = [is].ind_id) as std_name,
+--			is_date_created as is_date_created,
+--			is_time_created as is_time_created,
+--			convert(varchar(800),convert(date,is_date_created)) as is_date_created_text,
+--			usr_id_created as usr_id_created,
+--			is_date_collected as is_date_collected,
+--			is_time_collected as is_time_collected,
+--			convert(varchar(800),convert(date,is_date_collected)) as is_date_collected_text,
+--			usr_id_collected as usr_id_collected,
+--			is_date_registered as is_date_registered,
+--			is_time_registered as is_time_registered,
+--			convert(varchar(800),convert(date,is_date_registered)) as is_date_registered_text,
+--			usr_id_registered as usr_id_registered,
+--			is_well_number as is_well_number,
+--			is_details as is_details,
+--			poo_id as poo_id,
+--			(select poo_details from tb_pools where poo_id = [is].poo_id) as poo_details,
+--			is_date_registered_pool as is_date_registered_pool,
+--			is_time_registered_pool as is_time_registered_pool,
+--			convert(varchar(800),convert(date,is_date_registered_pool)) as is_date_registered_pool_text,
+--			usr_id_registered_pool as usr_id_registered_pool,
+--			(select top 1 pr_result from tb_pools_results pr where pr.poo_id = [is].poo_id order by pr_date_result desc, pr_time_result desc) as pr_result,
+--			(select top 1 pr_ct_value from tb_pools_results pr where pr.poo_id = [is].poo_id order by pr_date_result desc, pr_time_result desc) as pr_ct_value,
+--			(select count(*) samples_count from [tb_individuals_samples] [is2] where [is2].ind_id = [is].ind_id) as samples_count,
+--			ROW_NUMBER() over (order by is_date_created asc) as position
+--	from [dbo].[tb_individuals_samples] [is] with (index = ix_tb_individuals_samples_is_date_created)
+--	where is_date_created >= '2000-01-01'
+--	order by is_date_created desc, is_time_created desc
+--end
 
 
 go
@@ -2726,6 +2648,109 @@ go
 
 
 --AUDITS
+--exec usp_audit_individuals_select @type =  1
+--exec usp_audit_individuals_select @type =  2, @date_start = '2020-08-30', @date_end = '2020-09-15', @poo_id = 3
+if OBJECT_ID('usp_audit_individuals_select') is not null
+	drop procedure usp_audit_individuals_select
+go
+create procedure usp_audit_individuals_select
+@type			int = 1,
+@date_start		date = null,
+@date_end		date = null,
+@poo_id			int = null,
+@pr_result		varchar(800) = null
+as
+begin
+		declare @tabla table	(
+			aud_id								int,	
+			aud_operation_id					int,
+			aud_operation						varchar(800),
+			aud_date							date,
+			aud_time							time, 
+			aud_table							varchar(800),
+			aud_poo_id							int,
+			aud_identifier_id					varchar(800), 
+			aud_identifier_field				varchar(800),
+			aud_field							varchar(800),
+			aud_before							varchar(800),
+			aud_after							varchar(800),
+			usr_id_audit						int,
+			usr_username						varchar(800),
+			ssn_id								int
+		)
+
+
+	if @type = 1
+	begin
+		insert		@tabla
+		select		aud_id,	
+					aud_operation_id,
+					aud_operation,
+					aud_date,
+					aud_time, 
+					aud_table,
+					(select poo_id from tb_pools_results pr where pr_id = aud.aud_identifier_id and aud_identifier_field = 'pr_id') aud_poo_id,
+					aud_identifier_id, 
+					aud_identifier_field,
+					aud_field,
+					aud_before,
+					aud_after,
+					usr_id_audit,
+					(select usr_username from tb_users where usr_id = aud.usr_id_audit) usr_username,
+					ssn_id
+		from tb_audit aud 
+		where aud_table = 'tb_pools_results' and aud_field in ('pr_ct_value','pr_result')
+		order by aud_id asc
+
+		select * from @tabla
+	end
+	if @type = 2	
+	begin
+		insert		@tabla
+		select		aud_id,	
+					aud_operation_id,
+					aud_operation,
+					aud_date,
+					aud_time, 
+					aud_table,
+					(select poo_id from tb_pools_results pr where pr_id = aud.aud_identifier_id and aud_identifier_field = 'pr_id') aud_poo_id,
+					aud_identifier_id, 
+					aud_identifier_field,
+					aud_field,
+					aud_before,
+					aud_after,
+					usr_id_audit,
+					(select usr_username from tb_users where usr_id = aud.usr_id_audit) usr_username,
+					ssn_id
+		from tb_audit aud 
+		where aud_date >= @date_start and aud_date <= @date_end 
+		and aud_table = 'tb_pools_results' and aud_field in ('pr_ct_value','pr_result')
+		order by aud_id asc
+
+		if @poo_id > 0
+		begin
+			delete from @tabla where not (aud_poo_id = @poo_id) 
+		end
+
+		if @pr_result = 'P'
+		begin
+			delete from @tabla where not (aud_field = 'pr_result' and (aud_after = 'P' and aud_after is not null))  
+		end
+		else if @pr_result = 'N'
+		begin
+			delete from @tabla where not (aud_field = 'pr_result' and (aud_after = 'N' and aud_after is not null))  
+		end
+		else if @pr_result = 'U'
+		begin
+			delete from @tabla where not (aud_field = 'pr_result' and (aud_after is null or aud_after = ''))  
+		end
+		select * from @tabla
+	end
+end
+
+go
+
+
 drop trigger if exists tr_tb_places
 go
 create trigger tr_tb_places
@@ -3320,4 +3345,94 @@ include (	ps_barcode, pla_id, usr_id_created, ps_date_collected,
 			ps_time_collected, usr_id_collected, ps_date_registered, ps_time_registered, usr_id_registered,
 			ps_well_number, ps_details)
 go
+
+
+--BARCODE PRINTING
+
+if object_id('tb_individuals_barcode_printing') is not null
+	drop table tb_individuals_barcode_printing
+go
+create table tb_individuals_barcode_printing (
+	ibp_id				int					identity,
+	ibp_date_created	date				default dbo.udf_getdatelocal(default),
+	ibp_time_created	time				default dbo.udf_getdatelocal(default),
+	is_id				int,
+	ssn_id				int
+)
+go
+
+if OBJECT_ID('usp_individuals_barcode_insert') is not null
+	drop procedure usp_individuals_barcode_insert
+go
+create procedure [dbo].usp_individuals_barcode_insert
+@type				int = null,
+@is_id				int = null,
+@ssn_id				int = null
+as
+begin
+			delete from tb_individuals_barcode_printing
+			where datediff(day, ibp_date_created ,dbo.udf_getdatelocal(default)) >= 1
+
+			if @type = 1
+			begin
+				if not exists (select * from tb_individuals_barcode_printing where is_id = @is_id and ssn_id = @ssn_id) and exists (select * from tb_individuals_samples where is_id = @is_id)
+				begin
+					insert into tb_individuals_barcode_printing (is_id, ssn_id)
+					values (@is_id,@ssn_id)
+					 
+				end
+			end
+			if @type = 2
+			begin
+				delete from tb_individuals_barcode_printing
+				where is_id = @is_id and ssn_id = @ssn_id
+				
+			end
+
+	end
+go
+
+
+
+if OBJECT_ID('usp_individuals_barcode_select') is not null
+	drop procedure usp_individuals_barcode_select
+go
+create procedure [dbo].usp_individuals_barcode_select
+@type				int = 1,
+@ssn_id				int = null
+as
+begin
+if @type = 1
+	begin
+			select	ibp.is_id, 
+					ssn_id,
+					(select is_barcode from tb_individuals_samples [is] where [is].is_id = ibp.is_id) is_barcode, 
+					(select convert(varchar(800),convert(date,is_date_collected)) from tb_individuals_samples [is] where [is].is_id = ibp.is_id) is_date_collected_text, 
+					ROW_NUMBER() over (order by ibp.is_id asc) as position
+			from	tb_individuals_barcode_printing ibp 
+			where ssn_id = @ssn_id
+	end
+else if @type = 2
+	begin
+		declare @is_id_list varchar(max) = ''
+		declare @is_id int
+
+
+			declare is_id_list cursor for select is_id from tb_individuals_barcode_printing ibp where ssn_id = @ssn_id
+			open is_id_list
+				fetch next from is_id_list into @is_id
+				while @@fetch_status = 0 
+				begin
+					set @is_id_list = @is_id_list + convert(varchar(800),@is_id) + ','
+					fetch next from is_id_list into @is_id
+				end
+			close is_id_list
+			deallocate is_id_list
+
+			set @is_id_list = left(@is_id_list, case when len(@is_id_list) > 0 then len(@is_id_list)-1 else 0 end) 
+
+
+		select @is_id_list is_id_list
+	end
+end
 

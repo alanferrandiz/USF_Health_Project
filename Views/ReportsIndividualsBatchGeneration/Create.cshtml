@@ -3,31 +3,36 @@
 @{
     ViewData["Title"] = "Create";
     Layout = "~/Views/Shared/_Layout.cshtml";
-    List<SpStudies> spStudies = ViewData["studies"] as List<SpStudies>;
+    List<SpIndividuals> spIndividualsSelected = ViewBag.ind_list_selected as List<SpIndividuals>;
 }
 
-
-<div class="div_breadcrumb">
-    Persons&nbsp;&nbsp;&nbsp;>&nbsp;&nbsp;&nbsp;Barcode Printing&nbsp;&nbsp;&nbsp;>&nbsp;&nbsp;&nbsp;Create New
-</div>
+    <div class="div_breadcrumb">
+        Reports&nbsp;&nbsp;&nbsp;>&nbsp;&nbsp;&nbsp;Individuals Batch Generation&nbsp;&nbsp;&nbsp;>&nbsp;&nbsp;&nbsp;Create
+    </div>
 
 <div class="div_form">
     <form asp-action="Create" name="frmForm">
 
-        <input type="hidden" asp-for="ind_id" value="@ViewBag.ind_id" />
-
         <div class="div_text">
-            Study ID
+            Study ID (Selected for generation)
         </div>
-        <div class="div_input">
-            <input value="@ViewBag.std_name" disabled />
+        <div class="div_dropdownlist">
+            <select id="cboStudiesSelected">
+                <option value="" disabled selected>--Select Study ID--</option>
+
+                @foreach (var item in spIndividualsSelected)
+                {
+                    <option value="@item.std_id">@item.std_id </option>
+
+                }
+            </select>
         </div>
 
         <div class="div_text">
             Date collected
         </div>
         <div class="div_input">
-            <input asp-for="is_date_collected" value="" />
+            <input asp-for="is_date_collected" type="date" value="" />
         </div>
 
         <div class="div_text">
@@ -38,8 +43,9 @@
         </div>
 
         <div class="div_button" name="btnSubmit" id="btnSubmit">
-            <input type="submit" value="Create" onsubmit="this.disabled = true;this.value='Submitting...';this.form.submit();" />
+            <input type="submit" value="Print" onsubmit="this.disabled = true;this.value='Submitting...';this.form.submit();" />
         </div>
+
     </form>
 </div>
 

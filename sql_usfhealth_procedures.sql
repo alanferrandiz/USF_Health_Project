@@ -197,6 +197,7 @@ if OBJECT_ID('usp_individuals_samples_insert') is not null
 	drop procedure usp_individuals_samples_insert
 go
 create procedure usp_individuals_samples_insert
+@type				int = 1,
 @usr_id_created		int = null,
 @is_date_collected	date = null,
 @is_time_collected	time = null,
@@ -210,10 +211,65 @@ begin
 	exec sp_set_session_context @key = N'usr_id_audit', @value = @usr_id_audit 
 	exec sp_set_session_context @key = N'ssn_id', @value = @ssn_id 
 
-	insert into tb_individuals_samples (usr_id_created,is_date_collected,is_time_collected,usr_id_collected,ind_id,is_details)
-	values (@usr_id_created, isnull(@is_date_collected,dbo.udf_getdatelocal(default)), isnull(@is_time_collected,dbo.udf_getdatelocal(default)), @usr_id_collected, @ind_id, @is_details)
+	if @type = 1
+	begin
+		insert into tb_individuals_samples (usr_id_created,is_date_collected,is_time_collected,usr_id_collected,ind_id,is_details)
+		values (@usr_id_created, isnull(@is_date_collected,dbo.udf_getdatelocal(default)), isnull(@is_time_collected,dbo.udf_getdatelocal(default)), @usr_id_collected, @ind_id, @is_details)
 
-	select IDENT_CURRENT('tb_individuals_samples') as is_id
+		select IDENT_CURRENT('tb_individuals_samples') as is_id
+	end
+	else if @type = 2
+	begin
+		
+		set xact_abort on
+
+		begin try
+			begin transaction
+
+				declare @std_id_list varchar(max) = ''
+				declare @std_id int
+				declare @is_id int
+				declare	@counter int = 0
+			
+				declare std_id_list cursor for select std_id from tb_individuals_barcode_generation ibg where ssn_id = @ssn_id
+				open std_id_list
+					fetch next from std_id_list into @std_id
+					while @@fetch_status = 0 
+					begin
+						--set @std_id_list = @std_id_list + convert(varchar(800),@std_id) + ','
+						--insert into  @std_id
+						set @ind_id =  (select ind_id from tb_individuals where std_id = @std_id)
+
+						insert into tb_individuals_samples (usr_id_created,is_date_collected,is_time_collected,usr_id_collected,ind_id,is_details)
+						values (@usr_id_created, isnull(@is_date_collected,dbo.udf_getdatelocal(default)), isnull(@is_time_collected,dbo.udf_getdatelocal(default)), @usr_id_collected, @ind_id, @is_details)
+					
+						select @is_id = IDENT_CURRENT('tb_individuals_samples')
+
+						update tb_individuals_barcode_generation
+						set		is_id = @is_id, 
+								is_id_date_created = dbo.udf_getdatelocal(default), 
+								is_id_time_created = dbo.udf_getdatelocal(default)
+						where std_id = @std_id and ssn_id = @ssn_id
+
+						set	@counter += 1
+						fetch next from std_id_list into @std_id
+					end
+				close std_id_list
+				deallocate std_id_list
+
+				insert into tb_individuals_barcode_printing (is_id, ssn_id)
+				select is_id, ssn_id from tb_individuals_barcode_generation where ssn_id = @ssn_id
+				
+				--delete tb_individuals_barcode_generation where ssn_id = @ssn_id
+
+				commit transaction
+				select @counter 'counter'
+		end try
+		begin catch
+			rollback transaction
+			select 0 'counter'
+		end catch
+	end
 end
 go
 
@@ -3366,29 +3422,26 @@ if OBJECT_ID('usp_individuals_barcode_insert') is not null
 go
 create procedure [dbo].usp_individuals_barcode_insert
 @type				int = null,
-@is_id				int = null,
+@std_id				int = null,
 @ssn_id				int = null
 as
 begin
-			delete from tb_individuals_barcode_printing
-			where datediff(day, ibp_date_created ,dbo.udf_getdatelocal(default)) >= 1
+			delete from tb_individuals_barcode_generation
+			where datediff(day, ibg_date_created ,dbo.udf_getdatelocal(default)) >= 1
 
 			if @type = 1
 			begin
-				if not exists (select * from tb_individuals_barcode_printing where is_id = @is_id and ssn_id = @ssn_id) and exists (select * from tb_individuals_samples where is_id = @is_id)
+				if not exists (select * from tb_individuals_barcode_generation where std_id = @std_id and ssn_id = @ssn_id) and exists (select * from tb_individuals where std_id = @std_id)
 				begin
-					insert into tb_individuals_barcode_printing (is_id, ssn_id)
-					values (@is_id,@ssn_id)
-					 
+					insert into tb_individuals_barcode_generation (std_id, ssn_id)
+					values (@std_id,@ssn_id)
 				end
 			end
 			if @type = 2
 			begin
-				delete from tb_individuals_barcode_printing
-				where is_id = @is_id and ssn_id = @ssn_id
-				
+				delete from tb_individuals_barcode_generation
+				where std_id = @std_id and ssn_id = @ssn_id
 			end
-
 	end
 go
 
@@ -3404,19 +3457,16 @@ as
 begin
 if @type = 1
 	begin
-			select	ibp.is_id, 
+			select	ibg.std_id, 
 					ssn_id,
-					(select is_barcode from tb_individuals_samples [is] where [is].is_id = ibp.is_id) is_barcode, 
-					(select convert(varchar(800),convert(date,is_date_collected)) from tb_individuals_samples [is] where [is].is_id = ibp.is_id) is_date_collected_text, 
-					ROW_NUMBER() over (order by ibp.is_id asc) as position
-			from	tb_individuals_barcode_printing ibp 
+					ROW_NUMBER() over (order by ibg.std_id asc) as position
+			from	tb_individuals_barcode_generation ibg 
 			where ssn_id = @ssn_id
 	end
 else if @type = 2
 	begin
 		declare @is_id_list varchar(max) = ''
 		declare @is_id int
-
 
 			declare is_id_list cursor for select is_id from tb_individuals_barcode_printing ibp where ssn_id = @ssn_id
 			open is_id_list
@@ -3436,3 +3486,20 @@ else if @type = 2
 	end
 end
 
+
+--BARCODE GENERATION
+go
+if object_id('tb_individuals_barcode_generation') is not null
+	drop table tb_individuals_barcode_generation
+go
+create table tb_individuals_barcode_generation(
+	ibg_id int identity(1,1) NOT NULL,
+	ibg_date_created date NULL default dbo.udf_getdatelocal(default),
+	ibg_time_created time(7) NULL default dbo.udf_getdatelocal(default),
+	std_id int NULL,
+	ssn_id int NULL,
+	is_id  int null,
+	is_id_date_created date NULL,
+	is_id_time_created time(7) NULL
+)
+go

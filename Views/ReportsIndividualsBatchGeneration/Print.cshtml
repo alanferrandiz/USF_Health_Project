@@ -1,0 +1,61 @@
+﻿@model IEnumerable<USF_Health_MVC_EF.Models.SpIndividualsSamples>
+
+@{
+    ViewData["Title"] = "Print";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+}
+
+<div class="div_breadcrumb">
+    Reports&nbsp;&nbsp;&nbsp;>&nbsp;&nbsp;&nbsp;Individuals Batch Generation&nbsp;&nbsp;&nbsp;>&nbsp;&nbsp;&nbsp;Print
+</div>
+
+<script type="text/javascript">
+    var sampleCount = 0;
+</script>
+
+<div class="div_mainlink">
+    <a asp-action="Index">Back to List</a>
+</div>
+
+<div class="div_form">
+    <div class="div_button">
+        <input type="submit" value="Print Barcodes" onclick="printJS('div_barcodes', 'html');" />
+    </div>
+    <div class="div_label" style="width:500px;">
+        <label id="lblStatus"></label>
+    </div>
+    <div class="div_label" style="width:800px;">
+            <label id="lblSeparator"></label>
+    </div>
+
+    <div id="div_barcodes">
+        @foreach (var item in Model)
+        {
+            <input type="hidden" id="is_barcode_@Html.DisplayFor(modelItem => item.is_barcode)" value="@Html.DisplayFor(modelItem => item.is_barcode)" />
+            <input type="hidden" id="std_name_@Html.DisplayFor(modelItem => item.is_barcode)" value="@Html.DisplayFor(modelItem => item.std_name)" />
+            <input type="hidden" id="is_date_collected_text_@Html.DisplayFor(modelItem => item.is_barcode)" value="@Html.DisplayFor(modelItem => item.is_date_collected_text)" />
+
+            <div class="div_barcode">
+                <svg id="svgBarcode_@Html.DisplayFor(modelItem => item.is_barcode)"></svg>
+            </div>
+
+            <script>
+                    JsBarcode('#svgBarcode_@Html.DisplayFor(modelItem => item.is_barcode)', document.getElementById('is_barcode_@Html.DisplayFor(modelItem => item.is_barcode)').value, { format: 'code39', text: document.getElementById('is_barcode_@Html.DisplayFor(modelItem => item.is_barcode)').value + '|DCOL ' + document.getElementById('is_date_collected_text_@Html.DisplayFor(modelItem => item.is_barcode)').value + '|STD ' + document.getElementById('std_name_@Html.DisplayFor(modelItem => item.is_barcode)').value.substring(0, 16),fontSize:8,height:36,width:0.96})
+            </script>
+
+            <script type="text/javascript">
+                samplesCount = samplesCount + 1;
+            </script>
+        }
+    </div>
+</div>
+<div class="div_mainlink">
+    <a asp-action="Index">Back to List</a>
+</div>
+
+<script type="text/javascript">
+    document.getElementById('lblStatus').style.color = "green";
+    document.getElementById('lblStatus').textContent = "Samples count " + samplesCount;
+</script>
+

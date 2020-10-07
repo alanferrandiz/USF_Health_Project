@@ -1,0 +1,180 @@
+﻿@model IEnumerable<USF_Health_MVC_EF.Models.SpIndividuals>
+
+@{
+    ViewData["Title"] = "Reports - Individuals Batch Generation";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    List<SpIndividuals> spIndividualsSelected = ViewBag.ind_list_selected as List<SpIndividuals>;
+
+}
+<div class="div_breadcrumb">
+    Reports&nbsp;&nbsp;&nbsp;>&nbsp;&nbsp;&nbsp;Individuals Batch Generation
+</div>
+
+
+
+
+<script type="text/javascript">
+
+    alert(statusFinal);
+    $(document).ready(function () {
+        $('#example').DataTable({
+            columnDefs: [{
+                targets: [0],
+                orderData: [0, 1]
+            }, {
+                targets: [1],
+                orderData: [1, 0]
+            }, {
+                targets: [4],
+                orderData: [4, 0]
+            }]
+        });
+    });
+
+
+</script>
+
+
+
+<div class="div_form">
+
+    <input type="hidden" id="ssn_id" value="@ViewBag.ssn_id" />
+
+    <form id="frmForm">
+
+        <div class="div_text">
+            Study ID
+        </div>
+
+        <div class="div_input">
+            <input type="text" id="txtStudyID" placeholder="Enter Study ID" onkeydown="handle(event, document.getElementById('txtStudyID').value, 1)" autofocus />
+        </div>
+        <div class="div_button">
+            <input type="submit" id="btnInclude" value="Include" onclick="handle(event, document.getElementById('txtStudyID').value, 1)" onsubmit="this.disabled = true;this.value='Submitting...';this.form.submit();" />
+        </div>
+
+
+        <div class="div_text">
+            Study ID (Selected for generation)
+        </div>
+        <div class="div_dropdownlist">
+            <select id="cboStudiesSelected">
+                <option value="" disabled selected>--Select Study ID--</option>
+
+                @foreach (var item in spIndividualsSelected)
+                {
+                    <option value="@item.std_id">@item.std_id </option>
+
+                }
+
+            </select>
+        </div>
+
+        <div class="div_button">
+            <input type="submit" id="btnRemove" value="Remove" onclick="handle(event, document.getElementById('cboStudiesSelected').options[document.getElementById('cboStudiesSelected').selectedIndex].value, 2)" onsubmit="this.disabled = true;this.value='Submitting...';this.form.submit();" />
+        </div>
+
+        <div class="div_label" style="width:500px;">
+            <label id="lblStatus"></label>
+        </div>
+
+        <div class="div_label" style="width:500px;">
+            <label id="lblCount"></label>
+        </div>
+
+    </form>
+</div>
+
+<div class="div_mainlink">
+    <a asp-action="Create" asp-route-ssn_id="@ViewBag.ssn_id">Create</a>
+</div>
+
+
+<script type="text/javascript">
+
+    function handle(e, id, operation) {
+
+
+        if (e.keyCode === 13 || e.target.id == 'btnInclude' || e.target.id == 'btnRemove') {
+
+            if (document.getElementById('frmForm').checkValidity()) {
+                e.preventDefault();
+                ReportsIndividualsBatchGeneration(id, operation);
+            }
+        }
+    }
+
+
+    function ReportsIndividualsBatchGeneration(id, operation) {
+
+        if (operation == 1 && document.getElementById('txtStudyID').value == '') {
+            document.getElementById('lblStatus').hidden = false;
+            document.getElementById('lblStatus').style.color = "green";
+            document.getElementById('lblStatus').textContent = 'A study ID must be entered';
+            return;
+        }
+        else if (operation == 2 && document.getElementById('cboStudiesSelected').selectedIndex == 0) {
+            document.getElementById('lblStatus').hidden = false;
+            document.getElementById('lblStatus').style.color = "green";
+            document.getElementById('lblStatus').textContent = 'A study ID must be selected';
+            return;
+        }
+
+        var status;
+
+        if (operation == null) {
+            status = '';
+        }
+        else if (operation == 1) {
+            status = 'If study ID ' + id + ' exists, it was included in the generation list.';
+        }
+        else if (operation == 2) {
+            status = 'Study ID ' + id + ' was removed from the generation list.';
+        }
+
+        window.location.href = '@Url.Action("Index", "ReportsIndividualsBatchGeneration")?id=' + id + '&operation=' + operation + '&status=' + status ;
+    }
+</script>
+
+<script type="text/javascript">
+
+
+    const params = new URLSearchParams(window.location.search);
+    const operation = params.get('operation');
+    const id = params.get('id');
+    const status = params.get('status');
+
+
+    if (operation == null) {
+        document.getElementById('lblStatus').hidden = true;
+        document.getElementById('lblCount').hidden = true;
+
+    } else if (operation == 1 || operation == 2) {
+        document.getElementById('lblStatus').hidden = false;
+        document.getElementById('lblCount').hidden = false;
+        document.getElementById('lblStatus').style.color = "green";
+        document.getElementById('lblStatus').textContent = status;
+        document.getElementById('lblCount').style.color = "green";
+        document.getElementById('lblCount').textContent = 'Study IDs count: ' + (document.getElementById('cboStudiesSelected').length - 1);
+    }
+
+</script>
+
+
+
+
+<script type="text/javascript">
+
+    $('form').submit(function () {
+        $(this).find('input[type=submit]').prop('disabled', true);
+        return true;
+    });
+
+    $("#btnInclude").focus();
+
+</script>
+
+
+<script type="text/javascript">
+    $("#txtStudyID").focus();
+</script>

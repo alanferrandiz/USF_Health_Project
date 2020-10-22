@@ -24,7 +24,7 @@ namespace USF_Health_MVC_EF.Controllers
 
 
 
-        [Authorize]
+        [Authorize("usfhealth_laboratory")]
         public IActionResult Index(int? type, DateTime? dateStart, DateTime? dateEnd, String ? poolResult, int ? poolID)
         {
 

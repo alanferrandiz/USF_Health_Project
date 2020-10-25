@@ -16,11 +16,18 @@ namespace USF_Health_MVC_EF.Controllers
         public IActionResult Index()
         {
 
-            if (User.Identity.IsAuthenticated)
+            if (Globals.authenticated == 0)
             {
                 SessionInsert();
+            }
+            
 
+            if (User.Identity.IsAuthenticated)
+            {
+
+                SessionUpdate();
                 return RedirectToAction("Index", "Home");
+                
             }
 
             return View();
@@ -35,9 +42,43 @@ namespace USF_Health_MVC_EF.Controllers
             sqlCommand.Connection = sqlConnection;
             sqlCommand.CommandText = "usp_sessions_insert";
 
-            SqlParameter sqlParameter01 = new SqlParameter("username", User.Identity.Name);
+            //SqlParameter sqlParameter01 = new SqlParameter("username","");
+            //sqlParameter01.IsNullable = false;
+            //sqlCommand.Parameters.Add(sqlParameter01);
+
+            SqlDataReader sqlDataReader;
+            sqlConnection.Open();
+            sqlDataReader = sqlCommand.ExecuteReader();
+
+            if (sqlDataReader.Read())
+            {
+                Globals.sessionId = Convert.ToInt32(sqlDataReader["ssn_id"]);
+                //Globals.currentUserId = Convert.ToInt32(sqlDataReader["usr_id_audit"]);
+                //Globals.currentUserName = sqlDataReader["usr_username_audit"].ToString();
+            }
+
+            sqlConnection.Close();
+
+            Globals.authenticated = 1;
+
+        }
+
+        public void SessionUpdate()
+        {
+
+            SqlCommand sqlCommand = new SqlCommand();
+            SqlConnection sqlConnection = new SqlConnection(Globals.connection.ToString());
+            sqlCommand.CommandType = System.Data.CommandType.StoredProcedure;
+            sqlCommand.Connection = sqlConnection;
+            sqlCommand.CommandText = "usp_sessions_update";
+
+            SqlParameter sqlParameter01 = new SqlParameter("ssn_id", Globals.sessionId);
             sqlParameter01.IsNullable = false;
             sqlCommand.Parameters.Add(sqlParameter01);
+
+            SqlParameter sqlParameter02 = new SqlParameter("username", User.Identity.Name);
+            sqlParameter02.IsNullable = false;
+            sqlCommand.Parameters.Add(sqlParameter02);
 
             SqlDataReader sqlDataReader;
             sqlConnection.Open();
@@ -51,6 +92,8 @@ namespace USF_Health_MVC_EF.Controllers
             }
 
             sqlConnection.Close();
+
+            Globals.authenticated = 0;
 
         }
 

@@ -1240,7 +1240,7 @@ if OBJECT_ID('usp_sessions_insert') is not null
 go
 create procedure [dbo].usp_sessions_insert
 @type		int = 1,
-@username	nvarchar(800) 
+@username	nvarchar(800)  = ''
 as
 begin
 	if @type = 1
@@ -1263,7 +1263,33 @@ end
 go
 
 
+if OBJECT_ID('usp_sessions_update') is not null
+	drop procedure usp_sessions_update
+go
+create procedure [dbo].usp_sessions_update
+@type		int = 1,
+@ssn_id		int =  null,
+@username	nvarchar(800)  = ''
+as
+begin
+	if @type = 1
+	begin
+		--declare @ssn_id int
+		declare @usr_id_audit int
+		declare @usr_username_audit nvarchar(800)
+		
+		select @usr_id_audit = usr_id, @usr_username_audit = usr_username 
+		from tb_users with (index = ix_tb_users_usr_username) where @username like '%'+ usr_username +'%'
 
+		update tb_sessions 
+		set usr_id = @usr_id_audit,
+			ssn_time_created = dbo.udf_getdatelocal(default)
+		where ssn_id = @ssn_id
+
+		select @ssn_id 'ssn_id', @usr_id_audit 'usr_id_audit', @usr_username_audit 'usr_username_audit'
+	end
+end
+go
 
 
 

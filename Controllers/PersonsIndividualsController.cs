@@ -25,43 +25,97 @@ namespace USF_Health_MVC_EF.Controllers
             _context = context;
         }
 
-        [Authorize("usfhealth_athletics")]    
-        public  ActionResult Index()
+        //[Authorize("usfhealth_athletics")]    
+        //public  ActionResult Index()
+        //{
+
+        //    SqlDataAdapter dataAdapter = new SqlDataAdapter("usp_individuals_select", Globals.connection); //I think the problem is here, how am I fixing it though? --Fixed but why can't it be put into a class?
+        //    dataAdapter.SelectCommand.CommandType = System.Data.CommandType.StoredProcedure;
+        //    System.Data.DataTable dataTable = new System.Data.DataTable();
+
+        //    dataAdapter.Fill(dataTable);
+
+        //    List<SpIndividuals> list = new List<SpIndividuals>();
+
+        //    for (int i = 0; i < dataTable.Rows.Count; i++)
+        //    {
+
+        //        SpIndividuals item = new SpIndividuals();
+        //        DataRow dr = dataTable.Rows[i];
+
+        //        item.ind_id = Int32.Parse(dr["ind_id"].ToString());
+        //        item.ind_date_created_text = dr["ind_date_created_text"].ToString();
+        //        item.ind_first_name = dr["ind_first_name"].ToString();
+        //        item.ind_last_name = dr["ind_last_name"].ToString();
+        //        item.ind_email = dr["ind_email"].ToString();
+        //        item.ind_phone = dr["ind_phone"].ToString();
+        //        item.ind_gender = dr["ind_gender"].ToString();
+        //        item.ind_document = dr["ind_document"].ToString();
+        //        item.ref_id = Int32.Parse(dr["ref_id"].ToString());
+        //        item.ref_name = dr["ref_name"].ToString();
+        //        item.std_id = Int32.Parse(dr["std_id"].ToString());
+        //        item.std_name = dr["std_name"].ToString();
+        //        item.ind_details = dr["ind_details"].ToString();
+
+        //        list.Add(item);
+        //    }
+
+        //    return View(list);
+
+        //}
+
+
+        [Authorize("usfhealth_athletics")]
+        public ActionResult Index(String search)
         {
 
-            SqlDataAdapter dataAdapter = new SqlDataAdapter("usp_individuals_select", Globals.connection); //I think the problem is here, how am I fixing it though? --Fixed but why can't it be put into a class?
-            dataAdapter.SelectCommand.CommandType = System.Data.CommandType.StoredProcedure;
-            System.Data.DataTable dataTable = new System.Data.DataTable();
 
-            dataAdapter.Fill(dataTable);
+                SqlCommand sqlCommand = new SqlCommand();
+                SqlConnection sqlConnection = new SqlConnection(Globals.connection.ToString());
+                sqlCommand.CommandType = System.Data.CommandType.StoredProcedure;
+                sqlCommand.Connection = sqlConnection;
+                sqlCommand.CommandText = "usp_individuals_select";
 
-            List<SpIndividuals> list = new List<SpIndividuals>();
-          
-            for (int i = 0; i < dataTable.Rows.Count; i++)
-            {
-                
-                SpIndividuals item = new SpIndividuals();
-                DataRow dr = dataTable.Rows[i];
+                SqlParameter sqlParameter01 = new SqlParameter("type", 2);
+                sqlParameter01.IsNullable = true;
+                sqlCommand.Parameters.Add(sqlParameter01);
 
-                item.ind_id = Int32.Parse(dr["ind_id"].ToString());
-                item.ind_date_created_text = dr["ind_date_created_text"].ToString();
-                item.ind_first_name = dr["ind_first_name"].ToString();
-                item.ind_last_name = dr["ind_last_name"].ToString();
-                item.ind_email = dr["ind_email"].ToString();
-                item.ind_phone = dr["ind_phone"].ToString();
-                item.ind_gender = dr["ind_gender"].ToString();
-                item.ind_document = dr["ind_document"].ToString();
-                item.ref_id = Int32.Parse(dr["ref_id"].ToString());
-                item.ref_name = dr["ref_name"].ToString();
-                item.std_id = Int32.Parse(dr["std_id"].ToString());
-                item.std_name = dr["std_name"].ToString();
-                item.ind_details = dr["ind_details"].ToString();
+
+                SqlParameter sqlParameter02 = new SqlParameter("search", Globals.Iif(search is null, "", search));
+                sqlParameter02.IsNullable = true;
+                sqlCommand.Parameters.Add(sqlParameter02);
+
+                SqlDataAdapter dataAdapter = new SqlDataAdapter(sqlCommand); //I think the problem is here, how am I fixing it though? --Fixed but why can't it be put into a class?
+                System.Data.DataTable dataTable = new System.Data.DataTable();
+
+                dataAdapter.Fill(dataTable);
+
+                List<SpIndividuals> list = new List<SpIndividuals>();
+
+                for (int i = 0; i < dataTable.Rows.Count; i++)
+                {
+
+                    SpIndividuals item = new SpIndividuals();
+                    DataRow dr = dataTable.Rows[i];
+
+                    item.ind_id = Int32.Parse(dr["ind_id"].ToString());
+                    item.ind_date_created_text = dr["ind_date_created_text"].ToString();
+                    item.ind_first_name = dr["ind_first_name"].ToString();
+                    item.ind_last_name = dr["ind_last_name"].ToString();
+                    item.ind_email = dr["ind_email"].ToString();
+                    item.ind_phone = dr["ind_phone"].ToString();
+                    item.ind_gender = dr["ind_gender"].ToString();
+                    item.ind_document = dr["ind_document"].ToString();
+                    item.ref_id = Int32.Parse(dr["ref_id"].ToString());
+                    item.ref_name = dr["ref_name"].ToString();
+                    item.std_id = Int32.Parse(dr["std_id"].ToString());
+                    item.std_name = dr["std_name"].ToString();
+                    item.ind_details = dr["ind_details"].ToString();
+                    item.is_count = Int32.Parse(dr["is_count"].ToString());
 
                 list.Add(item);
-            }
-
-            return View(list);
-
+                }
+                return View(list);
         }
 
         [Authorize("usfhealth_athletics")]
@@ -88,7 +142,7 @@ namespace USF_Health_MVC_EF.Controllers
         }
 
         [Authorize("usfhealth_athletics")]
-        public IActionResult Create()
+        public IActionResult Create(String search)
         {
 
             SpStudies spStudies = new SpStudies();
@@ -96,6 +150,7 @@ namespace USF_Health_MVC_EF.Controllers
 
             ViewData["studies"] = spStudies.GetAllStudies(1,0);
             ViewData["references"] = spReferences.GetAllReferences(1, 0);
+            Globals.search = search;
 
             return View();
         }
@@ -166,14 +221,14 @@ namespace USF_Health_MVC_EF.Controllers
                 sqlCommand.ExecuteNonQuery();
                 sqlConnection.Close();
 
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Index), new { search = Globals.search });
 
             }
             return View(individual);
         }
 
         [Authorize("usfhealth_athletics")]
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(int? id, String search)
         {
             if (id == null)
             {
@@ -189,6 +244,7 @@ namespace USF_Health_MVC_EF.Controllers
             SpReferences spReferences = new SpReferences();
             ViewData["studies"] = spStudies.GetAllStudies(2,individual.std_id);
             ViewData["references"] = spReferences.GetAllReferences(2, individual.ref_id);
+            Globals.search = search;
 
             return View(individual);
         }
@@ -282,7 +338,7 @@ namespace USF_Health_MVC_EF.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Index), new { search = Globals.search });
             }
             SpStudies spStudies = new SpStudies();
             SpReferences spReferences = new SpReferences();
@@ -294,7 +350,7 @@ namespace USF_Health_MVC_EF.Controllers
         }
 
         [Authorize("usfhealth_athletics")]
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(int? id, String search)
         {
             if (id == null)
             {
@@ -313,6 +369,7 @@ namespace USF_Health_MVC_EF.Controllers
 
             ViewData["studies"] = spStudies.GetAllStudies(2,individual.std_id);
             ViewData["references"] = spReferences.GetAllReferences(2, individual.ref_id);
+            Globals.search = search;
 
             return View(individual);
         }
@@ -358,7 +415,7 @@ namespace USF_Health_MVC_EF.Controllers
             //_context.tb_individuals.Remove(individual);
             //await _context.SaveChangesAsync();
 
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Index), new { search = Globals.search });
         }
 
         private bool IndividualExists(int id)

@@ -17,6 +17,7 @@ static class Globals
     public static int sessionId;
     public static String currentUserName;
     public static int authenticated = 0;
+    public static String search;
 
     public static T Iif<T>(bool cond, T left, T right)
     {

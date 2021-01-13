@@ -9,6 +9,35 @@
 </div>
 
 
+
+
+
+<script type="text/javascript">
+    function searchPools() {
+        $("btnSearch").attr("asp-route-search", document.getElementById("search").value);
+    }
+</script>
+
+<div class="div_form">
+    <form asp-action="Index" method="get">
+        <div style="width:500px;">
+            <label class="div_label">Search using pool ID, pool details or date created (yyyy-mm-dd for date or yyyy-mm for whole month)</label>
+        </div>
+        <div class="div_input">
+            <input required autofocus id="search" name="search" placeholder="Enter your search" />
+        </div>
+        <div class="div_button">
+            <input type="submit" id="btnSearch" value="Search" onsubmit="searchPools();" />
+        </div>
+        <div class="div_label" style="width:500px;">
+            <label id="lblStatus"></label>
+        </div>
+    </form>
+</div>
+
+
+
+
 <script type="text/javascript">
 
     $(document).ready(function () {
@@ -28,8 +57,12 @@
 
 </script>
 
+
+
+
+
 <div class="div_mainlink">
-    <a asp-action="Create">Create New</a>
+    <a asp-action="Create" asp-route-search="@Context.Request.Query["search"].ToString()">Create New</a>
 </div>
 
 <div class="div_datatables">
@@ -70,7 +103,7 @@
                     </td>
                     <td style="background-color:yellow;font-weight:bold;" id="is_pr_result_td_@item.poo_id" onkeydown="handle(event,'is_pr_result_td_@item.poo_id','is_pr_result_editor_@item.poo_id','is_pr_result_display_@item.poo_id','is_pr_result_txtEditor_@item.poo_id','is_pr_result_txtDisplay_@item.poo_id',@item.poo_id)" ondblclick="edit('is_pr_result_td_@item.poo_id','is_pr_result_editor_@item.poo_id','is_pr_result_display_@item.poo_id','is_pr_result_txtEditor_@item.poo_id','is_pr_result_txtDisplay_@item.poo_id',@item.poo_id)">
                         <div id="is_pr_result_editor_@item.poo_id" style="display:none;">
-                            @Html.EditorFor(modelItem => item.pr_result, new { htmlAttributes = new { @class = "form-editor", @id = "is_pr_result_txtEditor_" + item.poo_id} })
+                            @Html.EditorFor(modelItem => item.pr_result, new { htmlAttributes = new { @class = "form-editor", @id = "is_pr_result_txtEditor_" + item.poo_id } })
                         </div>
                         <div id="is_pr_result_display_@item.poo_id">
                             @Html.DisplayFor(modelItem => item.pr_result, new { htmlAttributes = new { @id = "is_pr_result_txtDisplay_" + item.poo_id } })
@@ -91,9 +124,9 @@
                         @Html.DisplayFor(modelItem => item.poo_count)
                     </td>
                     <td>
-                        <a asp-action="Assign" asp-route-id="@item.poo_id">Assign</a> |
-                        <a asp-action="Details" asp-route-id="@item.poo_id">Details</a> |
-                        <a asp-action="Delete" asp-route-id="@item.poo_id">Delete</a>
+                        <a asp-action="Assign" asp-route-id="@item.poo_id" asp-route-search="@Context.Request.Query["search"].ToString()">Assign</a> |
+                        <a asp-action="Details" asp-route-id="@item.poo_id" asp-route-search="@Context.Request.Query["search"].ToString()">Details</a> |
+                        <a asp-action="Delete" asp-route-id="@item.poo_id" asp-route-search="@Context.Request.Query["search"].ToString()">Delete</a>
                     </td>
                 </tr>
             }
@@ -197,5 +230,31 @@
     });
     }
 
+
+</script>
+
+
+
+<script type="text/javascript">
+
+    const params = new URLSearchParams(window.location.search);
+    const search = params.get('search');
+
+    if (search == null) {
+        document.getElementById('lblStatus').hidden = true;
+    } else {
+        document.getElementById('lblStatus').hidden = false;
+        document.getElementById('lblStatus').style.color = "green";
+        document.getElementById('lblStatus').textContent = "Search results for: " + search;
+    }
+
+</script>
+
+<script type="text/javascript">
+
+    $('form').submit(function () {
+        $(this).find('input[type=submit]').prop('disabled', true);
+        return true;
+    });
 
 </script>

@@ -125,7 +125,7 @@
 
 </div>
 <div class="div_mainlink">
-    <a asp-action="Assign" asp-route-id="@ViewBag.poo_id">Back to List</a>
+    <a asp-action="Assign" asp-route-id="@ViewBag.poo_id" asp-route-search="@Context.Request.Query["search"].ToString()">Back to List</a>
 </div>
 
 <script type="text/javascript">
@@ -156,6 +156,9 @@
 
     function UpdatePoolID(id, value, operation) {
 
+        const params = new URLSearchParams(window.location.search);
+        const search = params.get('search');
+
         if (document.getElementById('frmForm').checkValidity()) {
               $.ajax({
                 url: '@Url.Action("UpdatePoolID")',
@@ -164,7 +167,7 @@
                 cache: false,
                     data: { 'id': id, 'value': value, 'operation': 2},
                       success: function (results) {
-                          window.location.href = '@Url.Action("Assign", "PersonsPools", new { id = ViewBag.poo_id })?type=0&status=' + results;
+                          window.location.href = '@Url.Action("Assign", "PersonsPools", new { id = ViewBag.poo_id })?type=0&status=' + results + '&search=' + search + '';
                 },
                 error: function () {
                     alert('Error occured');

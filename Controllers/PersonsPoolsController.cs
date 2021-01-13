@@ -24,11 +24,57 @@ namespace USF_Health_MVC_EF.Controllers
         }
 
         [Authorize("usfhealth_laboratory")]
-        public ActionResult Index()
+        public ActionResult Index(string? search)
         {
 
-            SqlDataAdapter dataAdapter = new SqlDataAdapter("usp_pools_select", Globals.connection);
-            dataAdapter.SelectCommand.CommandType = System.Data.CommandType.StoredProcedure;
+            //SqlDataAdapter dataAdapter = new SqlDataAdapter("usp_pools_select", Globals.connection);
+            //dataAdapter.SelectCommand.CommandType = System.Data.CommandType.StoredProcedure;
+            //System.Data.DataTable dataTable = new System.Data.DataTable();
+
+            //dataAdapter.Fill(dataTable);
+
+            //List<SpPools> list = new List<SpPools>();
+
+            //for (int i = 0; i < dataTable.Rows.Count; i++)
+            //{
+
+            //    SpPools item = new SpPools();
+            //    DataRow dr = dataTable.Rows[i];
+
+            //    item.poo_id = Int32.Parse(dr["poo_id"].ToString());
+            //    item.poo_date_created_text = dr["poo_date_created_text"].ToString();
+            //    item.poo_details = dr["poo_details"].ToString();
+            //    item.pr_result = dr["pr_result"].ToString();
+            //    item.pr_ct_value = dr["pr_ct_value"].ToString();
+            //    item.poo_count = Int32.Parse(dr["poo_count"].ToString());
+
+            //    list.Add(item);
+            //}
+
+            //return View(list);
+
+            //SqlDataAdapter dataAdapter = new SqlDataAdapter("usp_pools_select", Globals.connection);
+            //dataAdapter.SelectCommand.CommandType = System.Data.CommandType.StoredProcedure;
+            //System.Data.DataTable dataTable = new System.Data.DataTable();
+
+            //dataAdapter.Fill(dataTable);
+
+            SqlCommand sqlCommand = new SqlCommand();
+            SqlConnection sqlConnection = new SqlConnection(Globals.connection.ToString());
+            sqlCommand.CommandType = System.Data.CommandType.StoredProcedure;
+            sqlCommand.Connection = sqlConnection;
+            sqlCommand.CommandText = "usp_pools_select";
+
+            SqlParameter sqlParameter01 = new SqlParameter("type", 4);
+            sqlParameter01.IsNullable = true;
+            sqlCommand.Parameters.Add(sqlParameter01);
+
+
+            SqlParameter sqlParameter02 = new SqlParameter("search", Globals.Iif(search is null, "", search));
+            sqlParameter02.IsNullable = true;
+            sqlCommand.Parameters.Add(sqlParameter02);
+
+            SqlDataAdapter dataAdapter = new SqlDataAdapter(sqlCommand); //I think the problem is here, how am I fixing it though? --Fixed but why can't it be put into a class?
             System.Data.DataTable dataTable = new System.Data.DataTable();
 
             dataAdapter.Fill(dataTable);
@@ -244,7 +290,7 @@ namespace USF_Health_MVC_EF.Controllers
 
 
         [Authorize("usfhealth_laboratory")]
-        public ActionResult Delete(int? id)
+        public ActionResult Delete(int? id, string? search)
         {
             SqlDataAdapter dataAdapter = new SqlDataAdapter("usp_pools_select", Globals.connection);
             dataAdapter.SelectCommand.CommandType = System.Data.CommandType.StoredProcedure;
@@ -279,8 +325,9 @@ namespace USF_Health_MVC_EF.Controllers
 
 
         [Authorize("usfhealth_laboratory")]
-        public IActionResult Create()
+        public IActionResult Create(string? search)
         {
+            Globals.search = search;
             return View();
         }
 
@@ -323,9 +370,7 @@ namespace USF_Health_MVC_EF.Controllers
 
                 sqlConnection.Close();
 
-
-
-                return RedirectToAction(nameof(Assign), new { id = pool.poo_id });
+                return RedirectToAction(nameof(Assign), new { id = pool.poo_id, search = Globals.search });
 
             }
             return View(pool);

@@ -90,11 +90,68 @@ namespace USF_Health_MVC_EF.Controllers
         }
 
         [Authorize]
-        public IActionResult Index()
+        public IActionResult Index(String search)
         {
-            SqlDataAdapter dataAdapter = new SqlDataAdapter("usp_individuals_samples_select", Globals.connection);
-            dataAdapter.SelectCommand.CommandType = System.Data.CommandType.StoredProcedure;
+            //SqlDataAdapter dataAdapter = new SqlDataAdapter("usp_individuals_samples_select", Globals.connection);
+            //dataAdapter.SelectCommand.CommandType = System.Data.CommandType.StoredProcedure;
 
+            //System.Data.DataTable dataTable = new System.Data.DataTable();
+
+            //dataAdapter.Fill(dataTable);
+
+            //List<SpIndividualsSamples> list = new List<SpIndividualsSamples>();
+
+
+            //for (int i = 0; i < dataTable.Rows.Count; i++)
+            //{
+            //    SpIndividualsSamples item = new SpIndividualsSamples();
+            //    DataRow dr = dataTable.Rows[i];
+
+            //    item.is_id = Int32.Parse(dr["is_id"].ToString());
+            //    item.is_barcode = dr["is_barcode"].ToString();
+            //    item.is_date_created_text = dr["is_date_created_text"].ToString();
+            //    item.is_date_collected_text = dr["is_date_collected_text"].ToString();
+            //    item.is_date_registered_text = dr["is_date_registered_text"].ToString();
+            //    item.ind_id = Int32.Parse(dr["ind_id"].ToString());
+            //    item.ind_first_name = dr["ind_first_name"].ToString();
+            //    item.ind_last_name = dr["ind_last_name"].ToString();
+            //    item.ind_gender = dr["ind_gender"].ToString();
+            //    item.ind_document = dr["ind_document"].ToString();
+            //    item.is_well_number = dr["is_well_number"].ToString();
+            //    item.poo_id =  dr["poo_id"] is DBNull ? (int?) null  : (int?)Int32.Parse(dr["poo_id"].ToString());
+            //    item.is_details = dr["is_details"].ToString();
+            //    item.ref_id = Int32.Parse(dr["ref_id"].ToString());
+            //    item.ref_name = dr["ref_name"].ToString();
+            //    item.std_id = Int32.Parse(dr["std_id"].ToString());
+            //    item.std_name = dr["std_name"].ToString();
+
+            //    list.Add(item);
+            //}
+
+            //return View(list);
+
+            //SqlDataAdapter dataAdapter = new SqlDataAdapter("usp_individuals_samples_select", Globals.connection);
+            //dataAdapter.SelectCommand.CommandType = System.Data.CommandType.StoredProcedure;
+
+            //System.Data.DataTable dataTable = new System.Data.DataTable();
+
+            //dataAdapter.Fill(dataTable);
+
+            SqlCommand sqlCommand = new SqlCommand();
+            SqlConnection sqlConnection = new SqlConnection(Globals.connection.ToString());
+            sqlCommand.CommandType = System.Data.CommandType.StoredProcedure;
+            sqlCommand.Connection = sqlConnection;
+            sqlCommand.CommandText = "usp_individuals_samples_select";
+
+            SqlParameter sqlParameter01 = new SqlParameter("search", Globals.Iif(search is null, "", search));
+            sqlParameter01.IsNullable = true;
+            sqlCommand.Parameters.Add(sqlParameter01);
+
+            SqlParameter sqlParameter02 = new SqlParameter("type", 8);
+            sqlParameter02.IsNullable = true;
+            sqlCommand.Parameters.Add(sqlParameter02);
+
+            SqlDataAdapter dataAdapter = new SqlDataAdapter(sqlCommand); //I think the problem is here, how am I fixing it though? --Fixed but why can't it be put into a class?
             System.Data.DataTable dataTable = new System.Data.DataTable();
 
             dataAdapter.Fill(dataTable);
@@ -118,7 +175,7 @@ namespace USF_Health_MVC_EF.Controllers
                 item.ind_gender = dr["ind_gender"].ToString();
                 item.ind_document = dr["ind_document"].ToString();
                 item.is_well_number = dr["is_well_number"].ToString();
-                item.poo_id =  dr["poo_id"] is DBNull ? (int?) null  : (int?)Int32.Parse(dr["poo_id"].ToString());
+                item.poo_id = dr["poo_id"] is DBNull ? (int?)null : (int?)Int32.Parse(dr["poo_id"].ToString());
                 item.is_details = dr["is_details"].ToString();
                 item.ref_id = Int32.Parse(dr["ref_id"].ToString());
                 item.ref_name = dr["ref_name"].ToString();
@@ -134,7 +191,7 @@ namespace USF_Health_MVC_EF.Controllers
 
 
         [Authorize]
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(int? id, String search)
         {
             if (id == null)
             {
@@ -151,6 +208,7 @@ namespace USF_Health_MVC_EF.Controllers
 
             SpIndividuals spIndividuals = new SpIndividuals();
             ViewData["spIndividuals"] = spIndividuals.GetIndividualbyId(individualSamples.ind_id);
+            Globals.search = search;
 
             return View(individualSamples);
         }
@@ -187,14 +245,13 @@ namespace USF_Health_MVC_EF.Controllers
             sqlCommand.ExecuteNonQuery();
             sqlConnection.Close();
 
-
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Index), new { search = Globals.search });
         }
 
 
 
         [Authorize]
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(int? id, String search)
         {
             if (id == null)
             {
@@ -210,6 +267,7 @@ namespace USF_Health_MVC_EF.Controllers
 
             SpIndividuals spIndividuals = new SpIndividuals();
             ViewData["spIndividuals"] = spIndividuals.GetAllIndividuals();
+            Globals.search = search;
 
             return View(individualSamples);
         }
@@ -335,7 +393,7 @@ namespace USF_Health_MVC_EF.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Index), new { search = Globals.search });
             }
 
             return View(individualSample);

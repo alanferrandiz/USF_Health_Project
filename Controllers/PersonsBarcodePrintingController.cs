@@ -31,29 +31,76 @@ namespace USF_Health_MVC_EF.Controllers
         }
 
         [Authorize]
-        public ActionResult Index()
+        public ActionResult Index(String search)
         {
-           
-            SqlDataAdapter dataAdapter = new SqlDataAdapter("usp_individuals_select", Globals.connection); //I think the problem is here, how am I fixing it though? --Fixed but why can't it be put into a class?
-            dataAdapter.SelectCommand.CommandType = System.Data.CommandType.StoredProcedure;
+
+            //SqlDataAdapter dataAdapter = new SqlDataAdapter("usp_individuals_select", Globals.connection); //I think the problem is here, how am I fixing it though? --Fixed but why can't it be put into a class?
+            //dataAdapter.SelectCommand.CommandType = System.Data.CommandType.StoredProcedure;
+            //System.Data.DataTable dataTable = new System.Data.DataTable();
+
+            //dataAdapter.Fill(dataTable);
+
+            //List<SpIndividuals> list = new List<SpIndividuals>();
+
+
+            //for (int i = 0; i < dataTable.Rows.Count; i++)
+            //{
+            //    SpIndividuals item = new SpIndividuals();
+            //    DataRow dr = dataTable.Rows[i];
+
+            //    item.ind_id = Int32.Parse(dr["ind_id"].ToString());
+            //    //item.ind_date_time_created = dr["ind_date_time_created"] == null ? (DateTime?)null : (DateTime ?)dr["ind_date_time_created"];
+            //    item.ind_date_created_text = dr["ind_date_created_text"].ToString();
+            //    item.ind_first_name = dr["ind_first_name"].ToString();
+            //    item.ind_last_name = dr["ind_last_name"].ToString();
+            //    item.first_name_last_name = dr["first_name_last_name"].ToString();
+            //    item.ind_email = dr["ind_email"].ToString();
+            //    item.ind_phone = dr["ind_phone"].ToString();
+            //    item.ind_gender = dr["ind_gender"].ToString();
+            //    item.ind_document = dr["ind_document"].ToString();
+            //    item.ref_id = Int32.Parse(dr["ref_id"].ToString());
+            //    item.ref_name = dr["ref_name"].ToString();
+            //    item.std_id = Int32.Parse(dr["std_id"].ToString());
+            //    item.std_name = dr["std_name"].ToString();
+            //    item.ind_details = dr["ind_details"].ToString();
+            //    item.is_count = Int32.Parse(dr["is_count"].ToString());
+
+            //    list.Add(item);
+            //}
+
+            //return View( list);
+
+            SqlCommand sqlCommand = new SqlCommand();
+            SqlConnection sqlConnection = new SqlConnection(Globals.connection.ToString());
+            sqlCommand.CommandType = System.Data.CommandType.StoredProcedure;
+            sqlCommand.Connection = sqlConnection;
+            sqlCommand.CommandText = "usp_individuals_select";
+
+            SqlParameter sqlParameter01 = new SqlParameter("type", 3);
+            sqlParameter01.IsNullable = true;
+            sqlCommand.Parameters.Add(sqlParameter01);
+
+            SqlParameter sqlParameter02 = new SqlParameter("search", Globals.Iif(search is null, "", search));
+            sqlParameter02.IsNullable = true;
+            sqlCommand.Parameters.Add(sqlParameter02);
+
+            SqlDataAdapter dataAdapter = new SqlDataAdapter(sqlCommand); //I think the problem is here, how am I fixing it though? --Fixed but why can't it be put into a class?
             System.Data.DataTable dataTable = new System.Data.DataTable();
 
             dataAdapter.Fill(dataTable);
 
             List<SpIndividuals> list = new List<SpIndividuals>();
 
-
             for (int i = 0; i < dataTable.Rows.Count; i++)
             {
+
                 SpIndividuals item = new SpIndividuals();
                 DataRow dr = dataTable.Rows[i];
 
                 item.ind_id = Int32.Parse(dr["ind_id"].ToString());
-                //item.ind_date_time_created = dr["ind_date_time_created"] == null ? (DateTime?)null : (DateTime ?)dr["ind_date_time_created"];
                 item.ind_date_created_text = dr["ind_date_created_text"].ToString();
                 item.ind_first_name = dr["ind_first_name"].ToString();
                 item.ind_last_name = dr["ind_last_name"].ToString();
-                item.first_name_last_name = dr["first_name_last_name"].ToString();
                 item.ind_email = dr["ind_email"].ToString();
                 item.ind_phone = dr["ind_phone"].ToString();
                 item.ind_gender = dr["ind_gender"].ToString();
@@ -64,16 +111,16 @@ namespace USF_Health_MVC_EF.Controllers
                 item.std_name = dr["std_name"].ToString();
                 item.ind_details = dr["ind_details"].ToString();
                 item.is_count = Int32.Parse(dr["is_count"].ToString());
-               
+
                 list.Add(item);
             }
+            return View(list);
 
-            return View( list);
 
         }
 
         [Authorize]
-        public IActionResult Create(int? id, string? std_name, string? ref_name)
+        public IActionResult Create(int? id, string? std_name, string? ref_name, string? search)
         {
           
             if (ModelState.IsValid)
@@ -82,6 +129,7 @@ namespace USF_Health_MVC_EF.Controllers
                     ViewBag.ind_id = id;
                     ViewBag.std_name = std_name;
                     ViewBag.ref_name = ref_name;
+                    Globals.search = search;
             }
             return View();
         }
@@ -146,7 +194,7 @@ namespace USF_Health_MVC_EF.Controllers
 
                 sqlConnection.Close();
 
-                return RedirectToAction("Print", "PersonsBarcodePrinting", new { id = individualSample.ind_id, is_id = individualSample.is_id});
+                return RedirectToAction("Print", "PersonsBarcodePrinting", new { id = individualSample.ind_id, is_id = individualSample.is_id, search = Globals.search });
                 //return View(individualSample);
             }
             else

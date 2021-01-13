@@ -291,6 +291,17 @@ span {
     vertical-align:middle;
 }
 
+.div_label_nobold {
+    font-family: Sans-Serif, Helvetica, Arial;
+    left: 100px;
+    width: 150px;
+    height: 30px;
+    line-height: 30px;
+    border-width: 0px;
+    font-size: 14px;
+    vertical-align: middle;
+}
+
 select {
     font-family: Sans-Serif, Helvetica, Arial;
     width: 275px;

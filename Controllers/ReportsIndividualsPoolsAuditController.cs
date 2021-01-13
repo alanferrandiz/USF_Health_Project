@@ -13,11 +13,11 @@ using USF_Health_MVC_EF.Models;
 
 namespace USF_Health_MVC_EF.Controllers
 {
-    public class ReportsIndividualsPoolsAudit : Controller
+    public class ReportsIndividualsPoolsAuditController : Controller
     {
        
         private readonly USF_Health_MVC_EFContext _context;
-        public ReportsIndividualsPoolsAudit(USF_Health_MVC_EFContext context)
+        public ReportsIndividualsPoolsAuditController(USF_Health_MVC_EFContext context)
         {
             _context = context;
         }
@@ -92,6 +92,7 @@ namespace USF_Health_MVC_EF.Controllers
                     item.aud_date = dr["aud_date"] is DBNull ? (DateTime?)null : (DateTime?)dr["aud_date"];
                     item.aud_time = dr["aud_time"] is DBNull ? (TimeSpan?)null : (TimeSpan?)dr["aud_time"];
                     item.aud_table = dr["aud_table"].ToString();
+                    item.aud_poo_id =  dr["aud_poo_id"] is DBNull ? 0 : Int32.Parse(dr["aud_poo_id"].ToString()); //Int32.Parse(dr["aud_poo_id"].ToString());
                     item.aud_identifier_id = dr["aud_identifier_id"].ToString();
                     item.aud_identifier_field = dr["aud_identifier_field"].ToString();
                     item.aud_field = dr["aud_field"].ToString();
@@ -125,6 +126,7 @@ namespace USF_Health_MVC_EF.Controllers
                     item.aud_date = dr["aud_date"] is DBNull ? (DateTime?)null : (DateTime?)dr["aud_date"];
                     item.aud_time = dr["aud_time"] is DBNull ? (TimeSpan?)null : (TimeSpan?)dr["aud_time"];
                     item.aud_table = dr["aud_table"].ToString();
+                    item.aud_poo_id = Int32.Parse(dr["aud_poo_id"].ToString());
                     item.aud_identifier_id = dr["aud_identifier_id"].ToString();
                     item.aud_identifier_field = dr["aud_identifier_field"].ToString();
                     item.aud_field = dr["aud_field"].ToString();

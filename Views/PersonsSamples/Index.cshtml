@@ -35,6 +35,32 @@
 </div>
 
 
+
+<script type="text/javascript">
+    function searchIndividualsSamples() {
+        $("btnSearch").attr("asp-route-search", document.getElementById("search").value);
+    }
+</script>
+
+<div class="div_form">
+    <form asp-action="Index" method="get">
+        <div style="width:500px;">
+            <label class="div_label">Search using sample ID, barcode, study ID, pool ID, sample details, well number or date collected (yyyy-mm-dd for date, yyyy-mm for whole month or yyyy-mm-dd yyyy-mm-dd for date range)</label>
+        </div>
+        <div class="div_input">
+            <input required autofocus id="search" name="search" placeholder="Enter your search" />
+        </div>
+        <div class="div_button">
+            <input type="submit" id="btnSearch" value="Search" onsubmit="searchIndividualsSamples();" />
+        </div>
+        <div class="div_label" style="width:500px;">
+            <label id="lblStatus"></label>
+        </div>
+    </form>
+</div>
+
+
+
 @using (Html.BeginForm("Index", "PersonSamples", FormMethod.Post))
 {
     <div class="div_datatables">
@@ -72,20 +98,20 @@
                         Study ID
                     </td>
                     @*<td>
-            Individual ID
-        </td>
-        <td>
-            First Name
-        </td>
-        <td>
-            Last Name
-        </td>*@
+                            Individual ID
+                        </td>
+                        <td>
+                            First Name
+                        </td>
+                        <td>
+                            Last Name
+                        </td>*@
                     <td>
                         Gender
                     </td>
                     @*<td>
-            USF ID
-        </td>*@
+                            USF ID
+                        </td>*@
 
 
                     <td></td>
@@ -94,63 +120,63 @@
             <tbody>
                 @foreach (var item in Model)
                 {
-                <tr>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.is_id, new { htmlAttributes = new { @id = "is_id_" + item.is_id } })
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.is_barcode)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.is_date_created_text)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.is_date_collected_text)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.is_date_registered_text)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.is_details)
-                    </td>
-                    <td style="background-color:yellow;" id="is_well_number_td_@item.is_id" onkeydown="handle(event,'is_well_number_td_@item.is_id','is_well_number_editor_@item.is_id','is_well_number_display_@item.is_id','is_well_number_txtEditor_@item.is_id','is_well_number_txtDisplay_@item.is_id',@item.is_id)" ondblclick="edit('is_well_number_td_@item.is_id','is_well_number_editor_@item.is_id','is_well_number_display_@item.is_id','is_well_number_txtEditor_@item.is_id','is_well_number_txtDisplay_@item.is_id',@item.is_id)">
-                        <div id="is_well_number_editor_@item.is_id" style="display:none;">
-                            @Html.EditorFor(modelItem => item.is_well_number, new { htmlAttributes = new { @class = "form-editor", @id = "is_well_number_txtEditor_" + item.is_id } })
-                        </div>
-                        <div id="is_well_number_display_@item.is_id">
-                            @Html.DisplayFor(modelItem => item.is_well_number, new { htmlAttributes = new { @id = "is_well_number_txtDisplay_" + item.is_id } })
-                        </div>
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.poo_id)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.ref_name)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.std_name)
-                    </td>
-                    @*<td>
-            @Html.DisplayFor(modelItem => item.ind_id)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.ind_first_name)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.ind_last_name)
-        </td>*@
-                    <td>
-                        @Html.DisplayFor(modelItem => item.ind_gender)
-                    </td>
-                    @*<td>
-            @Html.DisplayFor(modelItem => item.ind_document)
-        </td>*@
-                    <td>
-                        <a asp-action="Edit" asp-route-id="@item.is_id">Edit</a> |
-                        <a asp-action="Details" asp-route-id="@item.is_id">Details</a> |
-                        <a asp-action="Delete" asp-route-id="@item.is_id">Delete</a>
-                    </td>
-                </tr>
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.is_id, new { htmlAttributes = new { @id = "is_id_" + item.is_id } })
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.is_barcode)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.is_date_created_text)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.is_date_collected_text)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.is_date_registered_text)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.is_details)
+                        </td>
+                        <td style="background-color:yellow;" id="is_well_number_td_@item.is_id" onkeydown="handle(event,'is_well_number_td_@item.is_id','is_well_number_editor_@item.is_id','is_well_number_display_@item.is_id','is_well_number_txtEditor_@item.is_id','is_well_number_txtDisplay_@item.is_id',@item.is_id)" ondblclick="edit('is_well_number_td_@item.is_id','is_well_number_editor_@item.is_id','is_well_number_display_@item.is_id','is_well_number_txtEditor_@item.is_id','is_well_number_txtDisplay_@item.is_id',@item.is_id)">
+                            <div id="is_well_number_editor_@item.is_id" style="display:none;">
+                                @Html.EditorFor(modelItem => item.is_well_number, new { htmlAttributes = new { @class = "form-editor", @id = "is_well_number_txtEditor_" + item.is_id } })
+                            </div>
+                            <div id="is_well_number_display_@item.is_id">
+                                @Html.DisplayFor(modelItem => item.is_well_number, new { htmlAttributes = new { @id = "is_well_number_txtDisplay_" + item.is_id } })
+                            </div>
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.poo_id)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.ref_name)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.std_name)
+                        </td>
+                        @*<td>
+                                @Html.DisplayFor(modelItem => item.ind_id)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.ind_first_name)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.ind_last_name)
+                            </td>*@
+                        <td>
+                            @Html.DisplayFor(modelItem => item.ind_gender)
+                        </td>
+                        @*<td>
+                                @Html.DisplayFor(modelItem => item.ind_document)
+                            </td>*@
+                        <td>
+                            <a asp-action="Edit" asp-route-id="@item.is_id" asp-route-search="@Context.Request.Query["search"].ToString()">Edit</a> |
+                            <a asp-action="Details" asp-route-id="@item.is_id" asp-route-search="@Context.Request.Query["search"].ToString()">Details</a> |
+                            <a asp-action="Delete" asp-route-id="@item.is_id" asp-route-search="@Context.Request.Query["search"].ToString()">Delete</a>
+                        </td>
+                    </tr>
                 }
             </tbody>
         </table>
@@ -176,11 +202,11 @@
             document.getElementById(txtEditorID).select();
         }
         else if (document.getElementById(displayID).style.display == 'none') {
-            
+
             UpdateWellNumber(is_id, document.getElementById(txtEditorID).value, txtEditorID, displayID);
             document.getElementById(displayID).style.display = 'block';
             document.getElementById(editorID).style.display = 'none';
-            
+
         }
     }
 
@@ -220,5 +246,30 @@
     });
     }
 
+
+</script>
+
+
+<script type="text/javascript">
+
+    const params = new URLSearchParams(window.location.search);
+    const search = params.get('search');
+
+    if (search == null) {
+        document.getElementById('lblStatus').hidden = true;
+    } else {
+        document.getElementById('lblStatus').hidden = false;
+        document.getElementById('lblStatus').style.color = "green";
+        document.getElementById('lblStatus').textContent = "Search results for: " + search;
+    }
+
+</script>
+
+<script type="text/javascript">
+
+    $('form').submit(function () {
+        $(this).find('input[type=submit]').prop('disabled', true);
+        return true;
+    });
 
 </script>

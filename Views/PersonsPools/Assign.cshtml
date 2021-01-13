@@ -142,7 +142,7 @@
                         @Html.DisplayFor(modelItem => item.ind_gender)
                     </td>
                     <td>
-                        <a asp-action="Unassign" asp-route-id="@item.is_id" asp-route-poo_id="@ViewBag.poo_id">Unassign</a>
+                        <a asp-action="Unassign" asp-route-id="@item.is_id" asp-route-poo_id="@ViewBag.poo_id" asp-route-search="@Context.Request.Query["search"].ToString()">Unassign</a>
                     </td>
                 </tr>
                 }
@@ -153,7 +153,7 @@
 
 
 <div class="div_mainlink">
-    <a asp-action="Index">Back to List</a>
+    <a asp-action="Index" asp-route-search="@Context.Request.Query["search"].ToString()">Back to List</a>
 </div>
 
 <script type="text/javascript">
@@ -172,6 +172,9 @@
 
     function UpdatePoolID(id, value, operation) {
 
+        const params = new URLSearchParams(window.location.search);
+        const search = params.get('search');
+
         if (document.getElementById('frmForm').checkValidity()) {
               $.ajax({
                 url: '@Url.Action("UpdatePoolID")',
@@ -180,7 +183,7 @@
                 cache: false,
                     data: { 'id': id, 'value': value, 'operation': 1},
                       success: function (results) {
-                          window.location.href = '@Url.Action("Assign", "PersonsPools")?type=1&status=' + results;
+                          window.location.href = '@Url.Action("Assign", "PersonsPools")?type=1&status=' + results + '&search=' + search + '';
                 },
                 error: function () {
                     alert('Error occured');

@@ -8,6 +8,31 @@
     Persons&nbsp;&nbsp;&nbsp;>&nbsp;&nbsp;&nbsp;Barcode Printing
 </div>
 
+
+<script type="text/javascript">
+    function searchIndividualsSamples() {
+        $("btnSearch").attr("asp-route-search", document.getElementById("search").value);
+    }
+</script>
+
+<div class="div_form">
+    <form asp-action="Index" method="get">
+        <div style="width:500px;">
+            <label class="div_label">Search using study ID or date created (yyyy-mm-dd for date or yyyy-mm for whole month)</label>
+        </div>
+        <div class="div_input">
+            <input required autofocus id="search" name="search" placeholder="Enter your search" />
+        </div>
+        <div class="div_button">
+            <input type="submit" id="btnSearch" value="Search" onsubmit="searchIndividualsSamples();" />
+        </div>
+        <div class="div_label" style="width:500px;">
+            <label id="lblStatus"></label>
+        </div>
+    </form>
+</div>
+
+
 <script type="text/javascript">
 
     $(document).ready(function () {
@@ -34,14 +59,14 @@
             <thead>
                 <tr>
                     @*<td>
-            Individual ID
-        </td>
-        <td>
-            First Name
-        </td>
-        <td>
-            Last Name
-        </td>*@
+                            Individual ID
+                        </td>
+                        <td>
+                            First Name
+                        </td>
+                        <td>
+                            Last Name
+                        </td>*@
                     <td>
                         Study ID
                     </td>
@@ -53,17 +78,17 @@
                     </td>
 
                     @*<td>
-            USF ID
-        </td>
-        <td>
-            Email
-        </td>
-        <td>
-            Phone
-        </td>
-        <td>
-            Details
-        </td>*@
+                            USF ID
+                        </td>
+                        <td>
+                            Email
+                        </td>
+                        <td>
+                            Phone
+                        </td>
+                        <td>
+                            Details
+                        </td>*@
                     <td>
                         Date Created
                     </td>
@@ -76,51 +101,51 @@
             <tbody>
                 @foreach (var item in Model)
                 {
-                <tr>
-                    @*<td>
-            @Html.DisplayFor(modelItem => item.ind_id)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.ind_first_name)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.ind_last_name)
-        </td>*@
-                    <td>
-                        @Html.DisplayFor(modelItem => item.std_name)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.ref_name)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.ind_gender)
-                    </td>
+                    <tr>
+                        @*<td>
+                                @Html.DisplayFor(modelItem => item.ind_id)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.ind_first_name)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.ind_last_name)
+                            </td>*@
+                        <td>
+                            @Html.DisplayFor(modelItem => item.std_name)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.ref_name)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.ind_gender)
+                        </td>
 
-                    @*<td>
-            @Html.DisplayFor(modelItem => item.ind_document)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.ind_email)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.ind_phone)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.ind_details)
-        </td>*@
-                    <td>
-                        @Html.DisplayFor(modelItem => item.ind_date_created_text)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.is_count)
-                    </td>
-                    <td>
-                        @*<a asp-action="Create" asp-route-id="@item.ind_id" asp-route-fnln="@item.first_name_last_name">New</a> |*@
-                        <a asp-action="Create" asp-route-id="@item.ind_id" asp-route-std_name="@item.std_name">New</a> |
-                        <a asp-action="Print" asp-route-id="@item.ind_id">Print</a>
+                        @*<td>
+                                @Html.DisplayFor(modelItem => item.ind_document)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.ind_email)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.ind_phone)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.ind_details)
+                            </td>*@
+                        <td>
+                            @Html.DisplayFor(modelItem => item.ind_date_created_text)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.is_count)
+                        </td>
+                        <td>
+                            @*<a asp-action="Create" asp-route-id="@item.ind_id" asp-route-fnln="@item.first_name_last_name">New</a> |*@
+                            <a asp-action="Create" asp-route-id="@item.ind_id" asp-route-std_name="@item.std_name"  asp-route-search="@Context.Request.Query["search"].ToString()">New</a> |
+                            <a asp-action="Print" asp-route-id="@item.ind_id" asp-route-search="@Context.Request.Query["search"].ToString()">Print</a>
 
-                    </td>
-                </tr>
+                        </td>
+                    </tr>
                 }
             </tbody>
         </table>
@@ -130,3 +155,28 @@
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }
+
+
+<script type="text/javascript">
+
+    const params = new URLSearchParams(window.location.search);
+    const search = params.get('search');
+
+    if (search == null) {
+        document.getElementById('lblStatus').hidden = true;
+    } else {
+        document.getElementById('lblStatus').hidden = false;
+        document.getElementById('lblStatus').style.color = "green";
+        document.getElementById('lblStatus').textContent = "Search results for: " + search;
+    }
+
+</script>
+
+<script type="text/javascript">
+
+    $('form').submit(function () {
+        $(this).find('input[type=submit]').prop('disabled', true);
+        return true;
+    });
+
+</script>

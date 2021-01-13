@@ -115,6 +115,6 @@
 
 </div>
 <div class="div_mainlink">
-    <a asp-action="Edit" asp-route-id="@Model.ind_id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+    <a asp-action="Edit" asp-route-id="@Model.ind_id" asp-route-search="@Context.Request.Query["search"].ToString()">Edit</a> |
+    <a asp-action="Index" asp-route-search="@Context.Request.Query["search"].ToString()">Back to List</a>
 </div>

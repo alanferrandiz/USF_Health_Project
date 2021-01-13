@@ -6,12 +6,14 @@
 --select * from tb_references
 --select * from tb_audit
 
---exec usp_individuals_select @ind_id = 1
+--exec usp_individuals_select @type = 3, @search = '44'
 if OBJECT_ID('usp_individuals_select') is not null
 	drop procedure usp_individuals_select
 go
 create procedure [dbo].[usp_individuals_select]
-@ind_id			int = null
+@type			int = 1,
+@ind_id			int = null, 
+@search			varchar(800) = null
 as
 begin
 --declare @table		table	(		ind_id								int,
@@ -36,52 +38,169 @@ begin
 --							)		
 
 --insert @table (ind_id, ind_date_created, ind_time_created, ind_date_created_text, ind_first_name, ind_last_name, first_name_last_name, last_name_first_name_id, ind_email, ind_phone, ind_birthdate, ind_gender, ind_document, ref_id, ref_name, std_id, std_name, ind_details, is_count)
-if @ind_id is not null
-	select	ind_id,
-			ind_date_created,
-			ind_time_created,
-			ind_date_created_text = convert(varchar(800), convert(date,ind_date_created)), 
-			ind_first_name,
-			ind_last_name,
-			(ind_first_name + ' ' + ind_last_name) 'first_name_last_name',
-			(ind_last_name + ', ' + ind_first_name + ' (' + convert(varchar(800),ind_id) + ')') 'last_name_first_name_id',
-			ind_email,
-			ind_phone,
-			ind_birthdate,
-			ind_gender,
-			ind_document,
-			ref_id,
-			(select ref_name from tb_references where ref_id = i.ref_id) ref_name,
-			std_id,
-			(select std_name from tb_studies where std_id = i.std_id) std_name,
-			ind_details,
-			(select count(*) from tb_individuals_samples where ind_id = i.ind_id) is_count
-	from [dbo].[tb_individuals] as i
-	where ind_id = @ind_id
-	order by ind_id desc
---	select * from @table 
-else
-	select	ind_id,
-			ind_date_created,
-			ind_time_created,
-			ind_date_created_text = convert(varchar(800), convert(date,ind_date_created)), 
-			ind_first_name,
-			ind_last_name,
-			(ind_first_name + ' ' + ind_last_name) 'first_name_last_name',
-			(ind_last_name + ', ' + ind_first_name + ' (' + convert(varchar(800),ind_id) + ')') 'last_name_first_name_id',
-			ind_email,
-			ind_phone,
-			ind_birthdate,
-			ind_gender,
-			ind_document,
-			ref_id,
-			(select ref_name from tb_references where ref_id = i.ref_id) ref_name,
-			std_id,
-			(select std_name from tb_studies where std_id = i.std_id) std_name,
-			ind_details,
-			(select count(*) from tb_individuals_samples where ind_id = i.ind_id) is_count
-	from [dbo].[tb_individuals] as i
-	order by ind_id desc
+--if @ind_id is not null or  
+		if @type = 1	--search using ind_id
+		begin
+			select	ind_id,
+					ind_date_created,
+					ind_time_created,
+					ind_date_created_text = convert(varchar(800), convert(date,ind_date_created)), 
+					ind_first_name,
+					ind_last_name,
+					(ind_first_name + ' ' + ind_last_name) 'first_name_last_name',
+					(ind_last_name + ', ' + ind_first_name + ' (' + convert(varchar(800),ind_id) + ')') 'last_name_first_name_id',
+					ind_email,
+					ind_phone,
+					ind_birthdate,
+					ind_gender,
+					ind_document,
+					ref_id,
+					(select ref_name from tb_references where ref_id = i.ref_id) ref_name,
+					std_id,
+					(select std_name from tb_studies where std_id = i.std_id) std_name,
+					ind_details,
+					(select count(*) from tb_individuals_samples where ind_id = i.ind_id) is_count
+			from [dbo].[tb_individuals] as i
+			where ind_id = @ind_id
+			order by ind_id desc
+		--	select * from @table 
+		end
+		else if @type = 2	--search used in Individuals section
+		begin
+			if @search = ''		--return no rows
+			begin
+						select	ind_id,
+						ind_date_created,
+						ind_time_created,
+						ind_date_created_text = convert(varchar(800), convert(date,ind_date_created)), 
+						ind_first_name,
+						ind_last_name,
+						(ind_first_name + ' ' + ind_last_name) 'first_name_last_name',
+						(ind_last_name + ', ' + ind_first_name + ' (' + convert(varchar(800),ind_id) + ')') 'last_name_first_name_id',
+						ind_email,
+						ind_phone,
+						ind_birthdate,
+						ind_gender,
+						ind_document,
+						ref_id,
+						(select ref_name from tb_references where ref_id = i.ref_id) ref_name,
+						std_id,
+						(select std_name from tb_studies where std_id = i.std_id) std_name,
+						ind_details,
+						(select count(*) from tb_individuals_samples where ind_id = i.ind_id) is_count
+				from [dbo].[tb_individuals] as i
+				where 1=0
+			end
+			else
+			begin
+				select	ind_id,
+						ind_date_created,
+						ind_time_created,
+						ind_date_created_text = convert(varchar(800), convert(date,ind_date_created)), 
+						ind_first_name,
+						ind_last_name,
+						(ind_first_name + ' ' + ind_last_name) 'first_name_last_name',
+						(ind_last_name + ', ' + ind_first_name + ' (' + convert(varchar(800),ind_id) + ')') 'last_name_first_name_id',
+						ind_email,
+						ind_phone,
+						ind_birthdate,
+						ind_gender,
+						ind_document,
+						ref_id,
+						(select ref_name from tb_references where ref_id = i.ref_id) ref_name,
+						std_id,
+						(select std_name from tb_studies where std_id = i.std_id) std_name,
+						ind_details,
+						(select count(*) from tb_individuals_samples where ind_id = i.ind_id) is_count
+				from [dbo].[tb_individuals] as i
+				where	ind_first_name like '%' + @search +'%' or 
+						ind_last_name like '%' + @search +'%' or
+						convert(varchar(800),convert(int,std_id)) like '' + @search +'' or 
+						right(convert(varchar(800),100000 + convert(int,std_id)),5) like '' + @search +'' or 
+						left(convert(varchar(800), convert(date,ind_date_created), 120),10) like '' + @search +'%' or 
+						ind_details like '%' + @search +'%'
+				order by ind_id desc
+			end
+		end
+	else if @type = 3	--search used in Barcode Printing section
+		begin
+			if @search = ''		--return no rows
+			begin
+						select	ind_id,
+						ind_date_created,
+						ind_time_created,
+						ind_date_created_text = convert(varchar(800), convert(date,ind_date_created)), 
+						ind_first_name,
+						ind_last_name,
+						(ind_first_name + ' ' + ind_last_name) 'first_name_last_name',
+						(ind_last_name + ', ' + ind_first_name + ' (' + convert(varchar(800),ind_id) + ')') 'last_name_first_name_id',
+						ind_email,
+						ind_phone,
+						ind_birthdate,
+						ind_gender,
+						ind_document,
+						ref_id,
+						(select ref_name from tb_references where ref_id = i.ref_id) ref_name,
+						std_id,
+						(select std_name from tb_studies where std_id = i.std_id) std_name,
+						ind_details,
+						(select count(*) from tb_individuals_samples where ind_id = i.ind_id) is_count
+				from [dbo].[tb_individuals] as i
+				where 1=0
+			end
+			else
+			begin
+				select	ind_id,
+						ind_date_created,
+						ind_time_created,
+						ind_date_created_text = convert(varchar(800), convert(date,ind_date_created)), 
+						ind_first_name,
+						ind_last_name,
+						(ind_first_name + ' ' + ind_last_name) 'first_name_last_name',
+						(ind_last_name + ', ' + ind_first_name + ' (' + convert(varchar(800),ind_id) + ')') 'last_name_first_name_id',
+						ind_email,
+						ind_phone,
+						ind_birthdate,
+						ind_gender,
+						ind_document,
+						ref_id,
+						(select ref_name from tb_references where ref_id = i.ref_id) ref_name,
+						std_id,
+						(select std_name from tb_studies where std_id = i.std_id) std_name,
+						ind_details,
+						(select count(*) from tb_individuals_samples where ind_id = i.ind_id) is_count
+				from [dbo].[tb_individuals] as i
+				where	convert(varchar(800),convert(int,std_id)) like '' + @search +'' or 
+						right(convert(varchar(800),100000 + convert(int,std_id)),5) like '' + @search +'' or 
+						left(convert(varchar(800), convert(date,ind_date_created), 120),10) like '' + @search +'%' or 
+						ind_details like '%' + @search +'%'
+				order by ind_id desc
+			end
+		end	
+		else if @type = 4	--return all individuals
+		begin
+			select	ind_id,
+					ind_date_created,
+					ind_time_created,
+					ind_date_created_text = convert(varchar(800), convert(date,ind_date_created)), 
+					ind_first_name,
+					ind_last_name,
+					(ind_first_name + ' ' + ind_last_name) 'first_name_last_name',
+					(ind_last_name + ', ' + ind_first_name + ' (' + convert(varchar(800),ind_id) + ')') 'last_name_first_name_id',
+					ind_email,
+					ind_phone,
+					ind_birthdate,
+					ind_gender,
+					ind_document,
+					ref_id,
+					(select ref_name from tb_references where ref_id = i.ref_id) ref_name,
+					std_id,
+					(select std_name from tb_studies where std_id = i.std_id) std_name,
+					ind_details,
+					(select count(*) from tb_individuals_samples where ind_id = i.ind_id) is_count
+			from [dbo].[tb_individuals] as i
+			order by ind_id desc
+		end
 end
 go
 
@@ -257,6 +376,9 @@ begin
 				close std_id_list
 				deallocate std_id_list
 
+				delete from tb_individuals_barcode_printing
+				where ssn_id = @ssn_id
+
 				insert into tb_individuals_barcode_printing (is_id, ssn_id)
 				select is_id, ssn_id from tb_individuals_barcode_generation where ssn_id = @ssn_id
 				
@@ -297,7 +419,8 @@ create procedure [dbo].usp_individuals_samples_select
 @poo_id				int = null,
 @date_start			date = null,
 @date_end			date = null,
-@is_id_list			varchar(max) = null
+@is_id_list			varchar(max) = null,
+@search				varchar(800) = null
 as
 if @type = 1
 begin
@@ -340,7 +463,7 @@ begin
 			(select count(*) samples_count from [tb_individuals_samples] [is2] where [is2].ind_id = [is].ind_id) as samples_count,
 			ROW_NUMBER() over (order by is_date_created asc) as position
 	from [dbo].[tb_individuals_samples] [is] with (index = ix_tb_individuals_samples_is_date_created)
-	where is_date_created >= '2000-01-01'
+	where is_date_created >= '2000-01-01' and 1= 0
 	order by is_date_created desc, is_time_created desc
 end
 if @type = 2 
@@ -692,6 +815,149 @@ begin
 	where is_id in (select is_id from @list) 
 	order by is_date_created desc, is_time_created desc
 end
+else if @type = 8
+begin
+	if @search = '' 
+	begin 
+		select	is_id	as is_id,
+				is_barcode	as is_barcode,
+				ind_id	as ind_id,
+				(select ind_first_name from tb_individuals i where i.ind_id = [is].ind_id) as ind_first_name,
+				(select ind_last_name from tb_individuals i where i.ind_id = [is].ind_id) as ind_last_name,
+				(select ind_first_name + ' ' + ind_last_name from tb_individuals i where i.ind_id = [is].ind_id) as 'first_name_last_name',
+				(select ind_gender from tb_individuals i where i.ind_id = [is].ind_id) as ind_gender,
+				(select ind_document from tb_individuals i where i.ind_id = [is].ind_id) as ind_document,
+				(select ind_details from tb_individuals i where i.ind_id = [is].ind_id) as ind_details,
+				(select ref_id from tb_individuals i where i.ind_id = [is].ind_id) as ref_id,
+				(select (select ref_name from tb_references where ref_id = i.ref_id) from tb_individuals i where i.ind_id = [is].ind_id) as ref_name,
+				(select std_id from tb_individuals i where i.ind_id = [is].ind_id) as std_id,
+				(select (select std_name from tb_studies where std_id = i.std_id) from tb_individuals i where i.ind_id = [is].ind_id) as std_name,
+				is_date_created as is_date_created,
+				is_time_created as is_time_created,
+				convert(varchar(800),convert(date,is_date_created)) as is_date_created_text,
+				usr_id_created as usr_id_created,
+				is_date_collected as is_date_collected,
+				is_time_collected as is_time_collected,
+				convert(varchar(800),convert(date,is_date_collected)) as is_date_collected_text,
+				usr_id_collected as usr_id_collected,
+				is_date_registered as is_date_registered,
+				is_time_registered as is_time_registered,
+				convert(varchar(800),convert(date,is_date_registered)) as is_date_registered_text,
+				usr_id_registered as usr_id_registered,
+				is_well_number as is_well_number,
+				is_details as is_details,
+				poo_id as poo_id,
+				(select poo_details from tb_pools where poo_id = [is].poo_id) as poo_details,
+				is_date_registered_pool as is_date_registered_pool,
+				is_time_registered_pool as is_time_registered_pool,
+				convert(varchar(800),convert(date,is_date_registered_pool)) as is_date_registered_pool_text,
+				usr_id_registered_pool as usr_id_registered_pool,
+				(select top 1 pr_result from tb_pools_results pr where pr.poo_id = [is].poo_id order by pr_date_result desc, pr_time_result desc) as pr_result,
+				(select top 1 pr_ct_value from tb_pools_results pr where pr.poo_id = [is].poo_id order by pr_date_result desc, pr_time_result desc) as pr_ct_value,
+				(select count(*) samples_count from [tb_individuals_samples] [is2] where [is2].ind_id = [is].ind_id) as samples_count,
+				ROW_NUMBER() over (order by is_date_created asc) as position
+		from [dbo].[tb_individuals_samples] [is] with (index = ix_tb_individuals_samples_is_date_created)
+		where 1 = 0
+	end
+	else if  isdate(left(@search,10)) = 1 and isdate(right(@search,10)) = 1 and len(@search) >= 20
+	begin 
+		select	is_id	as is_id,
+				is_barcode	as is_barcode,
+				ind_id	as ind_id,
+				(select ind_first_name from tb_individuals i where i.ind_id = [is].ind_id) as ind_first_name,
+				(select ind_last_name from tb_individuals i where i.ind_id = [is].ind_id) as ind_last_name,
+				(select ind_first_name + ' ' + ind_last_name from tb_individuals i where i.ind_id = [is].ind_id) as 'first_name_last_name',
+				(select ind_gender from tb_individuals i where i.ind_id = [is].ind_id) as ind_gender,
+				(select ind_document from tb_individuals i where i.ind_id = [is].ind_id) as ind_document,
+				(select ind_details from tb_individuals i where i.ind_id = [is].ind_id) as ind_details,
+				(select ref_id from tb_individuals i where i.ind_id = [is].ind_id) as ref_id,
+				(select (select ref_name from tb_references where ref_id = i.ref_id) from tb_individuals i where i.ind_id = [is].ind_id) as ref_name,
+				(select std_id from tb_individuals i where i.ind_id = [is].ind_id) as std_id,
+				(select (select std_name from tb_studies where std_id = i.std_id) from tb_individuals i where i.ind_id = [is].ind_id) as std_name,
+				is_date_created as is_date_created,
+				is_time_created as is_time_created,
+				convert(varchar(800),convert(date,is_date_created)) as is_date_created_text,
+				usr_id_created as usr_id_created,
+				is_date_collected as is_date_collected,
+				is_time_collected as is_time_collected,
+				convert(varchar(800),convert(date,is_date_collected)) as is_date_collected_text,
+				usr_id_collected as usr_id_collected,
+				is_date_registered as is_date_registered,
+				is_time_registered as is_time_registered,
+				convert(varchar(800),convert(date,is_date_registered)) as is_date_registered_text,
+				usr_id_registered as usr_id_registered,
+				is_well_number as is_well_number,
+				is_details as is_details,
+				poo_id as poo_id,
+				(select poo_details from tb_pools where poo_id = [is].poo_id) as poo_details,
+				is_date_registered_pool as is_date_registered_pool,
+				is_time_registered_pool as is_time_registered_pool,
+				convert(varchar(800),convert(date,is_date_registered_pool)) as is_date_registered_pool_text,
+				usr_id_registered_pool as usr_id_registered_pool,
+				(select top 1 pr_result from tb_pools_results pr where pr.poo_id = [is].poo_id order by pr_date_result desc, pr_time_result desc) as pr_result,
+				(select top 1 pr_ct_value from tb_pools_results pr where pr.poo_id = [is].poo_id order by pr_date_result desc, pr_time_result desc) as pr_ct_value,
+				(select count(*) samples_count from [tb_individuals_samples] [is2] where [is2].ind_id = [is].ind_id) as samples_count,
+				ROW_NUMBER() over (order by is_date_created asc) as position
+		from [dbo].[tb_individuals_samples] [is] with (index = ix_tb_individuals_samples_is_date_created)
+		where is_date_collected >= left(@search,10) and is_date_collected  <= right(@search,10)
+		order by is_date_collected desc
+	end
+	else
+	begin
+		select	is_id	as is_id,
+				is_barcode	as is_barcode,
+				ind_id	as ind_id,
+				(select ind_first_name from tb_individuals i where i.ind_id = [is].ind_id) as ind_first_name,
+				(select ind_last_name from tb_individuals i where i.ind_id = [is].ind_id) as ind_last_name,
+				(select ind_first_name + ' ' + ind_last_name from tb_individuals i where i.ind_id = [is].ind_id) as 'first_name_last_name',
+				(select ind_gender from tb_individuals i where i.ind_id = [is].ind_id) as ind_gender,
+				(select ind_document from tb_individuals i where i.ind_id = [is].ind_id) as ind_document,
+				(select ind_details from tb_individuals i where i.ind_id = [is].ind_id) as ind_details,
+				(select ref_id from tb_individuals i where i.ind_id = [is].ind_id) as ref_id,
+				(select (select ref_name from tb_references where ref_id = i.ref_id) from tb_individuals i where i.ind_id = [is].ind_id) as ref_name,
+				(select std_id from tb_individuals i where i.ind_id = [is].ind_id) as std_id,
+				(select (select std_name from tb_studies where std_id = i.std_id) from tb_individuals i where i.ind_id = [is].ind_id) as std_name,
+				is_date_created as is_date_created,
+				is_time_created as is_time_created,
+				convert(varchar(800),convert(date,is_date_created)) as is_date_created_text,
+				usr_id_created as usr_id_created,
+				is_date_collected as is_date_collected,
+				is_time_collected as is_time_collected,
+				convert(varchar(800),convert(date,is_date_collected)) as is_date_collected_text,
+				usr_id_collected as usr_id_collected,
+				is_date_registered as is_date_registered,
+				is_time_registered as is_time_registered,
+				convert(varchar(800),convert(date,is_date_registered)) as is_date_registered_text,
+				usr_id_registered as usr_id_registered,
+				is_well_number as is_well_number,
+				is_details as is_details,
+				poo_id as poo_id,
+				(select poo_details from tb_pools where poo_id = [is].poo_id) as poo_details,
+				is_date_registered_pool as is_date_registered_pool,
+				is_time_registered_pool as is_time_registered_pool,
+				convert(varchar(800),convert(date,is_date_registered_pool)) as is_date_registered_pool_text,
+				usr_id_registered_pool as usr_id_registered_pool,
+				(select top 1 pr_result from tb_pools_results pr where pr.poo_id = [is].poo_id order by pr_date_result desc, pr_time_result desc) as pr_result,
+				(select top 1 pr_ct_value from tb_pools_results pr where pr.poo_id = [is].poo_id order by pr_date_result desc, pr_time_result desc) as pr_ct_value,
+				(select count(*) samples_count from [tb_individuals_samples] [is2] where [is2].ind_id = [is].ind_id) as samples_count,
+				ROW_NUMBER() over (order by is_date_created asc) as position
+		from [dbo].[tb_individuals_samples] [is] with (index = ix_tb_individuals_samples_is_date_created)
+		where	is_date_created >= '2000-01-01' and
+				(
+				convert(varchar(800), convert(int,is_id)) like '' + @search + '' or
+				is_barcode like '' + @search +'' or
+				convert(varchar(800), convert(int,(select std_id from tb_individuals i where i.ind_id = [is].ind_id))) like '' + @search +'' or 
+				right(convert(varchar(800),100000 + convert(int,(select std_id from tb_individuals i where i.ind_id = [is].ind_id))),5) like '' + @search +'' or 
+				convert(varchar(800), poo_id ) like '' + @search +'' or 
+				convert(varchar(800), is_details ) like '%' + @search +'%' or 
+				convert(varchar(800), is_well_number) like '' + @search +'' or 
+				left(convert(varchar(800), convert(date,is_date_collected), 120),10) like '' + @search +'%'
+				)
+		order by is_date_created desc, is_time_created desc
+	end
+end
+--select * from tb_individuals_samples
+--usp_individuals_samples_select @type = 8, @search = 'A0000001'
 --if @type = 8
 --begin
 ----	select *,
@@ -830,8 +1096,14 @@ begin
 			ref_name, 
 			ref_details
 	from [dbo].tb_references 
-	where	ref_id not in (select distinct ref_id from tb_individuals where ref_id is not null) or
-			ref_id = @ref_id
+	where	ref_id not in (select distinct ref_id from tb_individuals where ref_id is not null)
+	union
+	select	ref_id,
+			ref_n,
+			ref_name, 
+			ref_details
+	from [dbo].tb_references 
+	where	ref_id = @ref_id
 	order by ref_id asc
 end
 else if @type = 3
@@ -847,7 +1119,7 @@ end
 go
 
 
---usp_studies_select @type = 2, @std_id = 1
+--usp_studies_select @type = 2, @std_id = 2000
 --select * from tb_individuals_samples
 if OBJECT_ID('usp_studies_select') is not null
 	drop procedure usp_studies_select
@@ -873,8 +1145,14 @@ begin
 			std_name, 
 			std_details
 	from [dbo].tb_studies 
-	where	std_id not in (select distinct std_id from tb_individuals where std_id is not null) or
-			std_id = @std_id
+	where	std_id not in (select distinct std_id from tb_individuals where std_id is not null)
+	union
+	select	std_id,
+			std_n,
+			std_name, 
+			std_details
+	from [dbo].tb_studies 
+	where	std_id = @std_id
 	order by std_id asc
 end
 else if @type = 3
@@ -909,8 +1187,9 @@ if OBJECT_ID('usp_pools_select') is not null
 	drop procedure usp_pools_select
 go
 create procedure [dbo].[usp_pools_select]
-@type	int = 1,
-@poo_id int = null
+@type		int = 1,
+@poo_id		int = null,
+@search		varchar(800) = null
 as
 declare @tabla table	(
 	poo_id						int,
@@ -922,6 +1201,25 @@ declare @tabla table	(
 	poo_details					varchar(max),
 	poo_count					int
 )
+
+if @type = 1 
+begin
+	insert into @tabla
+	select	poo_id,
+			poo_date_created,
+			convert(varchar(800),convert(date,poo_date_created)) poo_date_created_text,
+			poo_time_created,
+			(select top 1 pr_result from [dbo].[tb_pools_results] where poo_id = p.poo_id order by pr_date_result desc, pr_time_result desc) pr_result,
+			(select top 1 pr_ct_value from [dbo].[tb_pools_results] where poo_id = p.poo_id order by pr_date_result desc, pr_time_result desc) pr_ct_value,
+			poo_details,
+			(select count(*) from tb_individuals_samples where poo_id = p.poo_id) poo_count
+	from [dbo].[tb_pools] as p 
+	order by poo_date_created desc, poo_time_created desc
+
+	select * from @tabla order by poo_date_created desc, poo_time_created desc
+end
+else if @type = 2 
+begin
 insert into @tabla
 	select	poo_id,
 			poo_date_created,
@@ -934,17 +1232,55 @@ insert into @tabla
 	from [dbo].[tb_pools] as p 
 	order by poo_date_created desc, poo_time_created desc
 
-if @type = 1 
-begin
-	select * from @tabla order by poo_date_created desc, poo_time_created desc
-end
-else if @type = 2 
-begin
 	select * from @tabla where poo_id = @poo_id order by poo_date_created desc, poo_time_created desc
 end
 else if @type = 3
 begin
+	insert into @tabla
+	select	poo_id,
+			poo_date_created,
+			convert(varchar(800),convert(date,poo_date_created)) poo_date_created_text,
+			poo_time_created,
+			(select top 1 pr_result from [dbo].[tb_pools_results] where poo_id = p.poo_id order by pr_date_result desc, pr_time_result desc) pr_result,
+			(select top 1 pr_ct_value from [dbo].[tb_pools_results] where poo_id = p.poo_id order by pr_date_result desc, pr_time_result desc) pr_ct_value,
+			poo_details,
+			(select count(*) from tb_individuals_samples where poo_id = p.poo_id) poo_count
+	from [dbo].[tb_pools] as p 
+	order by poo_date_created desc, poo_time_created desc
+
 	select distinct poo_id from @tabla order by poo_id asc
+end
+else if @type = 4
+begin
+ if @search = ''		--return no rows
+	begin
+		select	poo_id,
+				poo_date_created,
+				convert(varchar(800),convert(date,poo_date_created)) poo_date_created_text,
+				poo_time_created,
+				(select top 1 pr_result from [dbo].[tb_pools_results] where poo_id = p.poo_id order by pr_date_result desc, pr_time_result desc) pr_result,
+				(select top 1 pr_ct_value from [dbo].[tb_pools_results] where poo_id = p.poo_id order by pr_date_result desc, pr_time_result desc) pr_ct_value,
+				poo_details,
+				(select count(*) from tb_individuals_samples where poo_id = p.poo_id) poo_count
+		from [dbo].[tb_pools] as p 
+		where	1 = 0
+	end
+else
+	begin
+		select	poo_id,
+				poo_date_created,
+				convert(varchar(800),convert(date,poo_date_created)) poo_date_created_text,
+				poo_time_created,
+				(select top 1 pr_result from [dbo].[tb_pools_results] where poo_id = p.poo_id order by pr_date_result desc, pr_time_result desc) pr_result,
+				(select top 1 pr_ct_value from [dbo].[tb_pools_results] where poo_id = p.poo_id order by pr_date_result desc, pr_time_result desc) pr_ct_value,
+				poo_details,
+				(select count(*) from tb_individuals_samples where poo_id = p.poo_id) poo_count
+		from [dbo].[tb_pools] as p 
+		where		convert(varchar(800), convert(int,poo_id)) like '' + @search + '' or
+					convert(varchar(800), poo_details ) like '%' + @search +'%' or 
+					left(convert(varchar(800), convert(date,poo_date_created), 120),10) like '' + @search +'%'
+		order by poo_date_created desc, poo_time_created desc
+	end
 end
 go
 
@@ -2781,10 +3117,13 @@ begin
 					(select usr_username from tb_users where usr_id = aud.usr_id_audit) usr_username,
 					ssn_id
 		from tb_audit aud 
-		where aud_table = 'tb_pools_results' and aud_field in ('pr_ct_value','pr_result')
+		where 1 = 0
+		--aud_table = 'tb_pools_results' and aud_field in ('pr_ct_value','pr_result')
 		order by aud_id asc
 
 		select * from @tabla
+
+		return
 	end
 	if @type = 2	
 	begin
@@ -2806,7 +3145,7 @@ begin
 					ssn_id
 		from tb_audit aud 
 		where aud_date >= @date_start and aud_date <= @date_end 
-		and aud_table = 'tb_pools_results' and aud_field in ('pr_ct_value','pr_result')
+		and aud_table = 'tb_pools_results' and aud_field in ('poo_id','pr_ct_value','pr_result')
 		order by aud_id asc
 
 		if @poo_id > 0
@@ -3485,6 +3824,7 @@ if @type = 1
 	begin
 			select	ibg.std_id, 
 					ssn_id,
+					is_id,
 					ROW_NUMBER() over (order by ibg.std_id asc) as position
 			from	tb_individuals_barcode_generation ibg 
 			where ssn_id = @ssn_id
@@ -3507,8 +3847,11 @@ else if @type = 2
 
 			set @is_id_list = left(@is_id_list, case when len(@is_id_list) > 0 then len(@is_id_list)-1 else 0 end) 
 
+		delete from tb_individuals_barcode_generation
+		where ssn_id = @ssn_id
 
 		select @is_id_list is_id_list
+
 	end
 end
 

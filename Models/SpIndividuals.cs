@@ -40,8 +40,23 @@ namespace USF_Health_MVC_EF.Models
         public List<SpIndividuals> GetAllIndividuals()
         {
 
-            SqlDataAdapter dataAdapter = new SqlDataAdapter("usp_individuals_select", Globals.connection);
-            dataAdapter.SelectCommand.CommandType = System.Data.CommandType.StoredProcedure;
+            //SqlDataAdapter dataAdapter = new SqlDataAdapter("usp_individuals_select", Globals.connection);
+            //dataAdapter.SelectCommand.CommandType = System.Data.CommandType.StoredProcedure;
+            //System.Data.DataTable dataTable = new System.Data.DataTable();
+
+            //dataAdapter.Fill(dataTable);
+
+            SqlCommand sqlCommand = new SqlCommand();
+            SqlConnection sqlConnection = new SqlConnection(Globals.connection.ToString());
+            sqlCommand.CommandType = System.Data.CommandType.StoredProcedure;
+            sqlCommand.Connection = sqlConnection;
+            sqlCommand.CommandText = "usp_individuals_select";
+
+            SqlParameter sqlParameter01 = new SqlParameter("type", 4);
+            sqlParameter01.IsNullable = true;
+            sqlCommand.Parameters.Add(sqlParameter01);
+
+            SqlDataAdapter dataAdapter = new SqlDataAdapter(sqlCommand); //I think the problem is here, how am I fixing it though? --Fixed but why can't it be put into a class?
             System.Data.DataTable dataTable = new System.Data.DataTable();
 
             dataAdapter.Fill(dataTable);
@@ -69,10 +84,29 @@ namespace USF_Health_MVC_EF.Models
         public SpIndividuals GetIndividualbyId(int? id)
         {
 
-            SqlDataAdapter dataAdapter = new SqlDataAdapter("[usp_individuals_select]", Globals.connection);
-            dataAdapter.SelectCommand.CommandType = System.Data.CommandType.StoredProcedure;
-            SqlParameter sqlParameter01 = new SqlParameter("ind_id", id);
-            dataAdapter.SelectCommand.Parameters.Add(sqlParameter01);
+            //SqlDataAdapter dataAdapter = new SqlDataAdapter("[usp_individuals_select]", Globals.connection);
+            //dataAdapter.SelectCommand.CommandType = System.Data.CommandType.StoredProcedure;
+            //SqlParameter sqlParameter01 = new SqlParameter("ind_id", id);
+            //dataAdapter.SelectCommand.Parameters.Add(sqlParameter01);
+            //System.Data.DataTable dataTable = new System.Data.DataTable();
+
+            //dataAdapter.Fill(dataTable);
+            SqlCommand sqlCommand = new SqlCommand();
+            SqlConnection sqlConnection = new SqlConnection(Globals.connection.ToString());
+            sqlCommand.CommandType = System.Data.CommandType.StoredProcedure;
+            sqlCommand.Connection = sqlConnection;
+            sqlCommand.CommandText = "usp_individuals_select";
+
+            SqlParameter sqlParameter01 = new SqlParameter("type", 1);
+            sqlParameter01.IsNullable = true;
+            sqlCommand.Parameters.Add(sqlParameter01);
+
+
+            SqlParameter sqlParameter02 = new SqlParameter("ind_id", id);
+            sqlParameter02.IsNullable = true;
+            sqlCommand.Parameters.Add(sqlParameter02);
+
+            SqlDataAdapter dataAdapter = new SqlDataAdapter(sqlCommand); //I think the problem is here, how am I fixing it though? --Fixed but why can't it be put into a class?
             System.Data.DataTable dataTable = new System.Data.DataTable();
 
             dataAdapter.Fill(dataTable);

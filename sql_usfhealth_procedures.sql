@@ -1,6 +1,7 @@
 --STORED PROCEDURES
 
 
+
 --select * from tb_individuals
 --select * from tb_individuals_samples
 --select * from tb_references
